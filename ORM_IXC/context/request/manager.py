@@ -1,8 +1,8 @@
 import requests
 import base64
-from IXC_ORM_Project.enums.methods import Actions
+from ORM_IXC.enums.methods import Actions
 import urllib3
-from IXC_ORM_Project.interfaces.IModel import IModel
+from ORM_IXC.interfaces.IModel import IModel
 
 class Manager:
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)

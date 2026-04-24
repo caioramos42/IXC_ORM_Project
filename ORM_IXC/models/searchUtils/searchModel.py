@@ -1,6 +1,6 @@
-from IXC_ORM_Project.enums import operators, sortOrder
-from IXC_ORM_Project.interfaces.IModel import IModel
-from IXC_ORM_Project.models.searchUtils.gridParamModel import GridParam
+from ORM_IXC.enums import operators, sortOrder
+from ORM_IXC.interfaces.IModel import IModel
+from ORM_IXC.models.searchUtils.gridParamModel import GridParam
 import json
 
 class SearchModule(IModel):

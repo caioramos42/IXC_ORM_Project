@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from IXC_ORM_Project.enums.client import *
-from IXC_ORM_Project.enums.utils import BoolEnum
-from IXC_ORM_Project.interfaces.IModel import IModel
+from ORM_IXC.enums.client import *
+from ORM_IXC.enums.utils import BoolEnum
+from ORM_IXC.interfaces.IModel import IModel
 
 @dataclass
 class Client(IModel):

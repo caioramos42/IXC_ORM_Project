@@ -1,7 +1,7 @@
-from IXC_ORM_Project.interfaces.IContext import IContext
-from IXC_ORM_Project.context.defaultActions.defaultActions import DefaultActions
-from IXC_ORM_Project.context.request.manager import Manager
-from IXC_ORM_Project.models import loginModel
+from ORM_IXC.interfaces.IContext import IContext
+from ORM_IXC.context.defaultActions.defaultActions import DefaultActions
+from ORM_IXC.context.request.manager import Manager
+from ORM_IXC.models import loginModel
 
 class Login(IContext, DefaultActions):
     def __init__(self, manager:Manager):

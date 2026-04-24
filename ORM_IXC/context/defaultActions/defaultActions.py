@@ -1,7 +1,7 @@
-from IXC_ORM_Project.models.searchUtils.searchModel import SearchModule
-from IXC_ORM_Project.enums.operators import Operators
-from IXC_ORM_Project.enums.methods import Actions
-from IXC_ORM_Project.interfaces.IModel import IModel
+from ORM_IXC.models.searchUtils.searchModel import SearchModule
+from ORM_IXC.enums.operators import Operators
+from ORM_IXC.enums.methods import Actions
+from ORM_IXC.interfaces.IModel import IModel
 
 class DefaultActions:
     def SearchById(self, id: int):
