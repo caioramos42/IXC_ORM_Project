@@ -27,9 +27,9 @@ Se preferir instalar localmente no repositório:
 python setup.py install
 ```
 ## Instalação
-
+```bash
 pip install git+https://github.com/caioramos42/IXC_ORM_Project.git
-
+```
 ## Uso básico
 
 ### Inicializar o manager
