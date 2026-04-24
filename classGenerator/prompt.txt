@@ -1,0 +1,7 @@
+faça as seguintes alterações neste codigo:
+    - deixe os nomes das classes em inglês;
+    - deixe os nomes das variáveis em ingles
+    - faça as alterações necessárias no post_innit
+    - modifique os valores do dicionário gerado pelo to_dict(), mas sem traduzir as chaves
+    - coloque no "init", as variáveis com possibilidade de none ou com valor default mais abaixo
+    - me retorne o código completo
