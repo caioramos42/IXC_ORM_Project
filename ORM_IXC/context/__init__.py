@@ -14,7 +14,7 @@ __all__ = [
     "AReceber",
     "Atendimento",
     "CaixaDeAtendimento",
-    "CarteiraDeCobranca",
+    "CarteiraCobranca",
     "Cliente",
     "Contrato",
     "ClienteFibra",
