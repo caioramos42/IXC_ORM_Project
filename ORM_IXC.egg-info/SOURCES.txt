@@ -1,0 +1,9 @@
+LICENSE
+README.md
+setup.py
+ORM_IXC/__init__.py
+ORM_IXC.egg-info/PKG-INFO
+ORM_IXC.egg-info/SOURCES.txt
+ORM_IXC.egg-info/dependency_links.txt
+ORM_IXC.egg-info/requires.txt
+ORM_IXC.egg-info/top_level.txt

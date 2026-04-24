@@ -1,0 +1,133 @@
+Metadata-Version: 2.4
+Name: ORM_IXC
+Version: 1.0.0
+Summary: Uma ORM para simplificar ações na API IXCSoft
+Author: Caio Lima, Bruno Carvalho
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: requests>=2.0.0
+Dynamic: author
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: license-file
+Dynamic: requires-dist
+Dynamic: summary
+
+# ORM_IXC
+
+Uma ORM leve para facilitar interaÃ§Ãµes com a API IXCSoft.
+
+## VisÃ£o geral
+
+`ORM_IXC` oferece uma camada de abstraÃ§Ã£o para consumir os serviÃ§os REST da IXCSoft usando objetos Python e modelos de pesquisa.
+
+Os principais recursos incluem:
+- gerenciamento de requisiÃ§Ãµes HTTP com autenticaÃ§Ã£o bÃ¡sica
+- classes de contexto para entidades comuns (cliente, contrato, atendimento, etc.)
+- operaÃ§Ãµes CRUD genÃ©ricas e buscas por filtro
+- modelos de busca com parÃ¢metros e ordenaÃ§Ã£o
+
+## InstalaÃ§Ã£o
+
+> Este projeto depende de `requests` para realizar chamadas HTTP.
+
+```bash
+pip install requests
+pip install .
+```
+
+Se preferir instalar localmente no repositÃ³rio:
+
+```bash
+python setup.py install
+```
+
+## Uso bÃ¡sico
+
+### Inicializar o manager
+
+```python
+from ORM_IXC.context.request.manager import Manager
+
+manager = Manager('meu-servidor-ixc.com', 'usuario:senha')
+```
+
+### Criar um contexto
+
+```python
+from ORM_IXC.context.cliente import Cliente
+
+cliente = Cliente(manager)
+```
+
+### Buscar por ID
+
+```python
+response = cliente.SearchById(123)
+print(response.json())
+```
+
+### Buscar todos os registros
+
+```python
+response = cliente.SearchAll()
+print(response.json())
+```
+
+### Buscar com filtros
+
+```python
+from ORM_IXC.models.searchUtils.searchModel import SearchModule
+from ORM_IXC.models.searchUtils.gridParamModel import GridParam
+from ORM_IXC.enums.operators import Operators
+
+search = SearchModule(
+    searchField='nome',
+    query='JoÃ£o',
+    oper=Operators.EQUALS,
+    table='cliente'
+)
+
+search.appendGridParams(GridParam('cliente.cidade', Operators.EQUALS, 'SÃ£o Paulo'))
+response = cliente.getByFilter(search)
+print(response.json())
+```
+
+### Enviar payload genÃ©rico
+
+```python
+from ORM_IXC.models.defaultModel import DefaultPayload
+
+payload = DefaultPayload({
+    'nome': 'Novo Cliente',
+    'email': 'contato@exemplo.com'
+})
+response = cliente._MakePost(payload)
+print(response.status_code, response.text)
+```
+
+## Estrutura principal
+
+- `ORM_IXC/context/request/manager.py`: gerencia chamadas HTTP, cabeÃ§alhos e URL base
+- `ORM_IXC/context/defaultActions/defaultActions.py`: implementa aÃ§Ãµes comuns de busca e envio
+- `ORM_IXC/context/*.py`: contextos para entidades especÃ­ficas da IXCSoft
+- `ORM_IXC/models/searchUtils`: modelos para busca com filtros
+- `ORM_IXC/models/defaultModel.py`: payload genÃ©rico para envio de dados
+- `ORM_IXC/interfaces`: contratos de contexto e modelo
+- `ORM_IXC/enums`: enums de aÃ§Ãµes, operadores e ordenaÃ§Ã£o
+
+## ObservaÃ§Ãµes
+
+- A autenticaÃ§Ã£o Ã© feita via header `Authorization` com `Basic` encoding
+- O `Manager` constrÃ³i a URL base para o serviÃ§o IXCSoft em `https://{host}/webservice/v1/`
+- Os mÃ©todos CRUD sÃ£o expostos pelas classes de contexto e podem ser estendidos conforme necessÃ¡rio
+
+## ContribuiÃ§Ã£o
+
+1. FaÃ§a um fork do repositÃ³rio
+2. Crie uma branch para sua feature ou correÃ§Ã£o
+3. Abra um pull request explicando a mudanÃ§a
+
+## LicenÃ§a
+
+Este projeto estÃ¡ licenciado sob a licenÃ§a MIT. Veja o arquivo `LICENSE` para mais detalhes.
