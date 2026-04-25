@@ -27,6 +27,7 @@ class DefaultActions:
     def _MakePut(self, modelForSend: IModel):
         if modelForSend.id == '':
             raise ValueError("Para editar, o ID deve ser preenchido")
+        modelForSend.table = self.table
         return self.manager.make_request(modelForSend, Actions.EDIT)
         
     

@@ -7,8 +7,8 @@ class ServiceOrder(IContext, DefaultActions):
         self.table = "su_oss_chamado"
         self.manager = manager
     def Add(self, obj):
-        pass
-    def Update(obj):
-        pass
+        return self._MakePost(obj)
+    def Update(self, obj):
+        return self._MakePut(obj)
     def DeleteById(id:int):
         pass
