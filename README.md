@@ -37,7 +37,7 @@ pip install git+https://github.com/caioramos42/IXC_ORM_Project.git
 ```python
 from ORM_IXC.context.request.manager import Manager
 
-manager = Manager('meu-servidor-ixc.com', 'usuario:senha')
+manager = Manager('Ip_servidor', 'chave_api')
 ```
 
 ### Criar um contexto
@@ -72,8 +72,7 @@ from ORM_IXC.enums.operators import Operators
 search = SearchModule(
     searchField='nome',
     query='João',
-    oper=Operators.EQUALS,
-    table='cliente'
+    oper=Operators.EQUALS
 )
 
 search.appendGridParams(GridParam('cliente.cidade', Operators.EQUALS, 'São Paulo'))
