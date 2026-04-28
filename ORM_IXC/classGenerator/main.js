@@ -48,88 +48,190 @@ let constructorBody = "";
 let posinit = ""
 let toDict = "\tdef to_dict(self):\n \t\treturn{\n"
 
+let dtoConvert = "\ndef dtoConvert(data: dict) -> " + classNameFinal + ":\n";
+dtoConvert += "\treturn " + classNameFinal + "(\n";
 
 let enums = "\n#--------------------------------ENUMERADORES-----------------------------------#\nfrom enums import Enum\n";
 let i = 0;
+
 for (let [key, value] of modelagem) {
     let defaultValue = undefined;
+    let jaTemToDict = false;
+    let dtoLine = "";
     if (key === "id"){
         constructorHeader += "id_autoincrement: int";
-        toDict += "\t\tself.id = str(self.id)\n"
-    }else{
+        toDict += "\t\t\t'id_autoincrement': str(self.id_autoincrement),\n";
+        dtoLine = "\t\tid_autoincrement=int(data.get('id_autoincrement', 0)),\n";
+        jaTemToDict = true;
+
+    } else {
         constructorHeader += key;
+
+        // ================= ENUM =================
         if (value.get("Valores disponíveis") !== undefined){
-            enums += "class "+ key.charAt(0).toUpperCase() + key.slice(1) + "Enum(Enum)" + ":\n";
+            enums += "class "+ key.charAt(0).toUpperCase() + key.slice(1) + "Enum(Enum):\n";
+
             let valoresDisponiveis = value.get("Valores disponíveis").split("<br>").slice(1, -1);
+
             for(val of valoresDisponiveis){
                 let keyv = val.split("=");
-                enums += "\t" + keyv[1].toUpperCase().trim().normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, "")
-                .replaceAll(" ", "_")
-                .toUpperCase()
-                .replace(/\(.*\)/g, "")
-                .replaceAll("/","_")
-                .replaceAll("-","_") + " = \'" + keyv[0].trim().normalize('NFD').replace(/[\u0300-\u036f]/g, "") + "\'\n";
-                
+
+                let enumKey = keyv[1].toUpperCase().trim()
+                    .normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+                    .replaceAll(" ", "_")
+                    .replace(/\(.*\)/g, "")
+                    .replaceAll("/","_")
+                    .replaceAll("-","_");
+
+                enums += "\t" + enumKey + " = '" + keyv[0].trim().normalize('NFD').replace(/[\u0300-\u036f]/g, "") + "'\n";
+                dtoLine = "\t\t" + key + "=" + key.charAt(0).toUpperCase() + key.slice(1) + "Enum(data.get('" + key + "')) if data.get('" + key + "') else None,\n";
                 if (newDict.get(key) !== undefined){ 
                     if(newDict.get(key) === keyv[0].trim().normalize('NFD').replace(/[\u0300-\u036f]/g, "")){
-                        defaultValue = key.charAt(0).toUpperCase() + key.slice(1) + "Enum" + ".";
-                        // Para pegar o nome da constante que acabamos de criar acima:
-                        defaultValue += keyv[1].toUpperCase().trim().normalize('NFD')
-                        .replace(/[\u0300-\u036f]/g, "")
-                        .replaceAll(" ", "_")
-                        .toUpperCase()
-                        .replaceAll("-","_")
-                        .replaceAll("/","_")
-                        .replace(/\(.*\)/g, "");
+                        defaultValue = key.charAt(0).toUpperCase() + key.slice(1) + "Enum." + enumKey;
                     }
                 }
             }
+
             enums += "\n";
-            constructorHeader +=": " + key.charAt(0).toUpperCase() + key.slice(1) + "Enum";
+
+            constructorHeader += ": " + key.charAt(0).toUpperCase() + key.slice(1) + "Enum";
+
+            if (value.get("Campo obrigatório") === "Não"){
+                constructorHeader += " | None";
+            }
+
             if (defaultValue !== undefined){
-                if(value.get("Campo obrigatório") === "Não" || value.get("Campo obrigatório") === ""){
-                    constructorHeader +=" | None";
-                }
                 constructorHeader += " = " + defaultValue;
-            } 
-            if (value.get("Campo obrigatório") === "Não"){
-                posinit = " self." + key + ".value if self." + key + " is not None else \'\'";
-                toDict += "\t\t\t\'" + key + "\': " + posinit + ",\n";
             }
+
+            // 🔥 ENUM SEMPRE entra no to_dict
+            toDict += "\t\t\t'" + key + "': self." + key + ".value if self." + key + " is not None else '',\n";
+            jaTemToDict = true;
         }
-        else if (value.get("Tipo de campo") === "Campo de texto" || value.get("Tipo de campo") === "" || value.get("Tipo de campo") === "Campo de área de texto" || value.get("Tipo de campo") === 'Caixa de seleção') {
-            if(newDict.get(campos[i]) !== ''){
-                constructorHeader +=": str";
-                if (value.get("Campo obrigatório") === "Não" || value.get("Campo obrigatório") === ""){
-                    if(newDict.get(key) === ''){
-                        constructorHeader +=" = \'\'";
-                    }else{
-                        constructorHeader +=" = \'" + newDict.get(key) + "\'";
-                    }
-                }
-            } 
-        }
-        if (value.get("Tipo de campo") === "Campo de busca avançada"){
-            constructorHeader +=": int";
+
+        // ================= TEXTO =================
+        else if (
+            value.get("Tipo de campo") === "Campo de texto" ||
+            value.get("Tipo de campo") === "" ||
+            value.get("Tipo de campo") === "Campo de área de texto" ||
+            value.get("Tipo de campo") === 'Caixa de seleção'
+        ) {
+            constructorHeader += ": str";
+
             if (value.get("Campo obrigatório") === "Não"){
-                posinit = " str(self." + key + ") if self." + key + " is not None else \'\'";
-                toDict += "\t\t\t\'" + key + "\': " + posinit + ",\n";
+                constructorHeader += " = ''";
             }
+
+            // 🔥 SEMPRE entra
+            toDict += "\t\t\t'" + key + "': self." + key + ",\n";
+            dtoLine = "\t\t" + key + "=data.get('" + key + "', ''),\n";
+            jaTemToDict = true;
         }
-        if ((value.get("Campo obrigatório") === "Não" || value.get("Campo obrigatório") === "") && !((value.get("Tipo de campo") === "Campo de texto" || value.get("Tipo de campo") === "" || value.get("Tipo de campo") === "Campo de área de texto" || value.get("Tipo de campo") === 'Caixa de seleção')) && value.get("Valores disponíveis") === undefined){
-            constructorHeader +=" | None";
+
+        // ================= INT =================
+        else if (value.get("Tipo de campo") === "Campo de busca avançada"){
+            constructorHeader += ": int";
+
+            if (value.get("Campo obrigatório") === "Não"){
+                constructorHeader += " | None";
+            }
+
+            toDict += "\t\t\t'" + key + "': str(self." + key + ") if self." + key + " is not None else '',\n";
+            dtoLine = "\t\t" + key + "=int(data.get('" + key + "')) if data.get('" + key + "') else None,\n";
+            jaTemToDict = true;
+        }
+
+        // ================= FALLBACK (🔥 NOVO) =================
+        if (!jaTemToDict) {
+            toDict += "\t\t\t'" + key + "': str(self." + key + ") if self." + key + " is not None else '',\n";
+        }
+        if (!dtoLine) {
+            dtoLine = "\t\t" + key + "=data.get('" + key + "'),\n";
         }
     }
+    dtoConvert += dtoLine;
     constructorHeader += "\n\t";
-    i++;
 }
+// for (let [key, value] of modelagem) {
+//     let defaultValue = undefined;
+//     if (key === "id"){
+//         constructorHeader += "id_autoincrement: int";
+//         toDict += "\t\t\"id_autoincrement\" = str(self.id)\n"
+//     }else{
+//         constructorHeader += key;
+//         if (value.get("Valores disponíveis") !== undefined){
+//             enums += "class "+ key.charAt(0).toUpperCase() + key.slice(1) + "Enum(Enum)" + ":\n";
+//             let valoresDisponiveis = value.get("Valores disponíveis").split("<br>").slice(1, -1);
+//             for(val of valoresDisponiveis){
+//                 let keyv = val.split("=");
+//                 enums += "\t" + keyv[1].toUpperCase().trim().normalize('NFD')
+//                 .replace(/[\u0300-\u036f]/g, "")
+//                 .replaceAll(" ", "_")
+//                 .toUpperCase()
+//                 .replace(/\(.*\)/g, "")
+//                 .replaceAll("/","_")
+//                 .replaceAll("-","_") + " = \'" + keyv[0].trim().normalize('NFD').replace(/[\u0300-\u036f]/g, "") + "\'\n";
+                
+//                 if (newDict.get(key) !== undefined){ 
+//                     if(newDict.get(key) === keyv[0].trim().normalize('NFD').replace(/[\u0300-\u036f]/g, "")){
+//                         defaultValue = key.charAt(0).toUpperCase() + key.slice(1) + "Enum" + ".";
+//                         // Para pegar o nome da constante que acabamos de criar acima:
+//                         defaultValue += keyv[1].toUpperCase().trim().normalize('NFD')
+//                         .replace(/[\u0300-\u036f]/g, "")
+//                         .replaceAll(" ", "_")
+//                         .toUpperCase()
+//                         .replaceAll("-","_")
+//                         .replaceAll("/","_")
+//                         .replace(/\(.*\)/g, "");
+//                     }
+//                 }
+//             }
+//             enums += "\n";
+//             constructorHeader +=": " + key.charAt(0).toUpperCase() + key.slice(1) + "Enum";
+//             if (defaultValue !== undefined){
+//                 if(value.get("Campo obrigatório") === "Não" || value.get("Campo obrigatório") === ""){
+//                     constructorHeader +=" | None";
+//                 }
+//                 constructorHeader += " = " + defaultValue;
+//             } 
+//             if (value.get("Campo obrigatório") === "Não"){
+//                 posinit = " self." + key + ".value if self." + key + " is not None else \'\'";
+//                 toDict += "\t\t\t\'" + key + "\': " + posinit + ",\n";
+//             }
+//         }
+//         else if (value.get("Tipo de campo") === "Campo de texto" || value.get("Tipo de campo") === "" || value.get("Tipo de campo") === "Campo de área de texto" || value.get("Tipo de campo") === 'Caixa de seleção') {
+//             if(newDict.get(campos[i]) !== ''){
+//                 constructorHeader +=": str";
+//                 if (value.get("Campo obrigatório") === "Não" || value.get("Campo obrigatório") === ""){
+//                     if(newDict.get(key) === ''){
+//                         constructorHeader +=" = \'\'";
+//                     }else{
+//                         constructorHeader +=" = \'" + newDict.get(key) + "\'";
+//                     }
+//                 }
+//             } 
+//         }
+//         if (value.get("Tipo de campo") === "Campo de busca avançada"){
+//             constructorHeader +=": int";
+//             if (value.get("Campo obrigatório") === "Não"){
+//                 posinit = " str(self." + key + ") if self." + key + " is not None else \'\'";
+//                 toDict += "\t\t\t\'" + key + "\': " + posinit + ",\n";
+//             }
+//         }
+//         if ((value.get("Campo obrigatório") === "Não" || value.get("Campo obrigatório") === "") && !((value.get("Tipo de campo") === "Campo de texto" || value.get("Tipo de campo") === "" || value.get("Tipo de campo") === "Campo de área de texto" || value.get("Tipo de campo") === 'Caixa de seleção')) && value.get("Valores disponíveis") === undefined){
+//             constructorHeader +=" | None";
+//         }
+//     }
+//     constructorHeader += "\n\t";
+//     i++;
+// }
+dtoConvert += "\t)\n";
 
 constructorHeader = constructorHeader.replace(/, $/, "");
 constructorHeader += "\n";
 toDict += "\t\t}" 
 
-let resultado = file + constructorHeader + constructorBody + toDict + enums ;
+let resultado = file + constructorHeader + constructorBody + toDict + dtoConvert + enums;
 console.log(resultado);
 // ---- GERAR ARQUIVO PYTHON PARA DOWNLOAD ----
 const blob = new Blob([resultado], { type: "text/plain" });

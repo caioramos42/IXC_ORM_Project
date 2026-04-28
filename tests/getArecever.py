@@ -1,4 +1,4 @@
-from ORM_IXC.context import ServiceOrder
+from ORM_IXC.context import AReceber
 from ORM_IXC.context.request.manager import Manager
 import sys
 import os
@@ -10,7 +10,8 @@ load_dotenv()
 def getOs():
     manager = Manager(os.getenv("IXC_HOST"), os.getenv("IXC_TOKEN"))
 
-    service_order = ServiceOrder(manager)
-    with open("os.json", "w") as f:
-        f.write(service_order.SearchById(295525).text)
+    service_order = AReceber(manager)
+    #print(service_order.SearchById(305290).json())
+    with open("areceber.json", "w") as f:
+        f.write(service_order.SearchById(8888377).text)
 getOs()
