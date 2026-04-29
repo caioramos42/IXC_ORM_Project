@@ -20,7 +20,7 @@ class DefaultActions:
                     param.searchField = f"{self.table}.{param.searchField}"
         return self.manager.make_request(search, Actions.LIST)
     
-    def _MakePost(self, modelForSend):
+    def _MakePost(self, modelForSend: IModel):
         modelForSend.table = self.table
         return self.manager.make_request(modelForSend, Actions.INSERT)
     

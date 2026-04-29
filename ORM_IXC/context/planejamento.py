@@ -1,15 +1,14 @@
 from ORM_IXC.interfaces.IContext import IContext
 from ORM_IXC.context.defaultActions.defaultActions import DefaultActions
 from ORM_IXC.context.request.manager import Manager
-#from ORM_IXC.models.serviceOrderModel import ServiceOrderModel
 
-class ServiceOrder(IContext, DefaultActions):
+class Planejamento(IContext, DefaultActions):
     def __init__(self, manager:Manager):
-        self.table = "su_oss_chamado"
+        self.table = "planejamento"
         self.manager = manager
     def Add(self, obj):
         return self._MakePost(obj)
     def Update(self, obj):
         return self._MakePut(obj)
-    def DeleteById(id: int):
+    def DeleteById(id:int):
         pass

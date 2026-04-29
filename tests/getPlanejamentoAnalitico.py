@@ -1,4 +1,4 @@
-from ORM_IXC.context import ServiceOrder
+from ORM_IXC.context.planejamentoAnalitico import PlanejamentoAnalitico
 from ORM_IXC.context.request.manager import Manager
 import sys
 import os
@@ -10,7 +10,7 @@ load_dotenv()
 def getOs():
     manager = Manager(os.getenv("IXC_HOST"), os.getenv("IXC_TOKEN"))
 
-    service_order = ServiceOrder(manager)
-    with open("os.json", "w") as f:
-        f.write(service_order.SearchById('id_os').text)
+    service_order = PlanejamentoAnalitico(manager)
+    with open("planAnali.json", "w") as f:
+        f.write(service_order.SearchById(0).text)
 getOs()

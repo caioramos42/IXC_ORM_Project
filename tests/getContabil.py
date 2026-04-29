@@ -1,4 +1,4 @@
-from ORM_IXC.context import AReceber
+from ORM_IXC.context.contabil import Contabil
 from ORM_IXC.context.request.manager import Manager
 import sys
 import os
@@ -10,12 +10,8 @@ load_dotenv()
 def getOs():
     manager = Manager(os.getenv("IXC_HOST"), os.getenv("IXC_TOKEN"))
 
-    service_order = AReceber(manager)
+    service_order = Contabil(manager)
     #print(service_order.SearchById(305290).json())
-    with open("arecever.json", "w") as f:
-        f.write(service_order.SearchById('id').text)
+    with open("Contabil.json", "w") as f:
+        f.write(service_order.SearchById('id_contabil').text)
 getOs()
-
-from ORM_IXC.models import serviceOrderModel
-
-serviceOrderModel()
