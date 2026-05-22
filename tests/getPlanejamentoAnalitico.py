@@ -1,4 +1,4 @@
-from ORM_IXC.context.planejamentoAnalitico import PlanejamentoAnalitico
+from ORM_IXC.context.classeFinanceiraAnalitica import PlanejamentoAnalitico
 from ORM_IXC.context.request.manager import Manager
 import sys
 import os

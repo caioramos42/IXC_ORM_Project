@@ -1,7 +1,20 @@
 """Modelos de dados para ORM IXC."""
 
-from .clienteModel import Client
+from .clienteModel import ClientModel
 from .defaultModel import DefaultPayload
-from .loginModel import *
+from .loginModel import LoginModel
+from .serviceOrderModel import ServiceOrderModel
 
-__all__ = ["Client", "DefaultPayload"]
+Client = ClientModel
+Login = LoginModel
+OrdemDeServico = ServiceOrderModel
+
+__all__ = [
+    "ClientModel",
+    "DefaultPayload",
+    "LoginModel",
+    "ServiceOrderModel",
+    "Client",
+    "Login",
+    "OrdemDeServico",
+]

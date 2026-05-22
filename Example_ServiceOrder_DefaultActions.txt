@@ -1,0 +1,99 @@
+EXAMPLE: ServiceOrder + DefaultActions + Context (COMO NÃO DIGITAR ERRADO)
+
+Este exemplo mostra como usar o Context(ServiceOrder) que já herda de DefaultActions.
+O ponto importante é: campos enum NÃO são “texto livre”. Devem ser valores que o Model serializa em to_dict().
+
+
+1) Instanciar Manager (context/request/manager.py)
+- host: seu host do servidor (ex: "meu-host.com")
+- token: token de autenticação
+
+from ORM_IXC.context.request.manager import Manager
+
+host = "meu-host.com"
+token = "SEU_TOKEN"
+manager = Manager(host=host, token=token)
+
+
+2) Instanciar o Context: ServiceOrder (context/serviceOrder.py)
+
+from ORM_IXC.context.serviceOrder import ServiceOrder
+
+service_order_ctx = ServiceOrder(manager)
+
+
+3) Criar um ServiceOrderModel
+- Para INSERT (Add): id_autoincrement pode ser informado conforme sua API/fluxo.
+- Para UPDATE (Update): id_autoincrement DEVE estar preenchido.
+
+from ORM_IXC.models.serviceOrderModel import ServiceOrderModel
+from enums.serviceOrder import TipoEnum, Origem_enderecoEnum, Origem_endereco_estruturaEnum, PrioridadeEnum, StatusEnum, Status_conexaoEnum
+
+# IMPORTANTE:
+# - tipo deve ser um Enum (ex: TipoEnum.CLIENTE)
+# - origem_endereco deve ser um Enum (ex: Origem_enderecoEnum.MANUAL)
+# - prioridade deve ser um Enum (ex: PrioridadeEnum.NORMAL)
+# - status deve ser um Enum (ex: StatusEnum.ABERTA)
+# - status_conexao (se usado) também deve ser Enum
+
+obj = ServiceOrderModel(
+    id_autoincrement=123,   # para UPDATE; para INSERT pode ajustar seu fluxo
+    id_assunto=10,
+    id_filial=1,
+    setor=2,
+    id_atendente="ATEND-1",
+
+    tipo=TipoEnum.CLIENTE,
+    id_ticket=None,
+    protocolo="",
+
+    id_cliente=999,
+    id_estrutura=None,
+    id_login=None,
+    id_contrato_kit=None,
+
+    origem_endereco=Origem_enderecoEnum.MANUAL,
+    origem_endereco_estrutura=Origem_endereco_estruturaEnum.ESTRUTURA,
+
+    prioridade=PrioridadeEnum.NORMAL,
+    status=StatusEnum.ABERTA,
+
+    # opcional
+    status_conexao=Status_conexaoEnum.ABERTO if 'Status_conexaoEnum' in globals() else None,
+)
+
+
+4) Usar DefaultActions via o Context
+
+# A) Insert (Add)
+# response = service_order_ctx.Add(obj)
+
+# B) Update (Update)
+# response = service_order_ctx.Update(obj)
+
+# Observação do seu código:
+# - DefaultActions._MakePut exige que obj.id_autoincrement não seja None, '', nem '0'.
+# - O payload vai ser feito por ServiceOrderModel.to_dict().
+
+
+5) Resultado esperado do to_dict() (conceito)
+- to_dict() serializa enums como: enum_member.value
+  Ex:
+    tipo: self.tipo.value
+    origem_endereco: self.origem_endereco.value
+    prioridade: self.prioridade.value
+    status: self.status.value
+
+Então você NÃO deve digitar "BOLETO"/"CLIENTE" como texto solto no lugar do Enum.
+Você deve usar o Enum correto (ex: TipoEnum.CLIENTE), ou o valor exatamente igual a enum.value
+antes de criar o Model (idealmente usando Enum).
+
+
+6) Pesquisa (DefaultActions.SearchById / SearchAll)
+
+# response_list = service_order_ctx.SearchById(123)
+# response_list_all = service_order_ctx.SearchAll()
+
+
+FIM
+

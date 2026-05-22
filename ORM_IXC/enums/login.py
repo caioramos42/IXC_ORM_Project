@@ -1,56 +1,131 @@
+#-------------------------------- ENUMERADORES --------------------------------#
 from enum import Enum
-
-class Authentication(Enum):
+class AutenticacaoEnum(Enum):
     PPPOE = 'L'
     HOTSPOT = 'H'
-    IPXMAC = 'M'
+    IP_X_MAC = 'M'
     VLAN = 'V'
     IPOE = 'D'
-    INTEGRATION = 'I'
-    EXTERNAL = 'E'
-    
-class MapConextionsTypes(Enum):
-    M58 = '58'
-    M24 = '24'
-    FIBER = 'F'
+    INTEGRACAO = 'I'
+    EXTERNA = 'E'
+
+class Tipo_conexao_mapaEnum(Enum):
+    C58 = '58'
+    C24 = '24'
+    FIBRA = 'F'
     CABO = 'L'
     ADSL = 'A'
     LTE = 'LTE'
-    DEDICATELINK = 'LDD'
+    LINK_DEDICADO = 'LDD'
 
-class Online(Enum):
-    NOT = 'N'
-    YES = 'S'
-    WITHOUTSTATUS = 'SS'
+class Senha_md5Enum(Enum):
+    NAO = 'N'
+    SIM = 'S'
 
-class IPConfigurations(Enum):
-    DEFAUTCONFIGURATION = 'H'
-    EVER = 'S'
-    NEVER = 'N'
-    
-class MacAltentication(Enum):
-    NO = 'N'
-    YES = 'S'
-    DEFAULT = 'P'
-    MICROTIK = 'MK'
+class AtivoEnum(Enum):
+    SIM = 'S'
+    NAO = 'N'
+
+class OnlineEnum(Enum):
+    SIM = 'S'
+    NAO = 'N'
+    SEM_STATUS = 'SS'
+
+class Auto_preencher_ipEnum(Enum):
+    CONFIGURACAO_PADRAO = 'H'
+    SEMPRE = 'S'
+    NUNCA = 'N'
+
+class Fixar_ipEnum(Enum):
+    CONFIGURACAO_PADRAO = 'H'
+    SEMPRE = 'S'
+    NUNCA = 'N'
+
+class Relacionar_ip_ao_loginEnum(Enum):
+    CONFIGURACAO_PADRAO = 'H'
+    SEMPRE = 'S'
+    NUNCA = 'N'
+
+class Framed_autopreencher_ipv6Enum(Enum):
+    CONFIGURACAO_PADRAO = 'H'
+    SEMPRE = 'S'
+    NUNCA = 'N'
+
+class Framed_fixar_ipv6Enum(Enum):
+    CONFIGURACAO_PADRAO = 'H'
+    SEMPRE = 'S'
+    NUNCA = 'N'
+
+class Framed_relacionar_ipv6_ao_loginEnum(Enum):
+    CONFIGURACAO_PADRAO = 'H'
+    SEMPRE = 'S'
+    NUNCA = 'N'
+
+class Auto_preencher_ipv6Enum(Enum):
+    CONFIGURACAO_PADRAO = 'H'
+    SEMPRE = 'S'
+    NUNCA = 'N'
+
+class Fixar_ipv6Enum(Enum):
+    CONFIGURACAO_PADRAO = 'H'
+    SEMPRE = 'S'
+    NUNCA = 'N'
+
+class Relacionar_ipv6_ao_loginEnum(Enum):
+    CONFIGURACAO_PADRAO = 'H'
+    SEMPRE = 'S'
+    NUNCA = 'N'
+
+class Autenticacao_por_macEnum(Enum):
+    NAO = 'N'
+    SIM = 'S'
+    PADRAO = 'P'
+    MIKROTIK = 'MK'
     UBNT = 'UN'
-    WPA2AES = 'WP'
-    
-class BondPlan(Enum):
-    DEFAULT = 'D'
-    CONTRACT = 'C'
-    PREPAID = 'P'
-    FREE = 'G'
+    WPA2_AES = 'WP'
 
-class AcessTipe(Enum):
-    HTTP = 'http'
+class Auto_preencher_macEnum(Enum):
+    CONFIGURACAO_PADRAO = 'H'
+    SEMPRE = 'S'
+    NUNCA = 'N'
+
+class Relacionar_mac_ao_loginEnum(Enum):
+    CONFIGURACAO_PADRAO = 'H'
+    SEMPRE = 'S'
+    NUNCA = 'N'
+
+class Relacionar_concentrador_ao_loginEnum(Enum):
+    CONFIGURACAO_PADRAO = 'H'
+    SEMPRE = 'S'
+    NUNCA = 'N'
+
+class Tipo_vinculo_planoEnum(Enum):
+    PADRAO = 'D'
+    CONTRATO = 'C'
+    PRE_PAGO = 'P'
+    GRATIS = 'G'
+
+class Tipo_acessoEnum(Enum):
     HTTPS = 'https'
-    
-class Tip(Enum):
+    HTTP = 'http'
+
+class Franquia_atingidaEnum(Enum):
+    SIM = 'S'
+    NAO = 'N'
+
+class Onu_compartilhadaEnum(Enum):
+    SIM = 'S'
+    NAO = 'N'
+
+class Tipo_equipamentoEnum(Enum):
+    COMODATO = 'C'
+    PROPRIO = 'P'
+
+class Endereco_padrao_clienteEnum(Enum):
+    PADRAO_CLIENTE = 'S'
+    MANUAL = 'N'
+
+class PontaEnum(Enum):
     A = 'A'
     B = 'B'
     C = 'C'
-    
-class EquipmentType(Enum):
-    LENDING = 'C'
-    OWN = 'P'

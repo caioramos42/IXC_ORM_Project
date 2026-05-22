@@ -8,8 +8,16 @@ import os
 load_dotenv()
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+if os.getenv("IXC_HOST") == None:
+    raise ValueError("IXC_HOST não encontrado nas variáveis de ambiente")
+IXC_HOST: str = str(os.getenv("IXC_HOST"))
+
+if os.getenv("IXC_TOKEN") == None:
+    raise ValueError("IXC_TOKEN não encontrado nas variáveis de ambiente")
+IXC_TOKEN: str = str(os.getenv("IXC_TOKEN"))
+
 def test_create():
-    manager = Manager(os.getenv("IXC_HOST"), os.getenv("IXC_TOKEN"))
+    manager = Manager(IXC_HOST, IXC_TOKEN)
     service_order = ServiceOrder(manager)
     print(service_order.Add(
         DefaultPayload({

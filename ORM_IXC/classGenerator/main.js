@@ -1,247 +1,345 @@
-let campos = document.getElementsByClassName("spectrum-Heading spectrum-Heading--P click_campos");
-let infos = document.querySelectorAll(".spectrum-Body.spectrum-Body--P > ul");
+// ============================================================
+//  GERADOR DE DATACLASS PYTHON — versão refatorada
+//  ✅ Ordena obrigatórios antes dos opcionais
+//  ✅ Gera dtoConvert corretamente
+//  ✅ Gera helpers automáticos
+//  ✅ Gera enums corretamente
+//  ✅ Usa kw_only=True
+//  ✅ Mantém defaults corretos
+//  ✅ Evita TypeError do dataclass
+//  ✅ Gera arquivo Python limpo
+// ============================================================
 
+// IIFE — isola o escopo para evitar "already been declared" ao rodar
+// múltiplas vezes no mesmo contexto (console, bookmarklet, etc.)
+;(function () {
+
+// ── 1. LEITURA DO DOM ──────────────────────────────────────
+
+const campoElements = document.getElementsByClassName(
+  "spectrum-Heading spectrum-Heading--P click_campos"
+);
+const infoElements = document.querySelectorAll(
+  ".spectrum-Body.spectrum-Body--P > ul"
+);
+
+// ── 2. NOME DA CLASSE ──────────────────────────────────────
+
+const rawClassName = document.getElementsByClassName(
+  "spectrum-BigSubtleLink"
+)[0].innerText.split(" ");
+
+const classNameFinal = rawClassName
+  .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+  .join("");
+
+// ── 3. PAYLOAD (defaults vindos do HTML) ──────────────────
+
+const html = document.getElementById("c-python").innerHTML;
+const match = html.match(/payload\s*=\s*json\.dumps\(([\s\S]*?)\)/);
+const payloadLines = match
+  ? match[1].replace("{", "").replace("}", "").split(",\n")
+  : [];
+
+const payloadDefaults = new Map();
+for (const p of payloadLines) {
+  const parts = p.trim().split(": ");
+  if (parts.length >= 2) {
+    const k = parts[0].replaceAll("'", "").trim();
+    const v = parts.slice(1).join(": ").replaceAll("'", "").trim();
+    payloadDefaults.set(k, v);
+  }
+}
+
+// ── 4. MODELAGEM (campos × metadados) ─────────────────────
+
+/**
+ * @typedef {{ meta: Map<string,string>, enumLines: string[]|null, type: string, required: boolean, defaultValue: string|null }} FieldInfo
+ */
+
+/** @type {Map<string, FieldInfo>} */
 const modelagem = new Map();
 
-//pegando dict json
-const html = document.getElementById('c-python').innerHTML;
+for (let i = 0; i < campoElements.length; i++) {
+  const nomeCampo = campoElements[i].innerText.trim();
+  const meta = new Map();
 
-const match = html.match(/payload\s*=\s*json\.dumps\(([\s\S]*?)\)/);
+  const liItems = infoElements[i].querySelectorAll("li");
+  for (const li of liItems) {
+    const [key, ...rest] = li.innerHTML.split(":");
+    meta.set(key.trim(), rest.join(":").trim());
+  }
 
-const payload = match ? match[1].replace("{", "").replace("}","").split(",\n") : null;
-
-
-let MyclassName = document.getElementsByClassName("spectrum-BigSubtleLink")[0].innerText.split(" ");
-let classNameFinal = "";
-for (c of MyclassName){
-    classNameFinal += c.charAt(0).toUpperCase() + c.slice(1)
+  modelagem.set(nomeCampo, meta);
 }
 
-let newDict = new Map();
+// ── 5. ANALISA CADA CAMPO ─────────────────────────────────
 
-for(p of payload){
-    let dictFormat = p.trim().split(": ");
-    newDict.set(dictFormat[0].replaceAll("\'",""), dictFormat[1].replaceAll("\'",""))
-}
+/** @type {Array<{ name: string, info: FieldInfo }>} */
+const fields = [];
 
-//dasdaasddasdas
-for (let i = 0; i < campos.length; i++) {
-    let modAux = new Map();
+/** @type {string[]} */
+const enumBlocks = [];
 
-    let allInfo = infos[i].querySelectorAll("li");
+for (const [name, meta] of modelagem) {
+  /** @type {FieldInfo} */
+  const info = {
+    meta,
+    enumLines: null,
+    type: "str",
+    required: meta.get("Campo obrigatório") !== "Não",
+    defaultValue: null,
+  };
 
-    for (let info of allInfo) {
-        let [key, ...rest] = info.innerHTML.split(":");
-        let value = rest.join(":").trim();
-        modAux.set(key.trim(), value);
-        //console.log(key + ": "+  rest);
+  if (name === "id") {
+    info.type = "int";
+    info.required = true;
+    fields.push({ name: "id_autoincrement", info });
+    continue;
+  }
+
+  const valoresDisp = meta.get("Valores disponíveis");
+  const tipoCampo = meta.get("Tipo de campo") ?? "";
+
+  // ── ENUM ──
+  if (valoresDisp !== undefined) {
+    const enumClassName =
+      name.charAt(0).toUpperCase() + name.slice(1) + "Enum";
+    const rawValues = valoresDisp.split("<br>").slice(1, -1);
+    const enumEntries = [];
+
+    for (const val of rawValues) {
+      const [code, ...labelParts] = val.split("=");
+      const codeClean = code
+        .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+      const enumKey = labelParts
+        .join("=")
+        .toUpperCase()
+        .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replaceAll(" ", "_")
+        .replace(/\(.*?\)/g, "")
+        .replaceAll("/", "_")
+        .replaceAll("-", "_")
+        .trim();
+
+      enumEntries.push({ enumKey, codeClean });
+
+      // verifica se o payload default bate com este valor
+      const payloadVal = payloadDefaults.get(name);
+      if (payloadVal !== undefined && payloadVal === codeClean) {
+        info.defaultValue = `${enumClassName}.${enumKey}`;
+      }
     }
 
-    let nomeCampo = campos[i].innerText.trim();
-    modelagem.set(nomeCampo, modAux);
+    // monta bloco enum
+    let block = `class ${enumClassName}(Enum):\n`;
+    for (const { enumKey, codeClean } of enumEntries) {
+      block += `    ${enumKey} = '${codeClean}'\n`;
+    }
+    enumBlocks.push(block);
+
+    info.type = enumClassName;
+    info.enumLines = enumEntries.map((e) => e.enumKey);
+  }
+
+  // ── TEXTO ──
+  else if (
+    tipoCampo === "Campo de texto" ||
+    tipoCampo === "" ||
+    tipoCampo === "Campo de área de texto" ||
+    tipoCampo === "Caixa de seleção"
+  ) {
+    info.type = "str";
+    if (!info.required) info.defaultValue = "''";
+  }
+
+  // ── INT (busca avançada) ──
+  else if (tipoCampo === "Campo de busca avançada") {
+    info.type = "int";
+    if (!info.required) info.defaultValue = "None";
+  }
+
+  // ── FALLBACK ──
+  else {
+    info.type = "Any";
+    if (!info.required) info.defaultValue = "None";
+  }
+
+  // campos opcionais sem default explícito recebem None
+  if (!info.required && info.defaultValue === null) {
+    info.defaultValue = "None";
+  }
+
+  fields.push({ name, info });
 }
 
-// Gerando código Python
-let file = "from dataclasses import dataclass\n";
-let constructorHeader = "@dataclass\nclass "+ classNameFinal +":\n\t";
-let constructorBody = "";
-let posinit = ""
-let toDict = "\tdef to_dict(self):\n \t\treturn{\n"
+// ── 6. ORDENA: obrigatórios primeiro, depois opcionais ────
 
-let dtoConvert = "\ndef dtoConvert(data: dict) -> " + classNameFinal + ":\n";
-dtoConvert += "\treturn " + classNameFinal + "(\n";
+const required = fields.filter(
+  ({ info }) => info.required && info.defaultValue === null
+);
+const optional = fields.filter(
+  ({ info }) => !info.required || info.defaultValue !== null
+);
+const sortedFields = [...required, ...optional];
 
-let enums = "\n#--------------------------------ENUMERADORES-----------------------------------#\nfrom enums import Enum\n";
-let i = 0;
+// ── 7. DETECTA IMPORTS NECESSÁRIOS ────────────────────────
 
-for (let [key, value] of modelagem) {
-    let defaultValue = undefined;
-    let jaTemToDict = false;
-    let dtoLine = "";
-    if (key === "id"){
-        constructorHeader += "id_autoincrement: int";
-        toDict += "\t\t\t'id_autoincrement': str(self.id_autoincrement),\n";
-        dtoLine = "\t\tid_autoincrement=int(data.get('id_autoincrement', 0)),\n";
-        jaTemToDict = true;
+const needsAny = fields.some(({ info }) => info.type === "Any");
+const needsOptional = fields.some(
+  ({ info }) => !info.required || info.defaultValue === "None"
+);
 
+// ── 8. GERAÇÃO DO CÓDIGO PYTHON ───────────────────────────
+
+const lines = [];
+
+// --- imports ---
+lines.push("from __future__ import annotations");
+lines.push("from dataclasses import dataclass, field");
+{
+  const typingImports = [];
+  if (needsAny) typingImports.push("Any");
+  if (needsOptional) typingImports.push("Optional");
+  if (typingImports.length) {
+    lines.push(`from typing import ${typingImports.join(", ")}`);
+  }
+}
+lines.push("from enum import Enum");
+lines.push("");
+
+// --- enums ---
+if (enumBlocks.length) {
+  lines.push(
+    "#" + "-".repeat(32) + " ENUMERADORES " + "-".repeat(32) + "#"
+  );
+  for (const block of enumBlocks) {
+    lines.push(block);
+  }
+}
+
+// --- dataclass ---
+lines.push("@dataclass(kw_only=True)");
+lines.push(`class ${classNameFinal}:`);
+
+for (const { name, info } of sortedFields) {
+  const fieldName = name === "id" ? "id_autoincrement" : name;
+  let typePart = info.type;
+
+  if (!info.required || info.defaultValue === "None") {
+    typePart = `Optional[${typePart}]`;
+  }
+
+  let line = `    ${fieldName}: ${typePart}`;
+
+  if (info.defaultValue !== null) {
+    line += ` = ${info.defaultValue}`;
+  }
+
+  lines.push(line);
+}
+
+// --- to_dict ---
+lines.push("");
+lines.push("    def to_dict(self) -> dict:");
+lines.push("        return {");
+for (const { name, info } of sortedFields) {
+  const fieldName = name === "id" ? "id_autoincrement" : name;
+  let expr;
+
+  if (fieldName === "id_autoincrement") {
+    expr = `str(self.${fieldName})`;
+  } else if (info.enumLines !== null) {
+    expr = `self.${fieldName}.value if self.${fieldName} is not None else ''`;
+  } else if (info.type === "int") {
+    expr = `str(self.${fieldName}) if self.${fieldName} is not None else ''`;
+  } else {
+    expr = `self.${fieldName} if self.${fieldName} is not None else ''`;
+  }
+
+  lines.push(`            '${fieldName}': ${expr},`);
+}
+lines.push("        }");
+
+// --- helpers ---
+lines.push("");
+lines.push("    def is_valid(self) -> bool:");
+const requiredNames = required.map(({ name }) =>
+  name === "id" ? "id_autoincrement" : name
+);
+if (requiredNames.length) {
+  const checks = requiredNames
+    .map((n) => `self.${n} is not None`)
+    .join(" and ");
+  lines.push(`        return ${checks}`);
+} else {
+  lines.push("        return True");
+}
+
+lines.push("");
+lines.push("    def __repr__(self) -> str:");
+// Monta o f-string corretamente: {self.campo!r} sem chaves duplicadas
+const reprParts = requiredNames.map((n) => `${n}={self.${n}!r}`).join(", ");
+lines.push(`        return f"${classNameFinal}(${reprParts})"`);
+
+// --- dtoConvert ---
+lines.push("");
+lines.push(
+  "#" + "-".repeat(30) + " CONVERSOR DTO " + "-".repeat(30) + "#"
+);
+lines.push(`def dto_convert(data: dict) -> ${classNameFinal}:`);
+lines.push(`    return ${classNameFinal}(`);
+
+for (const { name, info } of sortedFields) {
+  const fieldName = name === "id" ? "id_autoincrement" : name;
+  let expr;
+
+  if (fieldName === "id_autoincrement") {
+    expr = `int(data.get('id_autoincrement', 0))`;
+
+  } else if (info.enumLines !== null) {
+    const enumCls = info.type;
+    if (info.required) {
+      // obrigatório: lança KeyError se ausente (sem None), tipo bate com o dataclass
+      expr = `${enumCls}(data['${fieldName}'])`;
     } else {
-        constructorHeader += key;
-
-        // ================= ENUM =================
-        if (value.get("Valores disponíveis") !== undefined){
-            enums += "class "+ key.charAt(0).toUpperCase() + key.slice(1) + "Enum(Enum):\n";
-
-            let valoresDisponiveis = value.get("Valores disponíveis").split("<br>").slice(1, -1);
-
-            for(val of valoresDisponiveis){
-                let keyv = val.split("=");
-
-                let enumKey = keyv[1].toUpperCase().trim()
-                    .normalize('NFD').replace(/[\u0300-\u036f]/g, "")
-                    .replaceAll(" ", "_")
-                    .replace(/\(.*\)/g, "")
-                    .replaceAll("/","_")
-                    .replaceAll("-","_");
-
-                enums += "\t" + enumKey + " = '" + keyv[0].trim().normalize('NFD').replace(/[\u0300-\u036f]/g, "") + "'\n";
-                dtoLine = "\t\t" + key + "=" + key.charAt(0).toUpperCase() + key.slice(1) + "Enum(data.get('" + key + "')) if data.get('" + key + "') else None,\n";
-                if (newDict.get(key) !== undefined){ 
-                    if(newDict.get(key) === keyv[0].trim().normalize('NFD').replace(/[\u0300-\u036f]/g, "")){
-                        defaultValue = key.charAt(0).toUpperCase() + key.slice(1) + "Enum." + enumKey;
-                    }
-                }
-            }
-
-            enums += "\n";
-
-            constructorHeader += ": " + key.charAt(0).toUpperCase() + key.slice(1) + "Enum";
-
-            if (value.get("Campo obrigatório") === "Não"){
-                constructorHeader += " | None";
-            }
-
-            if (defaultValue !== undefined){
-                constructorHeader += " = " + defaultValue;
-            }
-
-            // 🔥 ENUM SEMPRE entra no to_dict
-            toDict += "\t\t\t'" + key + "': self." + key + ".value if self." + key + " is not None else '',\n";
-            jaTemToDict = true;
-        }
-
-        // ================= TEXTO =================
-        else if (
-            value.get("Tipo de campo") === "Campo de texto" ||
-            value.get("Tipo de campo") === "" ||
-            value.get("Tipo de campo") === "Campo de área de texto" ||
-            value.get("Tipo de campo") === 'Caixa de seleção'
-        ) {
-            constructorHeader += ": str";
-
-            if (value.get("Campo obrigatório") === "Não"){
-                constructorHeader += " = ''";
-            }
-
-            // 🔥 SEMPRE entra
-            toDict += "\t\t\t'" + key + "': self." + key + ",\n";
-            dtoLine = "\t\t" + key + "=data.get('" + key + "', ''),\n";
-            jaTemToDict = true;
-        }
-
-        // ================= INT =================
-        else if (value.get("Tipo de campo") === "Campo de busca avançada"){
-            constructorHeader += ": int";
-
-            if (value.get("Campo obrigatório") === "Não"){
-                constructorHeader += " | None";
-            }
-
-            toDict += "\t\t\t'" + key + "': str(self." + key + ") if self." + key + " is not None else '',\n";
-            dtoLine = "\t\t" + key + "=int(data.get('" + key + "')) if data.get('" + key + "') else None,\n";
-            jaTemToDict = true;
-        }
-
-        // ================= FALLBACK (🔥 NOVO) =================
-        if (!jaTemToDict) {
-            toDict += "\t\t\t'" + key + "': str(self." + key + ") if self." + key + " is not None else '',\n";
-        }
-        if (!dtoLine) {
-            dtoLine = "\t\t" + key + "=data.get('" + key + "'),\n";
-        }
+      // opcional: aceita None, tipo é Optional[EnumX]
+      expr = `${enumCls}(data['${fieldName}']) if data.get('${fieldName}') else None`;
     }
-    dtoConvert += dtoLine;
-    constructorHeader += "\n\t";
+
+  } else if (info.type === "int") {
+    if (info.required) {
+      expr = `int(data['${fieldName}'])`;
+    } else {
+      expr = `int(data['${fieldName}']) if data.get('${fieldName}') else None`;
+    }
+
+  } else {
+    // str e Any — required usa get com '' como fallback seguro
+    expr = `data.get('${fieldName}', '')`;
+  }
+
+  lines.push(`        ${fieldName}=${expr},`);
 }
-// for (let [key, value] of modelagem) {
-//     let defaultValue = undefined;
-//     if (key === "id"){
-//         constructorHeader += "id_autoincrement: int";
-//         toDict += "\t\t\"id_autoincrement\" = str(self.id)\n"
-//     }else{
-//         constructorHeader += key;
-//         if (value.get("Valores disponíveis") !== undefined){
-//             enums += "class "+ key.charAt(0).toUpperCase() + key.slice(1) + "Enum(Enum)" + ":\n";
-//             let valoresDisponiveis = value.get("Valores disponíveis").split("<br>").slice(1, -1);
-//             for(val of valoresDisponiveis){
-//                 let keyv = val.split("=");
-//                 enums += "\t" + keyv[1].toUpperCase().trim().normalize('NFD')
-//                 .replace(/[\u0300-\u036f]/g, "")
-//                 .replaceAll(" ", "_")
-//                 .toUpperCase()
-//                 .replace(/\(.*\)/g, "")
-//                 .replaceAll("/","_")
-//                 .replaceAll("-","_") + " = \'" + keyv[0].trim().normalize('NFD').replace(/[\u0300-\u036f]/g, "") + "\'\n";
-                
-//                 if (newDict.get(key) !== undefined){ 
-//                     if(newDict.get(key) === keyv[0].trim().normalize('NFD').replace(/[\u0300-\u036f]/g, "")){
-//                         defaultValue = key.charAt(0).toUpperCase() + key.slice(1) + "Enum" + ".";
-//                         // Para pegar o nome da constante que acabamos de criar acima:
-//                         defaultValue += keyv[1].toUpperCase().trim().normalize('NFD')
-//                         .replace(/[\u0300-\u036f]/g, "")
-//                         .replaceAll(" ", "_")
-//                         .toUpperCase()
-//                         .replaceAll("-","_")
-//                         .replaceAll("/","_")
-//                         .replace(/\(.*\)/g, "");
-//                     }
-//                 }
-//             }
-//             enums += "\n";
-//             constructorHeader +=": " + key.charAt(0).toUpperCase() + key.slice(1) + "Enum";
-//             if (defaultValue !== undefined){
-//                 if(value.get("Campo obrigatório") === "Não" || value.get("Campo obrigatório") === ""){
-//                     constructorHeader +=" | None";
-//                 }
-//                 constructorHeader += " = " + defaultValue;
-//             } 
-//             if (value.get("Campo obrigatório") === "Não"){
-//                 posinit = " self." + key + ".value if self." + key + " is not None else \'\'";
-//                 toDict += "\t\t\t\'" + key + "\': " + posinit + ",\n";
-//             }
-//         }
-//         else if (value.get("Tipo de campo") === "Campo de texto" || value.get("Tipo de campo") === "" || value.get("Tipo de campo") === "Campo de área de texto" || value.get("Tipo de campo") === 'Caixa de seleção') {
-//             if(newDict.get(campos[i]) !== ''){
-//                 constructorHeader +=": str";
-//                 if (value.get("Campo obrigatório") === "Não" || value.get("Campo obrigatório") === ""){
-//                     if(newDict.get(key) === ''){
-//                         constructorHeader +=" = \'\'";
-//                     }else{
-//                         constructorHeader +=" = \'" + newDict.get(key) + "\'";
-//                     }
-//                 }
-//             } 
-//         }
-//         if (value.get("Tipo de campo") === "Campo de busca avançada"){
-//             constructorHeader +=": int";
-//             if (value.get("Campo obrigatório") === "Não"){
-//                 posinit = " str(self." + key + ") if self." + key + " is not None else \'\'";
-//                 toDict += "\t\t\t\'" + key + "\': " + posinit + ",\n";
-//             }
-//         }
-//         if ((value.get("Campo obrigatório") === "Não" || value.get("Campo obrigatório") === "") && !((value.get("Tipo de campo") === "Campo de texto" || value.get("Tipo de campo") === "" || value.get("Tipo de campo") === "Campo de área de texto" || value.get("Tipo de campo") === 'Caixa de seleção')) && value.get("Valores disponíveis") === undefined){
-//             constructorHeader +=" | None";
-//         }
-//     }
-//     constructorHeader += "\n\t";
-//     i++;
-// }
-dtoConvert += "\t)\n";
+lines.push("    )");
 
-constructorHeader = constructorHeader.replace(/, $/, "");
-constructorHeader += "\n";
-toDict += "\t\t}" 
-
-let resultado = file + constructorHeader + constructorBody + toDict + dtoConvert + enums;
+// --- resultado final ---
+const resultado = lines.join("\n") + "\n";
 console.log(resultado);
-// ---- GERAR ARQUIVO PYTHON PARA DOWNLOAD ----
+
+// ── 9. DOWNLOAD ───────────────────────────────────────────
+
 const blob = new Blob([resultado], { type: "text/plain" });
 const link = document.createElement("a");
-
 link.href = URL.createObjectURL(blob);
 link.download = classNameFinal + ".py";
-
 document.body.appendChild(link);
 link.click();
 document.body.removeChild(link);
-
 URL.revokeObjectURL(link.href);
+
+})(); // fim da IIFE

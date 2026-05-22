@@ -1,14 +1,17 @@
+from typing import Any
 from ORM_IXC.interfaces.IContext import IContext
 from ORM_IXC.context.defaultActions.defaultActions import DefaultActions
 from ORM_IXC.context.request.manager import Manager
+from ORM_IXC.models.atendimentoModel import AtendimentoModel
 
-class Atendimento(IContext, DefaultActions):
-    def __init__(self, manager:Manager):
-        self.table = "su_ticket"
-        self.manager = manager
-    def Add(self, obj):
+class Atendimento(IContext[AtendimentoModel, AtendimentoModel], DefaultActions):
+    def __init__(self, manager: Manager):
+        DefaultActions.__init__(self, AtendimentoModel, manager)
+    def Add(self, obj: AtendimentoModel) -> AtendimentoModel:
         return self._MakePost(obj)
-    def Update(obj):
-        pass
-    def DeleteById(id:int):
-        pass
+    def Update(self, obj: AtendimentoModel) -> Any:
+        return self._MakePut(obj)
+    def DeleteById(self, id: int) -> Any:
+        raise NotImplementedError("DeleteById não implementado para ServiceOrder")
+    def SelectAll(self) -> Any:
+        return self._SearchAll()

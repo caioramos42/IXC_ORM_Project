@@ -10,7 +10,7 @@ from .context.areceber import AReceber
 from .context.atendimento import Atendimento
 from .context.caixaDeAtendimento import CaixaDeAtendimento
 from .context.cliente import Cliente
-from .context.contrato import Contrato
+from .context.contratoDoCliente import ContratoDoCliente
 from .context.fiberClient import ClienteFibra
 from .context.login import Login
 from .context.request.manager import Manager
@@ -23,6 +23,8 @@ from .enums.sortOrder import SortOrder
 from .models.defaultModel import DefaultPayload
 from .models.searchUtils.gridParamModel import GridParam
 from .models.searchUtils.searchModel import SearchModule
+
+Contrato = ContratoDoCliente
 
 __all__ = [
     "Manager",

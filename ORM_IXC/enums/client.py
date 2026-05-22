@@ -1,147 +1,202 @@
 from enum import Enum
-class ScmClientTypeEnum(Enum):
-    COMMERCIAL = '01'
+
+
+#-------------------------------- ENUMERADORES --------------------------------#
+class AtivoEnum(Enum):
+    SIM = 'S'
+    NAO = 'N'
+
+class Tipo_cliente_scmEnum(Enum):
+    COMERCIAL = '01'
     INDUSTRIAL = '02'
-    RESIDENTIAL_INDIVIDUAL = '03'
-    RURAL_PRODUCER = '04'
-    PUBLIC_ADMINISTRATION = '05'
-    TELECOM_PROVIDER = '06'
-    DIPLOMATIC_MISSIONS = '07'
-    CHURCHES_TEMPLES = '08'
-    OTHERS_NOT_SPECIFIED = '99'
-    LARGE_TAXPAYER = '0-13'
-    AUTO_RETAINER = '0-15'
-    VAT_RETENTION_AGENT = '0-23'
-    SIMPLE_TAX_REGIME = '0-47'
-    OTHERS = 'R-99-PN'
+    RESIDENCIAL_PESSOA_FISICA = '03'
+    PRODUTOR_RURAL = '04'
+    ORGAO_DA_ADMINISTRACAO_PUBLICA_ESTADUAL_DIRETA_E_SUAS_FUNDACOES_E_AUTARQUIAS_QUANDO_MANTIDAS_PELO_PODER_PUBLICO_ESTADUAL_E_REGIDAS_POR_NORMAS_DE_DIREITO_PUBLICO_TERMOS_DO_CONVENIO_ICMS_107_95 = '05'
+    PRESTADOR_DE_SERVICO_DE_TELECOMUNICACAO_RESPONSAVEL_PELO_RECOLHIMENTO_DO_IMPOSTO_INCIDENTE_SOBRE_A_CESSAO_DOS_MEIOS_DE_REDE_DO_PRESTADOR_DO_SERVICO_AO_USUARIO_FINAL_TERMOS_DO_CONVENIO_ICMS_17_13 = '06'
+    MISSOES_DIPLOMATICAS_REPARTICOES_CONSULARES_E_ORGANISMOS_INTERNACIONAIS_NOS_TERMOS_DO_CONVENIO_ICMS_158_94 = '07'
+    IGREJAS_E_TEMPLOS_DE_QUALQUER_NATUREZA = '08'
+    OUTROS_NAO_ESPECIFICADOS_ANTERIORMENTE = '99'
+    GRANDE_CONTRIBUINTE = '0-13'
+    AUTO_RETENTOR = '0-15'
+    AGENTE_DE_RETENCAO_IVA = '0-23'
+    REGIME_SIMPLES_DE_TRIBUTACAO = '0-47'
+    OUTROS = 'R-99-PN'
 
-class GovernmentEntityTypeEnum(Enum):
-    FEDERAL = '1'
-    STATE = '2'
-    FEDERAL_DISTRICT = '3'
-    MUNICIPALITY = '4'
+class Tipo_ente_governamentalEnum(Enum):
+    UNIAO = '1'
+    ESTADO = '2'
+    DISTRITO_FEDERAL = '3'
+    MUNICIPIO = '4'
 
-class PersonTypeEnum(Enum):
-    INDIVIDUAL = 'F'
-    LEGAL_ENTITY = 'J'
-    FOREIGNER = 'E'
-    LEGAL_ENTITY_ALT = '1'
+class Tipo_pessoaEnum(Enum):
+    FISICA = 'F'
+    JURIDICA = 'J'
+    ESTRANGEIRO = 'E'
+    JURIDICA2 = '1'
     NATURAL = '2'
-    FOREIGNER_ALT = '3'
+    ESTRANGEIRO2 = '3'
 
-class FiscalRegimeEnum(Enum):
-    VAT_RESPONSIBLE = '48'
-    NOT_VAT_RESPONSIBLE = '49'
+class Regime_fiscal_colEnum(Enum):
+    RESPONSABLE_DE_IVA = '48'
+    NO_RESPONSABLE_DE_IVA = '49'
 
-class IdentificationDocumentTypeEnum(Enum):
-    CIVIL_REGISTRY = '11'
-    IDENTITY_CARD = '12'
-    CITIZENSHIP_CARD = '13'
-    FOREIGNER_ID_CARD = '21'
-    FOREIGNER_IDENTITY_CARD = '22'
+class Tipo_documento_identificacaoEnum(Enum):
+    REGISTRO_CIVIL = '11'
+    TARJETA_DE_IDENTIDAD = '12'
+    CEDULA_DE_CIUDADANIA = '13'
+    TARJETA_DE_EXTRANJERIA = '21'
+    CEDULA_DE_EXTRANJERIA = '22'
     NIT = '31'
-    PASSPORT = '41'
-    FOREIGN_ID_DOCUMENT = '42'
+    PASAPORTE = '41'
+    DOCUMENTO_DE_IDENTIFICACION_EXTRANJERO = '42'
     PEP = '47'
-    OTHER_COUNTRY_NIT = '50'
+    NIT_DE_OTRO_PAIS = '50'
     NUIP = '91'
     NUIT = 'NUIT'
-    RUC = 'RUC'
-    CI = 'CI'
-    RESIDENCE_CARD = '4'
-    INNOMINATE = '5'
-    DIPLOMATIC_TAX_EXEMPTION_CARD = '6'
-    OTHER = '9'
+    REGISTRO_UNICO_DE_CONTRIBUYENTES = 'RUC'
+    CEDULA_DE_IDENTIDAD = 'CI'
+    CARTAO_DE_RESIDENCIA = '4'
+    INNOMINADO = '5'
+    CARTAO_DE_ISENCAO_DE_IMPOSTO_DIPLOMATICO = '6'
+    OUTRO = '9'
     CUIT = 'CUIT'
-    CARNET = 'CIBOL'
-    RUT = 'RUT'
-    TIN = 'TIN'
-    RIF = 'RIF'
-    DNI = 'DNI'
-    NIR = 'NIR'
-    SIREN = 'SIREN'
-    RUT_URU = 'RUTURU'
+    CARNET_DE_IDENTIDAD = 'CIBOL'
+    ROL_UNICO_TRIBUTARIO = 'RUT'
+    TAX_IDENTIFICATION_NUMBER = 'TIN'
+    REGISTRO_DE_INFORMACION_FISCAL_ = 'RIF'
+    DOCUMENTO_NACIONAL_DE_INDENTIDAD = 'DNI'
+    NUMERO_DE_SECURITE_SOCIALE = 'NIR'
+    SYSTEME_D_IDENTIFICATION_DU_REPERTOIRE_DES_ENTREPRISES = 'SIREN'
+    REGISTRO_UNICO_DE_TRIBUTARIO = 'RUTURU'
 
-class IcmsTaxpayerEnum(Enum):
-    YES = 'S'
-    NO = 'N'
-    EXEMPT = 'I'
-    EXCLUDED = 'E'
+class Contribuinte_icmsEnum(Enum):
+    SIM = 'S'
+    NAO = 'N'
+    ISENTO = 'I'
+    EXCLUIDO = 'E'
 
-class GenderEnum(Enum):
-    FEMALE = 'F'
-    MALE = 'M'
-    NON_BINARY = 'NB'
-    OTHER = 'O'
-    PREFER_NOT_TO_SAY = 'PNI'
+class SexoEnum(Enum):
+    FEMININO = 'F'
+    MASCULINO = 'M'
+    NAO_BINARIO = 'NB'
+    OUTRO = 'O'
+    PREFIRO_NAO_DIZER = 'PNI'
 
-class MaritalStatusEnum(Enum):
-    MARRIED = 'Casado'
-    SINGLE = 'Solteiro'
-    DIVORCED = 'Divorciado'
-    WIDOWED = 'Viúvo'
+class Estado_civilEnum(Enum):
+    CASADO = 'Casado'
+    SOLTEIRO = 'Solteiro'
+    DIVORCIADO = 'Divorciado'
+    VIUVO = 'Viúvo'
 
-class SubscriberTypeEnum(Enum):
-    COMMERCIAL_INDUSTRIAL = '1'
-    PUBLIC_POWER = '2'
-    RESIDENTIAL_INDIVIDUAL = '3'
-    PUBLIC = '4'
-    SEMI_PUBLIC = '5'
-    OTHERS = '6'
+class Tipo_assinanteEnum(Enum):
+    COMERCIAL_INDUSTRIAL = '1'
+    PODER_PUBLICO = '2'
+    RESIDENCIAL_PESSOA_FISICA = '3'
+    PUBLICO = '4'
+    SEMI_PUBLICO = '5'
+    OUTROS = '6'
 
-class SerasaActiveEnum(Enum):
-    YES = '1'
-    NO = '2'
+class Filtra_filialEnum(Enum):
+    SIM = 'S'
+    NAO = 'N'
 
+class Ativo_serasaEnum(Enum):
+    SIM = '1'
+    NAO = '2'
+    INDEFINIDO = '0'
 
-class SatisfactionLevelEnum(Enum):
-    NOT_SATISFIED = '1'
-    SLIGHTLY_SATISFIED = '2'
-    SATISFIED = '3'
-    VERY_SATISFIED = '4'
-    COMPLETELY_SATISFIED = '5'
+class Convert_cliente_fornEnum(Enum):
+    SIM = 'S'
+    NAO = 'N'
 
-class HousingEnum(Enum):
-    OWNED = 'P'
-    RENTED = 'A'
+class Grau_satisfacaoEnum(Enum):
+    NADA_SATISFEITO = '1'
+    POUCO_SATISFEITO = '2'
+    SATISFEITO = '3'
+    MUITO_SATISFEITO = '4'
+    COMPLETAMENTE_SATISFEITO = '5'
 
-class LocationTypeEnum(Enum):
-    RURAL = 'R'
-    URBAN = 'U'
+class MoradiaEnum(Enum):
+    PROPRIA = 'P'
+    ALUGADA = 'A'
 
-class CentralAutomaticAccessEnum(Enum):
-    YES = 'S'
-    NO = 'N'
-    DEFAULT = 'P'
+class Tipo_localidadeEnum(Enum):
+    ZONA_RURAL = 'R'
+    ZONA_URBANA = 'U'
 
-class ChangePasswordFirstAccessEnum(Enum):
-    YES = 'S'
-    NO = 'N'
-    DEFAULT = 'P'
+class Acesso_automatico_centralEnum(Enum):
+    SIM = 'S'
+    NAO = 'N'
+    PADRAO = 'P'
 
-class ProspectingStatusEnum(Enum):
-    NEW = 'C'
-    PROBING = 'S'
-    PRESENTING = 'A'
-    NEGOTIATING = 'N'
-    WON = 'V'
-    LOST = 'P'
-    ABORTED = 'AB'
-    NO_FEASIBILITY = 'SV'
-    NO_PORT_AVAILABLE = 'SP'
+class Alterar_senha_primeiro_acessoEnum(Enum):
+    SIM = 'S'
+    NAO = 'N'
+    PADRAO = 'P'
 
-class AccountHolderPersonTypeEnum(Enum):
-    INDIVIDUAL = 'F'
-    LEGAL_ENTITY = 'J'
+class Senha_hotsite_md5Enum(Enum):
+    SIM = 'S'
+    NAO = 'N'
 
-class BillingRuleConsidersEnum(Enum):
-    YES = 'S'
-    NO = 'N'
-    DEFAULT = 'P'
+class CrmEnum(Enum):
+    SIM = 'S'
+    NAO = 'N'
 
-class IssDefaultClassificationEnum(Enum):
+class Cadastrado_via_viabilidadeEnum(Enum):
+    SIM = 'S'
+    NAO = 'N'
+
+class Status_prospeccaoEnum(Enum):
+    NOVO = 'C'
+    SONDAGEM = 'S'
+    APRESENTANDO = 'A'
+    NEGOCIANDO = 'N'
+    VENCEMOS = 'V'
+    PERDEMOS = 'P'
+    ABORTAMOS = 'AB'
+    SEM_VIABILIDADE = 'SV'
+    SEM_PORTA_DISPONIVEL = 'SP'
+
+class Participa_pre_cobrancaEnum(Enum):
+    SIM = 'S'
+    NAO = 'N'
+
+class Cob_envia_emailEnum(Enum):
+    SIM = 'S'
+    NAO = 'N'
+
+class Cob_envia_smsEnum(Enum):
+    SIM = 'S'
+    NAO = 'N'
+
+class Tipo_pessoa_titular_contaEnum(Enum):
+    FISICA = 'F'
+    JURIDICA = 'J'
+
+class Regua_cobranca_consideraEnum(Enum):
+    SIM = 'S'
+    NAO = 'N'
+    PADRAO = 'P'
+
+class Regua_cobranca_wppEnum(Enum):
+    SIM = 'S'
+    NAO = 'N'
+
+class Regua_cobranca_notificacaoEnum(Enum):
+    SIM = 'S'
+    NAO = 'N'
+
+class Orgao_publicoEnum(Enum):
+    SIM = 'S'
+    NAO = 'N'
+
+class Iss_classificacao_padraoEnum(Enum):
     NORMAL = '00'
-    RETAINED = '01'
-    SUBSTITUTE = '02'
-    EXEMPT = '03'
-    DEFAULT = '99'
+    RETIDO = '01'
+    SUBSTITUTA = '02'
+    ISENTO = '03'
+    PADRAO = '99'
+
+class Desconto_irrf_valor_inferiorEnum(Enum):
+    SIM = 'S'
+    NAO = 'N'
