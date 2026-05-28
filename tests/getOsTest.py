@@ -11,6 +11,5 @@ def getOs():
     manager = Manager(os.getenv("IXC_HOST"), os.getenv("IXC_TOKEN"))
 
     service_order = ServiceOrder(manager)
-    with open("os.json", "w") as f:
-        f.write(service_order.SearchById('id_os').text)
+    print(service_order.SearchById(308070)[0].to_dict())
 getOs()

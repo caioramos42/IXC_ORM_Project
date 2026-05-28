@@ -16,6 +16,6 @@ def getOs():
         f.write(service_order.SearchById('id').text)
 getOs()
 
-from ORM_IXC.models import serviceOrderModel
+from ORM_IXC.models.tableModels import serviceOrderModel
 
 serviceOrderModel()

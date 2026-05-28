@@ -1,209 +1,13 @@
-# from ctypes import Union
-# from enum import Enum
-# import types
-# from typing import Any, Protocol, get_args
-# from typing_extensions import get_origin
-# from ORM_IXC.models.searchUtils.searchModel import SearchModule
-# from ORM_IXC.enums.operators import Operators
-# from typing import TypeAlias
-
-# AceptTypes: TypeAlias = int | str | Enum | None
-
-# class Field():
-#     def __init__(self, name: str = "", fieldType: type = object, value: AceptTypes = None) -> None:
-#         self.name = name
-#         self.python_type = fieldType
-#         self._val = value
-#         self.model = None
-
-#     def setup(self, fieldType: type, name: str, value: AceptTypes) -> None:
-#         self.name = name
-#         self.python_type = fieldType
-#         self._val = value
-        
-#          # chamado automaticamente pela classe
-#     def __set_name__(self, owner, name):
-#         self.name = name
-
-#     def __get__(self, obj, objtype=None):
-#         if obj is None:
-#             return self
-#         return obj.__dict__.get(self.name)
-
-#     def __set__(self, obj, value):
-#         if value is not None and not self._tipo_valido(value, self.python_type):
-#             raise TypeError(
-#                 f"Campo '{self.name}' esperava {self.python_type}, recebeu {type(value)}"
-#             )
-#         obj.__dict__[self.name] = value
-
-#     def _tipo_valido(self, value, tp) -> bool:
-#         origin = get_origin(tp)
-
-#         # Optional[T] ou Union[T, None]
-#         if origin is Union or origin is types.UnionType:
-#             return any(
-#                 self._tipo_valido(value, arg)
-#                 for arg in get_args(tp)
-#                 if arg is not type(None)
-#             )
-
-#         # Tipo simples (int, str, subclasse de Enum, etc.)
-#         if isinstance(tp, type):
-#             return isinstance(value, tp)
-
-#         # Fallback: pula validação para genéricos complexos
-#         return True
-
-#     def __repr__(self) -> str: # type: ignore
-#         return f"<Field {self.name}>"
-   
-#     def __getattr__(self, name: str) -> Any:
-#         if name == 'value':
-#             if isinstance(self._val, Enum):
-#                 return self._val.value
-#             return self._val
-
-#         raise AttributeError(
-#             f"'{self.__class__.__name__}' não possui '{name}'"
-#         )
-
-#     # =========================
-#     # CONVERSÕES NATIVAS
-#     # =========================
-#     def __str__(self) -> str:
-#         return str(self._val) if self._val is not None else self.key
-
-#     def __repr__(self) -> str:
-#         return self.__str__()
-
-#     def __int__(self) -> int:
-#         if self.python_type == float or self.python_type == int:
-#             return int(self._val)
-#         elif self.python_type == str:
-#             if not str(self._val).lstrip('-').isdigit():
-#                 raise ValueError("Este valor não pode ser convertido em int")
-#             return int(self._val)
-#         raise ValueError("Esse valor não pode ser convertido em int")
-
-#     def __float__(self) -> float:
-#         return float(self._val)
-
-#     def __bool__(self) -> bool:
-#         return bool(self._val)
-
-#     # =========================
-#     # OPERAÇÕES MATEMÁTICAS
-#     # =========================
-
-#     # +
-#     def __add__(self, other):
-#         return self._val + self._extract(other)
-
-#     def __radd__(self, other):
-#         return self._extract(other) + self._val
-
-#     # -
-#     def __sub__(self, other):
-#         return self._val - self._extract(other)
-
-#     def __rsub__(self, other):
-#         return self._extract(other) - self._val
-
-#     # *
-#     def __mul__(self, other):
-#         return self._val * self._extract(other)
-
-#     def __rmul__(self, other):
-#         return self._extract(other) * self._val
-
-#     # /
-#     def __truediv__(self, other):
-#         return self._val / self._extract(other)
-
-#     def __rtruediv__(self, other):
-#         return self._extract(other) / self._val
-
-#     # //
-#     def __floordiv__(self, other):
-#         return self._val // self._extract(other)
-
-#     # %
-#     def __mod__(self, other):
-#         return self._val % self._extract(other)
-
-#     # **
-#     def __pow__(self, other):
-#         return self._val ** self._extract(other)
-
-#     # =========================
-#     # OPERAÇÕES DE STRING
-#     # =========================
-
-#     def upper(self):
-#         return str(self._val).upper()
-
-#     def lower(self):
-#         return str(self._val).lower()
-
-#     def replace(self, old, new):
-#         return str(self._val).replace(old, new)
-
-#     def split(self, sep=None):
-#         return str(self._val).split(sep)
-
-#     def strip(self):
-#         return str(self._val).strip()
-
-#     def startswith(self, value):
-#         return str(self._val).startswith(value)
-
-#     def endswith(self, value):
-#         return str(self._val).endswith(value)
-
-#     # =========================
-#     # COMPARAÇÕES SQL-LIKE
-#     # =========================
-
-#     def __eq__(self, value: Any) -> SearchModule: # type: ignore
-#         return SearchModule(self.name, value, Operators.EQUALS)
-
-#     def __lt__(self, value: Any) -> SearchModule:
-#         return SearchModule(self.name, value, Operators.LASTTHAN)
-
-#     def __gt__(self, value: Any) -> SearchModule:
-#         return SearchModule(self.name, value, Operators.MORETHAN)
-
-#     def __ne__(self, value: Any) -> SearchModule: # type: ignore
-#         return SearchModule(self.name, value, Operators.DIFFERENT)
-
-#     # =========================
-#     # AUXILIAR
-#     # =========================
-
-#     def _extract(self, value):
-#         if isinstance(value, Field):
-#             return value._val
-#         return value
-
-#     # =========================
-#     # Sequence obrigatório
-#     # =========================
-
-#     def __getitem__(self, index):
-#         return str(self._val)[index]
-
-#     def __len__(self):
-#         return len(str(self._val))
-
-
 from enum import Enum
 import types
-from typing import Any, Generic, TypeAlias, TypeVar, get_args, overload, Union
+from typing import TYPE_CHECKING, Any, Generic, TypeAlias, TypeVar, get_args, overload, Union
 from typing_extensions import get_origin
-from ORM_IXC.models.searchUtils.searchModel import SearchModule
 from ORM_IXC.enums.operators import Operators
-AceptTypes: TypeAlias = int | str | Enum | None
+
+AceptTypes: TypeAlias = int | str | Enum | None | float
+MathTypes: TypeAlias = int | float
+if TYPE_CHECKING:
+    from ORM_IXC.models.searchUtils.searchModel import SearchModule
 T = TypeVar("T", bound=AceptTypes)
 
 class Field(Generic[T]):
@@ -225,22 +29,29 @@ class Field(Generic[T]):
     def __get__(self, obj: None, objtype: type[Any] | None = None) -> "Field[T]": ...
 
     @overload
-    def __get__(self, obj: Any, objtype: type[Any] | None = None) -> "Field[T] | None": ...
+    def __get__(self, obj: Any, objtype: type[Any] | None = None) -> T | None: ...
 
-    def __get__(self, obj: Any | None, objtype: type[Any] | None = None) -> "Field[T] | None":
+    def __get__(self, obj: Any | None, objtype: type[Any] | None = None) -> "Field[T] | T | None":
         if obj is None:
             return self
         # Retorna o Field armazenado na instância, não o valor cru
         stored = obj.__dict__.get(self.name)
         return stored
-
-    def __set__(self, obj: Any, value: T | "Field[T]" | None) -> None:
+    
+    def changed_fields(self):
+        return self.__dict__.get("_changed_fields", set())
+    
+    def __set__(self, obj: Any, value: AceptTypes | "Field[T]" | None) -> None:
         if isinstance(value, Field):
             # Já é um Field — armazena diretamente
             obj.__dict__[self.name] = value
             return
+    
+        if value is not None and isinstance(value, str):
+            converted = self._convert_string(value, self.python_type)
+            if converted is not None:
+                value = converted
 
-        # Valor cru — cria um Field encapsulando o valor
         if value is not None and not self._tipo_valido(value, self.python_type):
             raise TypeError(
                 f"Campo '{self.name}' esperava {self.python_type}, recebeu {type(value)}"
@@ -263,6 +74,48 @@ class Field(Generic[T]):
 
         return True
 
+    def _convert_string(self, value: str, tp):
+        origin = get_origin(tp)
+
+        if origin is Union or origin is types.UnionType:
+            for arg in get_args(tp):
+                if arg is type(None):
+                    continue
+                converted = self._convert_string(value, arg)
+                if converted is not None:
+                    return converted
+            return None
+
+        if tp == int:
+            if value.lstrip('-').isdigit():
+                return int(value)
+            return None
+
+        if tp == float:
+            try:
+                return float(value)
+            except ValueError:
+                return None
+
+        if tp == bool:
+            lowered = value.strip().lower()
+            if lowered in {"1", "true", "yes", "sim", "s", "on"}:
+                return True
+            if lowered in {"0", "false", "no", "n", "off"}:
+                return False
+            return None
+
+        if isinstance(tp, type) and issubclass(tp, Enum):
+            try:
+                return tp(value)
+            except Exception:
+                return None
+
+        if tp == str:
+            return value
+
+        return None
+
     def __getattr__(self, name: str) -> Any:
         if name == 'value':
             if isinstance(self._val, Enum):
@@ -274,7 +127,7 @@ class Field(Generic[T]):
         )
 
     # =========================
-    # CONVERSÕES NATIVAS
+    # CONVERSÃ•ES NATIVAS
     # =========================
     def __str__(self) -> str:
         if isinstance(self._val, Enum):
@@ -285,17 +138,21 @@ class Field(Generic[T]):
         return f"<Field {self.name}={self._val!r}>"
 
     def __int__(self) -> int:
+        if self._val is None:
+            raise ValueError("Esse valor não pode ser convertido em int")
         if isinstance(self._val, Enum):
             return int(self._val.value)
         if self.python_type in (float, int):
             return int(self._val)
         if self.python_type == str:
             if not str(self._val).lstrip('-').isdigit():
-                raise ValueError("Este valor não pode ser convertido em int")
+                raise ValueError("Este valor nÃ£o pode ser convertido em int")
             return int(self._val)
-        raise ValueError("Esse valor não pode ser convertido em int")
+        raise ValueError("Esse valor nÃ£o pode ser convertido em int")
 
     def __float__(self) -> float:
+        if self._val is None:
+            raise ValueError("Esse valor não pode ser convertido em float")
         if isinstance(self._val, Enum):
             return float(self._val.value)
         return float(self._val)
@@ -306,43 +163,106 @@ class Field(Generic[T]):
         return bool(self._val)
 
     # =========================
-    # OPERAÇÕES MATEMÁTICAS
+    # Operadores Matemátios
     # =========================
-    def __add__(self, other):
-        return self._val + self._extract(other)
+    def __add__(self, other: Field) -> MathTypes | str:
+        if not isinstance(other, Field):
+            raise TypeError("Operação só suportada entre Fields")
+        otherValue = self._extract(other)
+        if isinstance(otherValue, MathTypes) and isinstance(self._val, MathTypes):
+            return self._val + otherValue
+        if isinstance(otherValue, str) and isinstance(self._val, str):
+            return self._val + otherValue
+        raise TypeError("Operação só suportada para tipos numéricos ou strings")
 
     def __radd__(self, other):
-        return self._extract(other) + self._val
+        if not isinstance(other, Field):
+            raise TypeError("Operação só suportada entre Fields")
+        otherValue = self._extract(other)
+        if isinstance(otherValue, MathTypes) and isinstance(self._val, MathTypes):
+            return otherValue + self._val
+        if isinstance(otherValue, str) and isinstance(self._val, str):
+            return otherValue + self._val
+        raise TypeError("Operação só suportada para tipos numéricos ou strings")
 
     def __sub__(self, other):
-        return self._val - self._extract(other)
+        if not isinstance(other, Field):
+            raise TypeError("Operação só suportada entre Fields")
+        otherValue = self._extract(other)
+        if isinstance(otherValue, MathTypes) and isinstance(self._val, MathTypes):
+            return self._val - otherValue
+        raise TypeError("Operação só suportada para tipos numéricos")
 
     def __rsub__(self, other):
-        return self._extract(other) - self._val
+        if not isinstance(other, Field):
+            raise TypeError("Operação só suportada entre Fields")
+        otherValue = self._extract(other)
+        if isinstance(otherValue, MathTypes) and isinstance(self._val, MathTypes):
+            return otherValue - self._val
+        raise TypeError("Operação só suportada para tipos numéricos")
 
     def __mul__(self, other):
-        return self._val * self._extract(other)
+        if not isinstance(other, Field):
+            raise TypeError("Operação só suportada entre Fields")
+        otherValue = self._extract(other)
+        if isinstance(otherValue, MathTypes) and isinstance(self._val, MathTypes):
+            return self._val * otherValue
+        if isinstance(otherValue, str) and isinstance(self._val, int):
+            return self._val * otherValue
+        raise TypeError("Operação só suportada para tipos numéricos ou strings")
 
     def __rmul__(self, other):
-        return self._extract(other) * self._val
+        if not isinstance(other, Field):
+            raise TypeError("Operação só suportada entre Fields")
+        otherValue = self._extract(other)
+        if isinstance(otherValue, MathTypes) and isinstance(self._val, MathTypes):
+            return otherValue * self._val
+        if isinstance(otherValue, int) and isinstance(self._val, str):
+            return otherValue * self._val
+        raise TypeError("Operação só suportada para tipos numéricos ou strings")
 
     def __truediv__(self, other):
-        return self._val / self._extract(other)
+        if not isinstance(other, Field):
+            raise TypeError("Operação só suportada entre Fields")
+        otherValue = self._extract(other)
+        if isinstance(otherValue, MathTypes) and isinstance(self._val, MathTypes):
+            return self._val / otherValue
+        raise TypeError("Operação só suportada para tipos numéricos")
 
     def __rtruediv__(self, other):
-        return self._extract(other) / self._val
+        if not isinstance(other, Field):
+            raise TypeError("Operação só suportada entre Fields")
+        otherValue = self._extract(other)
+        if isinstance(otherValue, MathTypes) and isinstance(self._val, MathTypes):
+            return otherValue / self._val
+        raise TypeError("Operação só suportada para tipos numéricos")
 
     def __floordiv__(self, other):
-        return self._val // self._extract(other)
+        if not isinstance(other, Field):
+            raise TypeError("Operação só suportada entre Fields")
+        otherValue = self._extract(other)
+        if isinstance(otherValue, MathTypes) and isinstance(self._val, MathTypes):
+            return self._val // otherValue
+        raise TypeError("Operação só suportada para tipos numéricos")
 
     def __mod__(self, other):
-        return self._val % self._extract(other)
+        if not isinstance(other, Field):
+            raise TypeError("Operação só suportada entre Fields")
+        otherValue = self._extract(other)
+        if isinstance(otherValue, MathTypes) and isinstance(self._val, MathTypes):
+            return self._val % otherValue
+        raise TypeError("Operação só suportada para tipos numéricos")
 
     def __pow__(self, other):
-        return self._val ** self._extract(other)
+        if not isinstance(other, Field):
+            raise TypeError("Operação só suportada entre Fields")
+        otherValue = self._extract(other)
+        if isinstance(otherValue, MathTypes) and isinstance(self._val, MathTypes):
+            return self._val ** otherValue
+        raise TypeError("Operação só suportada para tipos numéricos")
 
     # =========================
-    # OPERAÇÕES DE STRING
+    # Operadores String
     # =========================
     def upper(self):
         return str(self._val).upper()
@@ -366,24 +286,28 @@ class Field(Generic[T]):
         return str(self._val).endswith(value)
 
     # =========================
-    # COMPARAÇÕES SQL-LIKE
+    # Comparadores
     # =========================
-    def __eq__(self, value: Any) -> SearchModule:  # type: ignore
+    def __eq__(self, value: Any) -> "SearchModule":  # type: ignore[misc]
+        from ORM_IXC.models.searchUtils.searchModel import SearchModule
         return SearchModule(self.name, value, Operators.EQUALS)
 
-    def __lt__(self, value: Any) -> SearchModule:
+    def __lt__(self, value: Any) -> "SearchModule":
+        from ORM_IXC.models.searchUtils.searchModel import SearchModule
         return SearchModule(self.name, value, Operators.LASTTHAN)
 
-    def __gt__(self, value: Any) -> SearchModule:
+    def __gt__(self, value: Any) -> "SearchModule":
+        from ORM_IXC.models.searchUtils.searchModel import SearchModule
         return SearchModule(self.name, value, Operators.MORETHAN)
 
-    def __ne__(self, value: Any) -> SearchModule:  # type: ignore
+    def __ne__(self, value: Any) -> "SearchModule":  # type: ignore[misc]
+        from ORM_IXC.models.searchUtils.searchModel import SearchModule
         return SearchModule(self.name, value, Operators.DIFFERENT)
 
     # =========================
     # AUXILIAR
     # =========================
-    def _extract(self, value):
+    def _extract(self, value) -> AceptTypes:
         if isinstance(value, Field):
             return value._val
         return value
@@ -400,3 +324,4 @@ class Field(Generic[T]):
         if isinstance(self._val, Enum):
             return len(str(self._val.value))
         return len(str(self._val))
+    

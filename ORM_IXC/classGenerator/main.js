@@ -94,7 +94,7 @@ for (const [name, meta] of modelagem) {
   if (name === "id") {
     info.type = "int";
     info.required = true;
-    fields.push({ name: "id_autoincrement", info });
+    fields.push({ name: "id", info });
     continue;
   }
 
@@ -201,6 +201,9 @@ const lines = [];
 // --- imports ---
 lines.push("from __future__ import annotations");
 lines.push("from dataclasses import dataclass, field");
+lines.push(
+  "from ORM_IXC.statemants.metaManager import MetaModels"
+);
 {
   const typingImports = [];
   if (needsAny) typingImports.push("Any");
@@ -223,11 +226,11 @@ if (enumBlocks.length) {
 }
 
 // --- dataclass ---
-lines.push("@dataclass(kw_only=True)");
+lines.push("@MetaModels");
 lines.push(`class ${classNameFinal}:`);
 
 for (const { name, info } of sortedFields) {
-  const fieldName = name === "id" ? "id_autoincrement" : name;
+  const fieldName = name === "id" ? "id" : name;
   let typePart = info.type;
 
   if (!info.required || info.defaultValue === "None") {
@@ -248,10 +251,10 @@ lines.push("");
 lines.push("    def to_dict(self) -> dict:");
 lines.push("        return {");
 for (const { name, info } of sortedFields) {
-  const fieldName = name === "id" ? "id_autoincrement" : name;
+  const fieldName = name === "id" ? "id" : name;
   let expr;
 
-  if (fieldName === "id_autoincrement") {
+  if (fieldName === "id") {
     expr = `str(self.${fieldName})`;
   } else if (info.enumLines !== null) {
     expr = `self.${fieldName}.value if self.${fieldName} is not None else ''`;
@@ -267,10 +270,10 @@ lines.push("        }");
 
 // --- helpers ---
 lines.push("");
-lines.push("    def is_valid(self) -> bool:");
-const requiredNames = required.map(({ name }) =>
-  name === "id" ? "id_autoincrement" : name
-);
+// lines.push("    def is_valid(self) -> bool:");
+// const requiredNames = required.map(({ name }) =>
+//   name === "id" ? "id_autoincrement" : name
+// );
 if (requiredNames.length) {
   const checks = requiredNames
     .map((n) => `self.${n} is not None`)
@@ -281,51 +284,51 @@ if (requiredNames.length) {
 }
 
 lines.push("");
-lines.push("    def __repr__(self) -> str:");
-// Monta o f-string corretamente: {self.campo!r} sem chaves duplicadas
-const reprParts = requiredNames.map((n) => `${n}={self.${n}!r}`).join(", ");
-lines.push(`        return f"${classNameFinal}(${reprParts})"`);
+// lines.push("    def __repr__(self) -> str:");
+// // Monta o f-string corretamente: {self.campo!r} sem chaves duplicadas
+// const reprParts = requiredNames.map((n) => `${n}={self.${n}!r}`).join(", ");
+// lines.push(`        return f"${classNameFinal}(${reprParts})"`);
 
-// --- dtoConvert ---
-lines.push("");
-lines.push(
-  "#" + "-".repeat(30) + " CONVERSOR DTO " + "-".repeat(30) + "#"
-);
-lines.push(`def dto_convert(data: dict) -> ${classNameFinal}:`);
-lines.push(`    return ${classNameFinal}(`);
+// // --- dtoConvert ---
+// lines.push("");
+// lines.push(
+//   "#" + "-".repeat(30) + " CONVERSOR DTO " + "-".repeat(30) + "#"
+// );
+// lines.push(`def dto_convert(data: dict) -> ${classNameFinal}:`);
+// lines.push(`    return ${classNameFinal}(`);
 
-for (const { name, info } of sortedFields) {
-  const fieldName = name === "id" ? "id_autoincrement" : name;
-  let expr;
+// for (const { name, info } of sortedFields) {
+//   const fieldName = name === "id" ? "id_autoincrement" : name;
+//   let expr;
 
-  if (fieldName === "id_autoincrement") {
-    expr = `int(data.get('id_autoincrement', 0))`;
+//   if (fieldName === "id_autoincrement") {
+//     expr = `int(data.get('id_autoincrement', 0))`;
 
-  } else if (info.enumLines !== null) {
-    const enumCls = info.type;
-    if (info.required) {
-      // obrigatório: lança KeyError se ausente (sem None), tipo bate com o dataclass
-      expr = `${enumCls}(data['${fieldName}'])`;
-    } else {
-      // opcional: aceita None, tipo é Optional[EnumX]
-      expr = `${enumCls}(data['${fieldName}']) if data.get('${fieldName}') else None`;
-    }
+//   } else if (info.enumLines !== null) {
+//     const enumCls = info.type;
+//     if (info.required) {
+//       // obrigatório: lança KeyError se ausente (sem None), tipo bate com o dataclass
+//       expr = `${enumCls}(data['${fieldName}'])`;
+//     } else {
+//       // opcional: aceita None, tipo é Optional[EnumX]
+//       expr = `${enumCls}(data['${fieldName}']) if data.get('${fieldName}') else None`;
+//     }
 
-  } else if (info.type === "int") {
-    if (info.required) {
-      expr = `int(data['${fieldName}'])`;
-    } else {
-      expr = `int(data['${fieldName}']) if data.get('${fieldName}') else None`;
-    }
+//   } else if (info.type === "int") {
+//     if (info.required) {
+//       expr = `int(data['${fieldName}'])`;
+//     } else {
+//       expr = `int(data['${fieldName}']) if data.get('${fieldName}') else None`;
+//     }
 
-  } else {
-    // str e Any — required usa get com '' como fallback seguro
-    expr = `data.get('${fieldName}', '')`;
-  }
+//   } else {
+//     // str e Any — required usa get com '' como fallback seguro
+//     expr = `data.get('${fieldName}', '')`;
+//   }
 
-  lines.push(`        ${fieldName}=${expr},`);
-}
-lines.push("    )");
+//   lines.push(`        ${fieldName}=${expr},`);
+// }
+// lines.push("    )");
 
 // --- resultado final ---
 const resultado = lines.join("\n") + "\n";

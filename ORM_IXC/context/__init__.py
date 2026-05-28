@@ -1,14 +1,14 @@
 """Pacote de contextos da ORM IXC."""
 
-from .areceber import AReceber
-from .atendimento import Atendimento
-from .caixaDeAtendimento import CaixaDeAtendimento
-from .carteiraCobranca import CarteiraDeConbranca
-from .cliente import Cliente
-from .contratoDoCliente import ContratoDoCliente
-from .fiberClient import ClienteFibra
-from .login import Login
-from .serviceOrder import ServiceOrder
+from .contextModels.areceber import AReceber
+from .contextModels.atendimento import Atendimento
+from .contextModels.caixaDeAtendimento import CaixaDeAtendimento
+from .contextModels.carteiraCobranca import CarteiraDeConbranca
+from .contextModels.cliente import Cliente
+from .contextModels.contratoDoCliente import ContratoDoCliente
+from .contextModels.fiberClient import ClienteFibra
+from .contextModels.login import Login
+from .contextModels.serviceOrder import ServiceOrder
 
 __all__ = [
     "AReceber",

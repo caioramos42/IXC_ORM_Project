@@ -1,4 +1,4 @@
-from ORM_IXC.context.classeFinanceiraAnalitica import PlanejamentoAnalitico
+from ORM_IXC.context.contextModels.classeFinanceiraAnalitica import PlanejamentoAnalitico
 from ORM_IXC.context.request.manager import Manager
 import sys
 import os
@@ -11,6 +11,6 @@ def getOs():
     manager = Manager(os.getenv("IXC_HOST"), os.getenv("IXC_TOKEN"))
 
     service_order = PlanejamentoAnalitico(manager)
-    with open("planAnali.json", "w") as f:
-        f.write(service_order.SearchById(0).text)
+
+    print(service_order.SearchById(0))
 getOs()

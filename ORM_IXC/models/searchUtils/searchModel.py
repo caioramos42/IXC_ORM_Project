@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import Optional
 
-from ORM_IXC.enums import operators, sortOrder
+
+from ORM_IXC.enums import operators, sortOrder as sortOrder_module
 from ORM_IXC.interfaces.IModel import IModel
 from ORM_IXC.models.searchUtils.gridParamModel import GridParam
 
@@ -19,7 +20,7 @@ class SearchModule(IModel):
         sortName: str = "id",
         amount: int = 9999,
         page: int = 1,
-        sortOrder: sortOrder.SortOrder = sortOrder.SortOrder.ASC
+        sort_order: sortOrder_module.SortOrder = sortOrder_module.SortOrder.ASC
         ):
 
         self._context_model: Optional[IModel] = context_model
@@ -27,6 +28,7 @@ class SearchModule(IModel):
 
         table_prefix = f"{self._table}." if self._table else ""
         self.searchField = f"{table_prefix}{searchField}"
+        self.query: str
         if not isinstance(query, str):
             self.query = str(query)
         else:
@@ -35,7 +37,7 @@ class SearchModule(IModel):
         self.page = str(page)
         self.amount = str(amount)
         self.sortName = f"{table_prefix}{sortName}"
-        self.sortOrder = sortOrder.value
+        self.sortOrder = sort_order.value
         self.grid_param: list[GridParam] = []
 
     def setaAmount(self, amount: int) -> None:
@@ -49,11 +51,20 @@ class SearchModule(IModel):
             return self._context_model.table
         return self._table
 
-    def appendGridParams(self, gridParam: GridParam):
+    def appendGridParams(self, gridParam: GridParam) -> None:
         self.grid_param.append(gridParam)
 
     def _setGridParams(self) -> str:
         return json.dumps([x.to_dict() for x in self.grid_param])
+
+    @classmethod
+    def dto_convert(cls_, data: dict[str, str]) -> IModel:
+        """Placeholder classmethod to satisfy IModel protocol.
+
+        Actual per-instance behavior is provided by binding `self.dto_convert`
+        in `set_context_model` to delegate to the concrete context model.
+        """
+        raise NotImplementedError("SearchModule.dto_convert is a placeholder")
 
     def to_dict(self) -> dict[str, str]:
         dict_class = {
@@ -70,15 +81,17 @@ class SearchModule(IModel):
         dict_class["grid_param"] = self._setGridParams()
         return dict_class
 
-    def dto_convert(self, data: dict[str, str]) -> IModel:
-        if self._context_model is None:
-            raise ValueError(
-                "SearchModule.dto_convert requer context_model (modelo de contexto) para delegar dto_convert."
-            )
-        return self._context_model.dto_convert(data)
+    # dto_convert is provided at instance-level by `set_context_model`
+    # to delegate to the provided context model. This avoids classmethod
+    # signature conflicts with IModel while keeping per-instance behavior.
 
     def set_context_model(self, context_model: IModel):
         self._context_model = context_model
+        # bind instance-level dto_convert to delegate to the provided context model
+        try:
+            self.dto_convert = context_model.dto_convert  # type: ignore[assignment]
+        except Exception:
+            pass
 
     def set_table(self, table: str):
         self._table = table
@@ -88,3 +101,14 @@ class SearchModule(IModel):
 
         if not self.sortName.startswith(f"{table}.") and self.sortName != "":
             self.sortName = f"{table}.{self.sortName}"
+    def __and__(self, other: SearchModule) -> SearchModule:
+        if not isinstance(other, SearchModule):
+            raise NotImplementedError()
+        if other is None:
+            raise ValueError("O operador AND requer outro SearchModule como operando.")
+        self.appendGridParams(GridParam(
+                    other.searchField,
+                    operators.Operators(other.oper),
+                    other.query
+                ))
+        return self

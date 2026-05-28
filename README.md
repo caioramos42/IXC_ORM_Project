@@ -40,26 +40,27 @@ from ORM_IXC.context.request.manager import Manager
 manager = Manager('Ip_servidor', 'chave_api')
 ```
 
-### Criar um contexto
+### Criar um contexto de serviço
 
 ```python
-from ORM_IXC.context.cliente import Cliente
+from ORM_IXC.context.contextModels.serviceOrder import ServiceOrder
 
-cliente = Cliente(manager)
+service_order = ServiceOrder(manager)
 ```
 
 ### Buscar por ID
 
 ```python
-response = cliente.SearchById(123)
-print(response.json())
+result = service_order.SearchById(308364)
+print(result)
 ```
 
 ### Buscar todos os registros
 
 ```python
-response = cliente.SearchAll()
-print(response.json())
+all_records = service_order.SelectAll()
+for item in all_records:
+    print(item)
 ```
 
 ### Buscar com filtros
@@ -70,27 +71,223 @@ from ORM_IXC.models.searchUtils.gridParamModel import GridParam
 from ORM_IXC.enums.operators import Operators
 
 search = SearchModule(
-    searchField='nome',
-    query='João',
+    searchField='status',
+    query='F',
     oper=Operators.EQUALS
 )
+search.appendGridParams(GridParam('id_cliente', Operators.EQUALS, '32099'))
 
-search.appendGridParams(GridParam('cliente.cidade', Operators.EQUALS, 'São Paulo'))
-response = cliente.getByFilter(search)
-print(response.json())
+results = service_order.getByFilter(search)
+for item in results:
+    print(item)
 ```
 
-### Enviar payload genérico
+### Buscar com mais de um parâmetro e aplicar paginação
 
 ```python
-from ORM_IXC.models.defaultModel import DefaultPayload
+search = SearchModule(
+    searchField='status',
+    query='F',
+    oper=Operators.EQUALS
+)
+search.appendGridParams(GridParam('id_cliente', Operators.EQUALS, '32099'))
+search.appendGridParams(GridParam('tipo', Operators.EQUALS, 'C'))
+search.setPage(2)
+search.setaAmount(50)
 
-payload = DefaultPayload({
-    'nome': 'Novo Cliente',
-    'email': 'contato@exemplo.com'
-})
-response = cliente._MakePost(payload)
-print(response.status_code, response.text)
+results = service_order.getByFilter(search)
+print(f'Total encontrados: {len(results)}')
+```
+
+### Consumir resultados com cursor
+
+```python
+search = SearchModule(
+    searchField='tipo',
+    query='C',
+    oper=Operators.EQUALS
+)
+for item in service_order.cursorByFilter(search, page_size=100):
+    print(item)
+```
+
+### Procurar usando statements + execute (`newLoginTest`)
+```python
+
+from dotenv import load_dotenv
+from ORM_IXC.context.contextModels.login import Login
+from ORM_IXC.models.tableModels.loginModel import LoginModel
+from ORM_IXC.statemants.select import select
+from ORM_IXC.context.request import Manager
+import os
+
+from ORM_IXC.utils.makejson import makeJson
+
+load_dotenv()
+
+host = str(os.getenv("IXC_HOST"))
+token = str(os.getenv("IXC_TOKEN"))
+
+manager = Manager(host, token)
+login = Login(manager)
+query = select(login)\
+            .where(LoginModel.id > 0,\
+                LoginModel.tipo_conexao_mapa == 'F')\
+            .limit(500)\
+            .order_by("id")\
+            .execute()
+print([i.id for i in query])
+makeJson("myJson", query)
+```
+
+### Procurar usando statements + cursor (`newContasAReceberTest`)
+``` python
+from dotenv import load_dotenv
+
+from ORM_IXC.models.tableModels.contasAReceber import ContasAReceberModel
+from ORM_IXC.models.searchUtils.searchModel import SearchModule
+from ORM_IXC.context.contextModels.areceber import AReceber
+from ORM_IXC.statemants.select import select
+from ORM_IXC.context.request import Manager
+import os
+
+from ORM_IXC.utils.makejson import makeJsonStream
+
+load_dotenv()
+
+host = str(os.getenv("IXC_HOST"))
+token = str(os.getenv("IXC_TOKEN"))
+
+manager = Manager(host, token)
+aReceber = AReceber(manager)
+query = select(aReceber)\
+                        .where(ContasAReceberModel.id > 0)\
+                        .limit(300)\
+                        .order_by("id")\
+                        .cursor()
+
+makeJsonStream("neymarJr", query)
+```
+
+
+### Procurar usando selectAll() (`newContasAReceberTest`)
+``` python
+
+from dotenv import load_dotenv
+
+from ORM_IXC.models.tableModels.clienteModel import ClientModel
+from ORM_IXC.context.contextModels.cliente import Cliente
+from ORM_IXC.statemants.select import select
+from ORM_IXC.context.request import Manager
+import os
+
+from ORM_IXC.utils.makejson import makeJsonStream
+
+load_dotenv()
+
+host = str(os.getenv("IXC_HOST"))
+token = str(os.getenv("IXC_TOKEN"))
+
+manager = Manager(host, token)
+contabilSintetica = Cliente(manager)
+query = select(contabilSintetica)\
+                        .all()
+
+makeJsonStream("neymarJr", query)
+
+
+```
+
+### Procurar usando selectAllAssync() (`newContasAReceberTest`)
+``` python
+
+from dotenv import load_dotenv
+
+from ORM_IXC.models.tableModels.clienteModel import ClientModel
+from ORM_IXC.context.contextModels.cliente import Cliente
+from ORM_IXC.statemants.select import select
+from ORM_IXC.context.request import Manager
+import os
+
+from ORM_IXC.utils.makejson import makeJsonStream
+
+load_dotenv()
+
+host = str(os.getenv("IXC_HOST"))
+token = str(os.getenv("IXC_TOKEN"))
+
+manager = Manager(host, token)
+contabilSintetica = Cliente(manager)
+query = select(contabilSintetica)\
+                        .allAssync()
+
+makeJsonStream("neymarJr", query)
+
+
+```
+
+### Inserir usando statements (`newCreateServiceOrderInsertTest.py`)
+
+```python
+from ORM_IXC.statemants.insert import insert
+from ORM_IXC.models.tableModels.serviceOrderModel import ServiceOrderModel
+
+response = insert(service_order).values(
+    ServiceOrderModel(
+        id=None,
+        id_assunto=217,
+        id_atendente='',
+        id_cliente=32099,
+        tipo='C',
+        id_filial=1,
+        origem_endereco='M',
+        origem_endereco_estrutura='E',
+        prioridade='N',
+        melhor_horario_agenda='Q',
+        setor=2,
+        mensagem='Teste Api',
+        status='A',
+        status_assinatura='A',
+        gera_comissao='S',
+        liberado='1',
+        impresso='N',
+        origem_cadastro='P',
+        origem_os_aberta='C',
+        valor_unit_comissao='0,00',
+        valor_total_comissao='0,00',
+    )
+).execute()
+
+print(response[0].text)
+```
+
+### Atualizar usando statements (`newServiceOrderUpdateTest.py`)
+
+```python
+from ORM_IXC.statemants.update import update
+from ORM_IXC.models.tableModels.serviceOrderModel import ServiceOrderModel
+
+responses = update(service_order) \
+    .where(ServiceOrderModel.id == 308364) \
+    .values(ServiceOrderModel(status='F')) \
+    .execute()
+
+for resp in responses:
+    print(resp.status_code, resp.text)
+```
+
+### Excluir usando statements (`newServiceOrderDelete.py`)
+
+```python
+from ORM_IXC.statemants.update import delete
+from ORM_IXC.models.tableModels.serviceOrderModel import ServiceOrderModel
+
+responses = delete(service_order) \
+    .where(ServiceOrderModel.id == 308364) \
+    .execute()
+
+for resp in responses:
+    print(resp.status_code, resp.text)
 ```
 
 ## Estrutura principal

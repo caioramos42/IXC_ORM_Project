@@ -1,4 +1,4 @@
-from ORM_IXC.context.contabil import Contabil
+from ORM_IXC.context.contextModels.contabil import Contabil
 from ORM_IXC.context.request.manager import Manager
 import sys
 import os

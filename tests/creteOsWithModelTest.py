@@ -1,3 +1,3 @@
-from ORM_IXC.models.serviceOrderModel import ServiceOrderModel
+from ORM_IXC.models.tableModels.serviceOrderModel import ServiceOrderModel
 
 ServiceOrderModel()

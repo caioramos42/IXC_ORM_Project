@@ -1,6 +1,6 @@
-from ORM_IXC.context.serviceOrder import ServiceOrder
+from ORM_IXC.context.contextModels.serviceOrder import ServiceOrder
 from ORM_IXC.context.request.manager import Manager
-from ORM_IXC.models.defaultModel import DefaultPayload
+from ORM_IXC.models.tableModels.defaultModel import DefaultPayload
 from dotenv import load_dotenv
 import sys
 import os
