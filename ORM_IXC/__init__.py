@@ -6,23 +6,23 @@ importações absolutas baseadas em `IXC_ORM_Project.*`.
 
 import sys
 
-from .context.areceber import AReceber
-from .context.atendimento import Atendimento
-from .context.caixaDeAtendimento import CaixaDeAtendimento
-from .context.cliente import Cliente
-from .context.contrato import Contrato
-from .context.fiberClient import ClienteFibra
-from .context.login import Login
-from .context.request.manager import Manager
-from .context.serviceOrder import ServiceOrder
+from ORM_IXC.context.areceber import AReceber
+from ORM_IXC.context.atendimento import Atendimento
+from ORM_IXC.context.caixaDeAtendimento import CaixaDeAtendimento
+from ORM_IXC.context.cliente import Cliente
+from ORM_IXC.context.contrato import Contrato
+from ORM_IXC.context.fiberClient import ClienteFibra
+from ORM_IXC.context.login import Login
+from ORM_IXC.context.request.manager import Manager
+from ORM_IXC.context.serviceOrder import ServiceOrder
 
-from .enums.methods import Actions
-from .enums.operators import Operators
-from .enums.sortOrder import SortOrder
+from ORM_IXC.enums.methods import Actions
+from ORM_IXC.enums.operators import Operators
+from ORM_IXC.enums.sortOrder import SortOrder
 
-from .models.defaultModel import DefaultPayload
-from .models.searchUtils.gridParamModel import GridParam
-from .models.searchUtils.searchModel import SearchModule
+from ORM_IXC.models.defaultModel import DefaultPayload
+from ORM_IXC.models.searchUtils.gridParamModel import GridParam
+from ORM_IXC.models.searchUtils.searchModel import SearchModule
 
 __all__ = [
     "Manager",
