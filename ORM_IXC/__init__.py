@@ -6,23 +6,25 @@ importações absolutas baseadas em `IXC_ORM_Project.*`.
 
 import sys
 
-from ORM_IXC.context.areceber import AReceber
-from ORM_IXC.context.atendimento import Atendimento
-from ORM_IXC.context.caixaDeAtendimento import CaixaDeAtendimento
-from ORM_IXC.context.cliente import Cliente
-from ORM_IXC.context.contrato import Contrato
-from ORM_IXC.context.fiberClient import ClienteFibra
-from ORM_IXC.context.login import Login
-from ORM_IXC.context.request.manager import Manager
-from ORM_IXC.context.serviceOrder import ServiceOrder
+from .context.contextModels.areceber import AReceber
+from .context.contextModels.atendimento import Atendimento
+from .context.contextModels.caixaDeAtendimento import CaixaDeAtendimento
+from .context.contextModels.cliente import Cliente
+from .context.contextModels.contratoDoCliente import ContratoDoCliente
+from .context.contextModels.fiberClient import ClienteFibra
+from .context.contextModels.login import Login
+from .context.request.manager import Manager
+from .context.contextModels.serviceOrder import ServiceOrder
 
-from ORM_IXC.enums.methods import Actions
-from ORM_IXC.enums.operators import Operators
-from ORM_IXC.enums.sortOrder import SortOrder
+from .enums.methods import Actions
+from .enums.operators import Operators
+from .enums.sortOrder import SortOrder
 
-from ORM_IXC.models.defaultModel import DefaultPayload
-from ORM_IXC.models.searchUtils.gridParamModel import GridParam
-from ORM_IXC.models.searchUtils.searchModel import SearchModule
+from .models.tableModels.defaultModel import DefaultPayload
+from .models.searchUtils.gridParamModel import GridParam
+from .models.searchUtils.searchModel import SearchModule
+
+Contrato = ContratoDoCliente
 
 __all__ = [
     "Manager",
