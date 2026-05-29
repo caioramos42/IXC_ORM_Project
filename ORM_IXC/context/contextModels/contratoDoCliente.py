@@ -14,7 +14,7 @@ class ContratoDoCliente(IContext[ContratoDoClienteModel, ContratoDoClienteModel]
         return self._MakePost(obj)
     def Update(self, obj: ContratoDoClienteModel, search: SearchModule) -> list[requests.Response]:
         return self._MakeUpdate(obj, search)
-    def _MakeDelete(self, search: SearchModule) -> List[requests.Response]:
+    def Delete(self, search: SearchModule) -> List[requests.Response]:
         return super()._MakeDelete(search)
     def DeleteById(self, id: int) -> Any:
         raise NotImplementedError("DeleteById não implementado para ServiceOrder")

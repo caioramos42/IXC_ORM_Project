@@ -1,4 +1,3 @@
-
 from dotenv import load_dotenv
 from ORM_IXC.models.tableModels.clienteModel import ClientModel
 from ORM_IXC.context.contextModels.cliente import Cliente
@@ -6,6 +5,7 @@ from ORM_IXC.statemants.select import select
 from ORM_IXC.context.request import Manager
 import os
 
+from ORM_IXC.utils.makeexcel import makeXlsx, makeXLSXStream
 from ORM_IXC.utils.makejson import makeJsonStream
 load_dotenv()
 
@@ -20,6 +20,7 @@ query = select(contabilSintetica)\
                         .limit(300)\
                         .order_by("id")\
                         .cursor()
-
-makeJsonStream("neymarJr", query)
+                        
+#makeJsonStream("neymarJr", query)
+makeXLSXStream("neymarJr", query)
 

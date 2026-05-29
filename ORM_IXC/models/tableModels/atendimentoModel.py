@@ -1,5 +1,4 @@
 from __future__ import annotations
-from dataclasses import dataclass, field
 from typing import Optional
 from ORM_IXC.enums.atendimento import *
 from ORM_IXC.statemants.mapper import Mapped, field as mapped_field

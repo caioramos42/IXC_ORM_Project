@@ -127,7 +127,7 @@ class Field(Generic[T]):
         )
 
     # =========================
-    # CONVERSÃ•ES NATIVAS
+    # CONVERSÕES NATIVAS
     # =========================
     def __str__(self) -> str:
         if isinstance(self._val, Enum):
@@ -288,21 +288,29 @@ class Field(Generic[T]):
     # =========================
     # Comparadores
     # =========================
-    def __eq__(self, value: Any) -> "SearchModule":  # type: ignore[misc]
+    def __eq__(self, value: AceptTypes) -> "SearchModule":  # type: ignore[misc]
         from ORM_IXC.models.searchUtils.searchModel import SearchModule
-        return SearchModule(self.name, value, Operators.EQUALS)
+        return SearchModule(self.name, str(value), Operators.EQUALS)
 
-    def __lt__(self, value: Any) -> "SearchModule":
+    def __lt__(self, value: AceptTypes) -> "SearchModule":
         from ORM_IXC.models.searchUtils.searchModel import SearchModule
-        return SearchModule(self.name, value, Operators.LASTTHAN)
+        return SearchModule(self.name, str(value), Operators.LASTTHAN)
 
-    def __gt__(self, value: Any) -> "SearchModule":
+    def __gt__(self, value: AceptTypes) -> "SearchModule":
         from ORM_IXC.models.searchUtils.searchModel import SearchModule
-        return SearchModule(self.name, value, Operators.MORETHAN)
-
-    def __ne__(self, value: Any) -> "SearchModule":  # type: ignore[misc]
+        return SearchModule(self.name, str(value), Operators.MORETHAN)
+    
+    def __le__(self, value: AceptTypes) -> "SearchModule":
         from ORM_IXC.models.searchUtils.searchModel import SearchModule
-        return SearchModule(self.name, value, Operators.DIFFERENT)
+        return SearchModule(self.name, str(value), Operators.LASTTHANEQUALS)
+    
+    def __ge__(self, value: AceptTypes) -> "SearchModule":
+        from ORM_IXC.models.searchUtils.searchModel import SearchModule
+        return SearchModule(self.name, str(value), Operators.MORETHANEQUALS)
+    
+    def __ne__(self, value: AceptTypes) -> "SearchModule":  # type: ignore[misc]
+        from ORM_IXC.models.searchUtils.searchModel import SearchModule
+        return SearchModule(self.name, str(value), Operators.DIFFERENT)
 
     # =========================
     # AUXILIAR
@@ -324,4 +332,8 @@ class Field(Generic[T]):
         if isinstance(self._val, Enum):
             return len(str(self._val.value))
         return len(str(self._val))
-    
+
+    def like(self, value: TypeAlias) -> "SearchModule":
+        if isinstance(self._val, MathTypes):
+            raise TypeError("Operação 'like' não suportada para tipos numéricos")    
+        return SearchModule(self.name, str(value), Operators.LIKE)

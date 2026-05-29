@@ -103,9 +103,9 @@ class SearchModule(IModel):
             self.sortName = f"{table}.{self.sortName}"
     def __and__(self, other: SearchModule) -> SearchModule:
         if not isinstance(other, SearchModule):
-            raise NotImplementedError()
+            raise ValueError("O operador AND só pode ser usado entre instâncias de SearchModule.")
         if other is None:
-            raise ValueError("O operador AND requer outro SearchModule como operando.")
+            raise ValueError("O operador AND Não aceita valores None.")
         self.appendGridParams(GridParam(
                     other.searchField,
                     operators.Operators(other.oper),

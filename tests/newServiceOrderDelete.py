@@ -18,5 +18,3 @@ responses = delete(context)\
     .where(ServiceOrderModel.id == 308364)\
     .execute()
 print(responses[0].text)
-
-#308364

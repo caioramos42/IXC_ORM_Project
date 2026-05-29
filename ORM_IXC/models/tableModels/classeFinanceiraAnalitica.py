@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Optional
 
-from ORM_IXC.interfaces import IModel, IModelWithId
+from ORM_IXC.interfaces import IModelWithId
 from ORM_IXC.models.tableModels.defaultModel import BaseModel
 from ORM_IXC.statemants.mapper import Mapped, field as mapped_field
 from ORM_IXC.statemants.metaManager import MetaModels

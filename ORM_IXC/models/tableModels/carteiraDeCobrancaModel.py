@@ -1,5 +1,4 @@
 from __future__ import annotations
-from dataclasses import dataclass, field
 from typing import Any, Optional
 from ORM_IXC.enums.carteiraDeCobranca import *
 from ORM_IXC.interfaces import IModel, IModelWithId

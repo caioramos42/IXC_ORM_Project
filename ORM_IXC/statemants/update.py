@@ -8,7 +8,6 @@ from ORM_IXC.models.searchUtils.searchModel import SearchModule
 T = TypeVar('T', bound=IModel)
 U = TypeVar('U', bound=IModel)
 
-
 class Update(Generic[T, U]):
 
     def __init__(self, context: IContext[T, U]):
@@ -61,9 +60,6 @@ class Update(Generic[T, U]):
             raise ValueError("Nenhum payload informado para update(). Use .values(...) antes de .execute().")
 
         return self.context.Update(self.payload, self.search)
-
-
-
 
 def update(context: IContext[T, U]) -> Update[T, U]:
     """Factory function para criar uma instância de Update"""

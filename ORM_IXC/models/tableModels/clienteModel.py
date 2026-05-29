@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 from ORM_IXC.enums.client import *
-from ORM_IXC.interfaces.IModel import IModel, IModelWithId
-from ORM_IXC.statemants.classBase import Field
+from ORM_IXC.interfaces.IModel import IModelWithId
 from ORM_IXC.statemants.mapper import Mapped, field as mapped_field
 from ORM_IXC.statemants.metaManager import MetaModels
 from ORM_IXC.models.tableModels.defaultModel import BaseModel

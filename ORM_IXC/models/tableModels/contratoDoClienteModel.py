@@ -1,9 +1,7 @@
 from __future__ import annotations
-from dataclasses import  dataclass, field
 from typing import Optional
-from ORM_IXC.interfaces import IModel, IModelWithId
+from ORM_IXC.interfaces import IModelWithId
 from ORM_IXC.enums.contratoDoCliente import *
-from ORM_IXC.statemants.classBase import Field
 from ORM_IXC.statemants.metaManager import MetaModels
 from ORM_IXC.models.tableModels.defaultModel import BaseModel
 from ORM_IXC.statemants.mapper import Mapped, field as mapped_field
