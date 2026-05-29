@@ -90,7 +90,6 @@ def MetaModels(cls):
         init += f"\tif {k} is not UNSET:\n"
         init += f"\t\tself.{k} = {k}\n"
         init += f"\t\tself._changed_fields.add(\"{k}\")\n"
-    print(init)
     namespace: dict = {}
     exec(init, exec_globals, namespace)
     cls.__init__ = namespace["__init__"]
