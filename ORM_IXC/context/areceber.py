@@ -15,3 +15,5 @@ class AReceber(IContext[ContasAReceberModel, ContasAReceberModel], DefaultAction
         raise NotImplementedError("DeleteById não implementado para ServiceOrder")
     def SelectAll(self) -> Any:
         return self._SearchAll()
+    def MakeUpdate(self, modelForUpdate: IModel, search: SearchModule) -> list[requests.Response]:
+        return self._MakeUpdate(modelForUpdate, search)
