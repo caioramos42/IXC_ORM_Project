@@ -1,29 +1,32 @@
 // ============================================================
-//  GERADOR DE DATACLASS PYTHON — versão refatorada
-//  ✅ Ordena obrigatórios antes dos opcionais
-//  ✅ Gera dtoConvert corretamente
-//  ✅ Gera helpers automáticos
-//  ✅ Gera enums corretamente
-//  ✅ Usa kw_only=True
-//  ✅ Mantém defaults corretos
-//  ✅ Evita TypeError do dataclass
-//  ✅ Gera arquivo Python limpo
+// GERADOR NOVO PADRÃO ORM_IXC
+// ✅ Mapped[T]
+// ✅ mapped_field(default)
+// ✅ BaseModel
+// ✅ IModelWithId
+// ✅ _serialize_enum
+// ✅ to_dict padronizado
+// ✅ is_valid
+// ✅ enums separados
 // ============================================================
 
-// IIFE — isola o escopo para evitar "already been declared" ao rodar
-// múltiplas vezes no mesmo contexto (console, bookmarklet, etc.)
 ;(function () {
 
-// ── 1. LEITURA DO DOM ──────────────────────────────────────
+// ────────────────────────────────────────────────────────────
+// LEITURA DOM
+// ────────────────────────────────────────────────────────────
 
 const campoElements = document.getElementsByClassName(
   "spectrum-Heading spectrum-Heading--P click_campos"
 );
+
 const infoElements = document.querySelectorAll(
   ".spectrum-Body.spectrum-Body--P > ul"
 );
 
-// ── 2. NOME DA CLASSE ──────────────────────────────────────
+// ────────────────────────────────────────────────────────────
+// NOME CLASSE
+// ────────────────────────────────────────────────────────────
 
 const rawClassName = document.getElementsByClassName(
   "spectrum-BigSubtleLink"
@@ -33,316 +36,499 @@ const classNameFinal = rawClassName
   .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
   .join("");
 
-// ── 3. PAYLOAD (defaults vindos do HTML) ──────────────────
+const modelName = `${classNameFinal}Model`;
+
+// ────────────────────────────────────────────────────────────
+// PAYLOAD DEFAULTS
+// ────────────────────────────────────────────────────────────
 
 const html = document.getElementById("c-python").innerHTML;
-const match = html.match(/payload\s*=\s*json\.dumps\(([\s\S]*?)\)/);
+
+const match = html.match(
+  /payload\s*=\s*json\.dumps\(([\s\S]*?)\)/
+);
+
 const payloadLines = match
-  ? match[1].replace("{", "").replace("}", "").split(",\n")
+  ? match[1]
+      .replace("{", "")
+      .replace("}", "")
+      .split(",\n")
   : [];
 
 const payloadDefaults = new Map();
+
 for (const p of payloadLines) {
+
   const parts = p.trim().split(": ");
+
   if (parts.length >= 2) {
-    const k = parts[0].replaceAll("'", "").trim();
-    const v = parts.slice(1).join(": ").replaceAll("'", "").trim();
+
+    const k = parts[0]
+      .replaceAll("'", "")
+      .trim();
+
+    const v = parts
+      .slice(1)
+      .join(": ")
+      .replaceAll("'", "")
+      .trim();
+
     payloadDefaults.set(k, v);
   }
 }
 
-// ── 4. MODELAGEM (campos × metadados) ─────────────────────
+// ────────────────────────────────────────────────────────────
+// MODELAGEM
+// ────────────────────────────────────────────────────────────
 
-/**
- * @typedef {{ meta: Map<string,string>, enumLines: string[]|null, type: string, required: boolean, defaultValue: string|null }} FieldInfo
- */
-
-/** @type {Map<string, FieldInfo>} */
 const modelagem = new Map();
 
 for (let i = 0; i < campoElements.length; i++) {
-  const nomeCampo = campoElements[i].innerText.trim();
+
+  const nomeCampo = campoElements[i]
+    .innerText
+    .trim();
+
   const meta = new Map();
 
-  const liItems = infoElements[i].querySelectorAll("li");
+  const liItems =
+    infoElements[i].querySelectorAll("li");
+
   for (const li of liItems) {
-    const [key, ...rest] = li.innerHTML.split(":");
-    meta.set(key.trim(), rest.join(":").trim());
+
+    const [key, ...rest] =
+      li.innerHTML.split(":");
+
+    meta.set(
+      key.trim(),
+      rest.join(":").trim()
+    );
   }
 
   modelagem.set(nomeCampo, meta);
 }
 
-// ── 5. ANALISA CADA CAMPO ─────────────────────────────────
+// ────────────────────────────────────────────────────────────
+// ANALISE CAMPOS
+// ────────────────────────────────────────────────────────────
 
-/** @type {Array<{ name: string, info: FieldInfo }>} */
 const fields = [];
-
-/** @type {string[]} */
 const enumBlocks = [];
 
 for (const [name, meta] of modelagem) {
-  /** @type {FieldInfo} */
+
   const info = {
     meta,
     enumLines: null,
     type: "str",
-    required: meta.get("Campo obrigatório") !== "Não",
+    required:
+      meta.get("Campo obrigatório") !== "Não",
     defaultValue: null,
   };
 
   if (name === "id") {
+
     info.type = "int";
     info.required = true;
-    fields.push({ name: "id", info });
+
+    fields.push({ name, info });
+
     continue;
   }
 
-  const valoresDisp = meta.get("Valores disponíveis");
-  const tipoCampo = meta.get("Tipo de campo") ?? "";
+  const valoresDisp =
+    meta.get("Valores disponíveis");
 
-  // ── ENUM ──
+  const tipoCampo =
+    meta.get("Tipo de campo") ?? "";
+
+  // ───────────────── ENUM ─────────────────
+
   if (valoresDisp !== undefined) {
+
     const enumClassName =
-      name.charAt(0).toUpperCase() + name.slice(1) + "Enum";
-    const rawValues = valoresDisp.split("<br>").slice(1, -1);
+      name.charAt(0).toUpperCase() +
+      name.slice(1) +
+      "Enum";
+
+    const rawValues =
+      valoresDisp
+        .split("<br>")
+        .slice(1, -1);
+
     const enumEntries = [];
 
     for (const val of rawValues) {
-      const [code, ...labelParts] = val.split("=");
-      const codeClean = code
-        .trim()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
-      const enumKey = labelParts
-        .join("=")
-        .toUpperCase()
-        .trim()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replaceAll(" ", "_")
-        .replace(/\(.*?\)/g, "")
-        .replaceAll("/", "_")
-        .replaceAll("-", "_")
-        .trim();
 
-      enumEntries.push({ enumKey, codeClean });
+      const [code, ...labelParts] =
+        val.split("=");
 
-      // verifica se o payload default bate com este valor
-      const payloadVal = payloadDefaults.get(name);
-      if (payloadVal !== undefined && payloadVal === codeClean) {
-        info.defaultValue = `${enumClassName}.${enumKey}`;
+      const codeClean =
+        code
+          .trim()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+
+      const enumKey =
+        labelParts
+          .join("=")
+          .toUpperCase()
+          .trim()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replaceAll(" ", "_")
+          .replace(/\(.*?\)/g, "")
+          .replaceAll("/", "_")
+          .replaceAll("-", "_")
+          .trim();
+
+      enumEntries.push({
+        enumKey,
+        codeClean
+      });
+
+      const payloadVal =
+        payloadDefaults.get(name);
+
+      if (
+        payloadVal !== undefined &&
+        payloadVal === codeClean
+      ) {
+        info.defaultValue =
+          `${enumClassName}.${enumKey}`;
       }
     }
 
-    // monta bloco enum
-    let block = `class ${enumClassName}(Enum):\n`;
-    for (const { enumKey, codeClean } of enumEntries) {
-      block += `    ${enumKey} = '${codeClean}'\n`;
+    let block =
+      `class ${enumClassName}(Enum):\n`;
+
+    for (const e of enumEntries) {
+      block +=
+        `    ${e.enumKey} = '${e.codeClean}'\n`;
     }
+
     enumBlocks.push(block);
 
     info.type = enumClassName;
-    info.enumLines = enumEntries.map((e) => e.enumKey);
+    info.enumLines = enumEntries;
   }
 
-  // ── TEXTO ──
+  // ───────────────── TEXTO ─────────────────
+
   else if (
     tipoCampo === "Campo de texto" ||
     tipoCampo === "" ||
     tipoCampo === "Campo de área de texto" ||
     tipoCampo === "Caixa de seleção"
   ) {
+
     info.type = "str";
-    if (!info.required) info.defaultValue = "''";
+
+    if (!info.required) {
+      info.defaultValue = "''";
+    }
   }
 
-  // ── INT (busca avançada) ──
-  else if (tipoCampo === "Campo de busca avançada") {
+  // ───────────────── BUSCA AVANCADA ─────────────────
+
+  else if (
+    tipoCampo === "Campo de busca avançada"
+  ) {
+
     info.type = "int";
-    if (!info.required) info.defaultValue = "None";
+
+    if (!info.required) {
+      info.defaultValue = "None";
+    }
   }
 
-  // ── FALLBACK ──
   else {
-    info.type = "Any";
-    if (!info.required) info.defaultValue = "None";
+
+    info.type = "str";
+
+    if (!info.required) {
+      info.defaultValue = "None";
+    }
   }
 
-  // campos opcionais sem default explícito recebem None
-  if (!info.required && info.defaultValue === null) {
+  if (
+    !info.required &&
+    info.defaultValue === null
+  ) {
     info.defaultValue = "None";
   }
 
   fields.push({ name, info });
 }
 
-// ── 6. ORDENA: obrigatórios primeiro, depois opcionais ────
+// ────────────────────────────────────────────────────────────
+// ORDENA
+// ────────────────────────────────────────────────────────────
 
 const required = fields.filter(
-  ({ info }) => info.required && info.defaultValue === null
+  ({ info }) =>
+    info.required &&
+    info.defaultValue === null
 );
+
 const optional = fields.filter(
-  ({ info }) => !info.required || info.defaultValue !== null
-);
-const sortedFields = [...required, ...optional];
-
-// ── 7. DETECTA IMPORTS NECESSÁRIOS ────────────────────────
-
-const needsAny = fields.some(({ info }) => info.type === "Any");
-const needsOptional = fields.some(
-  ({ info }) => !info.required || info.defaultValue === "None"
+  ({ info }) =>
+    !info.required ||
+    info.defaultValue !== null
 );
 
-// ── 8. GERAÇÃO DO CÓDIGO PYTHON ───────────────────────────
+const sortedFields = [
+  ...required,
+  ...optional
+];
+
+// ────────────────────────────────────────────────────────────
+// GERAÇÃO PYTHON
+// ────────────────────────────────────────────────────────────
 
 const lines = [];
 
-// --- imports ---
-lines.push("from __future__ import annotations");
-lines.push("from dataclasses import dataclass, field");
+// imports
+
+lines.push(
+  "from __future__ import annotations"
+);
+
+lines.push(
+  "from typing import Optional"
+);
+
+lines.push(
+  "from ORM_IXC.interfaces import IModelWithId"
+);
+
+if (enumBlocks.length) {
+
+  lines.push(
+    `from ORM_IXC.enums.${classNameFinal.charAt(0).toLowerCase() + classNameFinal.slice(1)} import *`
+  );
+}
+
+lines.push(
+  "from ORM_IXC.statemants.mapper import Mapped, field as mapped_field"
+);
+
 lines.push(
   "from ORM_IXC.statemants.metaManager import MetaModels"
 );
-{
-  const typingImports = [];
-  if (needsAny) typingImports.push("Any");
-  if (needsOptional) typingImports.push("Optional");
-  if (typingImports.length) {
-    lines.push(`from typing import ${typingImports.join(", ")}`);
-  }
-}
-lines.push("from enum import Enum");
+
+lines.push(
+  "from ORM_IXC.models.tableModels.defaultModel import BaseModel"
+);
+
+lines.push("");
 lines.push("");
 
-// --- enums ---
+// enums
+
 if (enumBlocks.length) {
+
   lines.push(
-    "#" + "-".repeat(32) + " ENUMERADORES " + "-".repeat(32) + "#"
+    "# " +
+    "-".repeat(30) +
+    " ENUMS " +
+    "-".repeat(30)
   );
+
   for (const block of enumBlocks) {
     lines.push(block);
   }
 }
 
-// --- dataclass ---
+// class
+
 lines.push("@MetaModels");
-lines.push(`class ${classNameFinal}:`);
+
+lines.push(
+  `class ${modelName}(IModelWithId, BaseModel):`
+);
+
+// fields
 
 for (const { name, info } of sortedFields) {
-  const fieldName = name === "id" ? "id" : name;
-  let typePart = info.type;
 
-  if (!info.required || info.defaultValue === "None") {
-    typePart = `Optional[${typePart}]`;
+  let mappedType;
+
+  if (
+    !info.required ||
+    info.defaultValue === "None"
+  ) {
+
+    mappedType =
+      `Mapped[Optional[${info.type}]]`;
+
+  } else {
+
+    mappedType =
+      `Mapped[${info.type}]`;
   }
 
-  let line = `    ${fieldName}: ${typePart}`;
+  let line =
+    `    ${name} :${mappedType}`;
 
   if (info.defaultValue !== null) {
-    line += ` = ${info.defaultValue}`;
+
+    line +=
+      ` = mapped_field(${info.defaultValue})`;
   }
 
   lines.push(line);
 }
 
-// --- to_dict ---
-lines.push("");
-lines.push("    def to_dict(self) -> dict:");
-lines.push("        return {");
-for (const { name, info } of sortedFields) {
-  const fieldName = name === "id" ? "id" : name;
-  let expr;
+// table
 
-  if (fieldName === "id") {
-    expr = `str(self.${fieldName})`;
-  } else if (info.enumLines !== null) {
-    expr = `self.${fieldName}.value if self.${fieldName} is not None else ''`;
+lines.push("");
+lines.push("    @property");
+lines.push("    def table(self) -> str:");
+lines.push(
+  `        return "${classNameFinal.toLowerCase()}"`
+);
+
+// serialize enum
+
+lines.push("");
+lines.push(
+  "    def _serialize_enum(self, value) -> str:"
+);
+
+lines.push(
+  '        """Serializa um valor de enum ou retorna string vazia se None"""'
+);
+
+lines.push(
+  "        if value is None:"
+);
+
+lines.push(
+  "            return ''"
+);
+
+lines.push(
+  "        if hasattr(value, 'value'):"
+);
+
+lines.push(
+  "            return str(value.value)"
+);
+
+lines.push(
+  "        return str(value)"
+);
+
+// to_dict
+
+lines.push("");
+lines.push(
+  "    def to_dict(self) -> dict:"
+);
+
+lines.push(
+  "        def serialize(value) -> str:"
+);
+
+lines.push(
+  "            if value is None:"
+);
+
+lines.push(
+  "                return ''"
+);
+
+lines.push(
+  "            raw = getattr(value, 'value', value)"
+);
+
+lines.push(
+  "            return '' if raw is None else str(raw)"
+);
+
+lines.push("");
+lines.push("        data = {");
+
+for (const { name, info } of sortedFields) {
+
+  let value;
+
+  if (info.enumLines !== null) {
+
+    value =
+      `self._serialize_enum(self.${name}) if self.${name} is not None else ''`;
+
   } else if (info.type === "int") {
-    expr = `str(self.${fieldName}) if self.${fieldName} is not None else ''`;
+
+    value =
+      `str(self.${name}) if self.${name} is not None else ''`;
+
   } else {
-    expr = `self.${fieldName} if self.${fieldName} is not None else ''`;
+
+    value =
+      `self.${name} if self.${name} is not None else ''`;
   }
 
-  lines.push(`            '${fieldName}': ${expr},`);
+  lines.push(
+    `            '${name}': ${value},`
+  );
 }
+
 lines.push("        }");
 
-// --- helpers ---
-lines.push("");
-// lines.push("    def is_valid(self) -> bool:");
-// const requiredNames = required.map(({ name }) =>
-//   name === "id" ? "id_autoincrement" : name
-// );
-if (requiredNames.length) {
-  const checks = requiredNames
-    .map((n) => `self.${n} is not None`)
-    .join(" and ");
-  lines.push(`        return ${checks}`);
-} else {
-  lines.push("        return True");
-}
+lines.push(
+  "        return {key: serialize(value) for key, value in data.items()}"
+);
+
+// is_valid
 
 lines.push("");
-// lines.push("    def __repr__(self) -> str:");
-// // Monta o f-string corretamente: {self.campo!r} sem chaves duplicadas
-// const reprParts = requiredNames.map((n) => `${n}={self.${n}!r}`).join(", ");
-// lines.push(`        return f"${classNameFinal}(${reprParts})"`);
+lines.push(
+  "    def is_valid(self) -> bool:"
+);
 
-// // --- dtoConvert ---
-// lines.push("");
-// lines.push(
-//   "#" + "-".repeat(30) + " CONVERSOR DTO " + "-".repeat(30) + "#"
-// );
-// lines.push(`def dto_convert(data: dict) -> ${classNameFinal}:`);
-// lines.push(`    return ${classNameFinal}(`);
+const requiredChecks =
+  required.map(
+    ({ name }) =>
+      `self.${name} is not None`
+  );
 
-// for (const { name, info } of sortedFields) {
-//   const fieldName = name === "id" ? "id_autoincrement" : name;
-//   let expr;
+lines.push(
+  `        return ${requiredChecks.join(" and ")}`
+);
 
-//   if (fieldName === "id_autoincrement") {
-//     expr = `int(data.get('id_autoincrement', 0))`;
+// final
 
-//   } else if (info.enumLines !== null) {
-//     const enumCls = info.type;
-//     if (info.required) {
-//       // obrigatório: lança KeyError se ausente (sem None), tipo bate com o dataclass
-//       expr = `${enumCls}(data['${fieldName}'])`;
-//     } else {
-//       // opcional: aceita None, tipo é Optional[EnumX]
-//       expr = `${enumCls}(data['${fieldName}']) if data.get('${fieldName}') else None`;
-//     }
+const resultado =
+  lines.join("\n") + "\n";
 
-//   } else if (info.type === "int") {
-//     if (info.required) {
-//       expr = `int(data['${fieldName}'])`;
-//     } else {
-//       expr = `int(data['${fieldName}']) if data.get('${fieldName}') else None`;
-//     }
-
-//   } else {
-//     // str e Any — required usa get com '' como fallback seguro
-//     expr = `data.get('${fieldName}', '')`;
-//   }
-
-//   lines.push(`        ${fieldName}=${expr},`);
-// }
-// lines.push("    )");
-
-// --- resultado final ---
-const resultado = lines.join("\n") + "\n";
 console.log(resultado);
 
-// ── 9. DOWNLOAD ───────────────────────────────────────────
+// ────────────────────────────────────────────────────────────
+// DOWNLOAD
+// ────────────────────────────────────────────────────────────
 
-const blob = new Blob([resultado], { type: "text/plain" });
-const link = document.createElement("a");
-link.href = URL.createObjectURL(blob);
-link.download = classNameFinal + ".py";
+const blob = new Blob(
+  [resultado],
+  { type: "text/plain" }
+);
+
+const link =
+  document.createElement("a");
+
+link.href =
+  URL.createObjectURL(blob);
+
+link.download =
+  modelName + ".py";
+
 document.body.appendChild(link);
+
 link.click();
+
 document.body.removeChild(link);
+
 URL.revokeObjectURL(link.href);
 
-})(); // fim da IIFE
+})();
