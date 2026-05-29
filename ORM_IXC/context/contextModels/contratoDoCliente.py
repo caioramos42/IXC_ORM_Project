@@ -5,14 +5,17 @@ from ORM_IXC.context.defaultActions.defaultActions import DefaultActions
 from ORM_IXC.context.request.manager import Manager
 from ORM_IXC.models.tableModels.contratoDoClienteModel import ContratoDoClienteModel
 from ORM_IXC.models.searchUtils.searchModel import SearchModule
+import requests
 
 class ContratoDoCliente(IContext[ContratoDoClienteModel, ContratoDoClienteModel], DefaultActions):
     def __init__(self, manager: Manager):
         DefaultActions.__init__(self, ContratoDoClienteModel, manager)
     def Add(self, obj: ContratoDoClienteModel) -> Any:
         return self._MakePost(obj)
-    def Update(self, obj: ContratoDoClienteModel) -> Any:
-        return self._MakePut(obj)
+    def Update(self, obj: ContratoDoClienteModel, search: SearchModule) -> list[requests.Response]:
+        return self._MakeUpdate(obj, search)
+    def _MakeDelete(self, search: SearchModule) -> List[requests.Response]:
+        return super()._MakeDelete(search)
     def DeleteById(self, id: int) -> Any:
         raise NotImplementedError("DeleteById não implementado para ServiceOrder")
     def SelectAll(self) -> List[ContratoDoClienteModel]:

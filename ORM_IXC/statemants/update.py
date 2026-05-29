@@ -14,7 +14,7 @@ class Update(Generic[T, U]):
     def __init__(self, context: IContext[T, U]):
         self.context: IContext[T, U] = context
         self.search: SearchModule | None = None
-        self.payload: IModel | None = None
+        self.payload: U | None = None
 
     def where(self, *conditions: SearchModule) -> "Update":
         """Define as condições de filtro para o UPDATE (como em SELECT)"""
@@ -33,7 +33,7 @@ class Update(Generic[T, U]):
                 )
         return self
 
-    def values(self, payload: IModel) -> "Update":
+    def values(self, payload: U) -> "Update":
         """Define o objeto com os valores a serem atualizados"""
         if not isinstance(payload, IModel):
             raise TypeError(f"Expected an IModel instance, got {type(payload).__name__}")
@@ -52,16 +52,15 @@ class Update(Generic[T, U]):
         
         return result
 
-    def execute(self) -> list[Any]:
+    def execute(self) -> list[T]:
         """Executa o UPDATE com pesquisa"""
         if self.search is None:
             raise ValueError("Nenhuma condição definida para update(). Use .where(...) antes de .execute().")
         
         if self.payload is None:
             raise ValueError("Nenhum payload informado para update(). Use .values(...) antes de .execute().")
-        
-        # Chama o método _MakeUpdate do context passando a payload e as condições de pesquisa
-        return self.context._MakeUpdate(self.payload, self.search)
+
+        return self.context.Update(self.payload, self.search)
 
 
 

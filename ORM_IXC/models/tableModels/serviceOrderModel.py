@@ -84,7 +84,15 @@ class ServiceOrderModel(IModelWithId, BaseModel):
     @property
     def table(self) -> str:
         return "su_oss_chamado"
-
+    
+    def _serialize_enum(self, value) -> str:
+        """Serializa um valor de enum ou retorna string vazia se None"""
+        if value is None:
+            return ''
+        if hasattr(value, 'value'):
+            return str(value.value)
+        return str(value)
+    
     def to_dict(self) -> dict[str, str]:
         def serialize(value) -> str:
             if value is None:
@@ -98,7 +106,7 @@ class ServiceOrderModel(IModelWithId, BaseModel):
             'id_filial': str(self.id_filial) if self.id_filial is not None else '',
             'setor': str(self.setor) if self.setor is not None else '',
             'id_atendente': self.id_atendente if self.id_atendente is not None else '',
-            'tipo': self.tipo.value if self.tipo is not None else '',
+            'tipo': self._serialize_enum(self.tipo) if self.tipo is not None else '',
             'id_ticket': str(self.id_ticket) if self.id_ticket is not None else '',
             'protocolo': self.protocolo if self.protocolo is not None else '',
             'dica_assinatura_digital': self.dica_assinatura_digital if self.dica_assinatura_digital is not None else '',
@@ -106,35 +114,35 @@ class ServiceOrderModel(IModelWithId, BaseModel):
             'id_estrutura': str(self.id_estrutura) if self.id_estrutura is not None else '',
             'id_login': str(self.id_login) if self.id_login is not None else '',
             'id_contrato_kit': str(self.id_contrato_kit) if self.id_contrato_kit is not None else '',
-            'origem_endereco': self.origem_endereco.value if self.origem_endereco is not None else '',
-            'origem_endereco_estrutura': self.origem_endereco_estrutura.value if self.origem_endereco_estrutura is not None else '',
+            'origem_endereco': self._serialize_enum(self.origem_endereco) if self.origem_endereco is not None else '',
+            'origem_endereco_estrutura': self._serialize_enum(self.origem_endereco_estrutura) if self.origem_endereco_estrutura is not None else '',
             'latitude': self.latitude if self.latitude is not None else '',
             'longitude': self.longitude if self.longitude is not None else '',
-            'status_conexao': self.status_conexao.value if self.status_conexao is not None else '',
-            'prioridade': self.prioridade.value if self.prioridade is not None else '',
-            'melhor_horario_agenda': self.melhor_horario_agenda.value if self.melhor_horario_agenda is not None else '',
+            'status_conexao': self._serialize_enum(self.status_conexao) if self.status_conexao is not None else '',
+            'prioridade': self._serialize_enum(self.prioridade) if self.prioridade is not None else '',
+            'melhor_horario_agenda': self._serialize_enum(self.melhor_horario_agenda) if self.melhor_horario_agenda is not None else '',
             'id_tecnico': str(self.id_tecnico) if self.id_tecnico is not None else '',
             'mensagem': self.mensagem if self.mensagem is not None else '',
             'id_receber': self.id_receber if self.id_receber is not None else '',
             'idx': self.idx if self.idx is not None else '',
-            'status_pesquisa_satisfacao': self.status_pesquisa_satisfacao.value if self.status_pesquisa_satisfacao is not None else '',
-            'status': self.status.value if self.status is not None else '',
+            'status_pesquisa_satisfacao': self._serialize_enum(self.status_pesquisa_satisfacao) if self.status_pesquisa_satisfacao is not None else '',
+            'status': self._serialize_enum(self.status) if self.status is not None else '',
             'habilita_assinatura_cliente': self.habilita_assinatura_cliente if self.habilita_assinatura_cliente is not None else '',
-            'status_assinatura': self.status_assinatura.value if self.status_assinatura is not None else '',
-            'gera_comissao': self.gera_comissao.value if self.gera_comissao is not None else '',
-            'liberado': self.liberado.value if self.liberado is not None else '',
-            'impresso': self.impresso.value if self.impresso is not None else '',
+            'status_assinatura': self._serialize_enum(self.status_assinatura) if self.status_assinatura is not None else '',
+            'gera_comissao': self._serialize_enum(self.gera_comissao) if self.gera_comissao is not None else '',
+            'liberado': self._serialize_enum(self.liberado) if self.liberado is not None else '',
+            'impresso': self._serialize_enum(self.impresso) if self.impresso is not None else '',
             'preview': self.preview if self.preview is not None else '',
             'id_wfl_param_os': self.id_wfl_param_os if self.id_wfl_param_os is not None else '',
             'id_wfl_tarefa': self.id_wfl_tarefa if self.id_wfl_tarefa is not None else '',
             'id_su_diagnostico': str(self.id_su_diagnostico) if self.id_su_diagnostico is not None else '',
             'regiao_manutencao': self.regiao_manutencao if self.regiao_manutencao is not None else '',
-            'origem_cadastro': self.origem_cadastro.value if self.origem_cadastro is not None else '',
+            'origem_cadastro': self._serialize_enum(self.origem_cadastro) if self.origem_cadastro is not None else '',
             'origem_change_endereco': self.origem_change_endereco if self.origem_change_endereco is not None else '',
             'status_sla': self.status_sla if self.status_sla is not None else '',
             'ultima_atualizacao': self.ultima_atualizacao if self.ultima_atualizacao is not None else '',
             'ids_login_regiao_manutencao': self.ids_login_regiao_manutencao if self.ids_login_regiao_manutencao is not None else '',
-            'origem_os_aberta': self.origem_os_aberta.value if self.origem_os_aberta is not None else '',
+            'origem_os_aberta': self._serialize_enum(self.origem_os_aberta) if self.origem_os_aberta is not None else '',
             'id_cidade': str(self.id_cidade) if self.id_cidade is not None else '',
             'bairro': self.bairro if self.bairro is not None else '',
             'endereco': self.endereco if self.endereco is not None else '',

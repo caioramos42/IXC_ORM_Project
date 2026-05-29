@@ -1,4 +1,7 @@
 from typing import Any, List, Iterator, cast
+
+import requests
+
 from ORM_IXC.interfaces.IContext import IContext
 from ORM_IXC.context.defaultActions.defaultActions import DefaultActions
 from ORM_IXC.context.request.manager import Manager
@@ -10,8 +13,10 @@ class CarteiraDeConbranca(IContext[CarteiraDeCobrancaModel, CarteiraDeCobrancaMo
         DefaultActions.__init__(self, CarteiraDeCobrancaModel, manager)
     def Add(self, obj: CarteiraDeCobrancaModel) -> Any:
         return self._MakePost(obj)
-    def Update(self, obj: CarteiraDeCobrancaModel) -> Any:
-        return self._MakePut(obj)
+    def Update(self, obj: CarteiraDeCobrancaModel, search: SearchModule) -> list[requests.Response]:
+        return self._MakeUpdate(obj, search)
+    def Delete(self, search: SearchModule) -> List[requests.Response]:
+        return super()._MakeDelete(search)
     def DeleteById(self, id: int) -> Any:
         raise NotImplementedError("DeleteById não implementado para ServiceOrder")
     def SelectAll(self) -> List[CarteiraDeCobrancaModel]:

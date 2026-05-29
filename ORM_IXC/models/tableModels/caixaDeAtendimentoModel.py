@@ -33,6 +33,14 @@ class CaixaDeAtendimentoModel(IModelWithId, BaseModel):
     def table(self) -> str:
         return "rad_caixa_ftth"
     
+    def _serialize_enum(self, value) -> str:
+        """Serializa um valor de enum ou retorna string vazia se None"""
+        if value is None:
+            return ''
+        if hasattr(value, 'value'):
+            return str(value.value)
+        return str(value) 
+      
     def to_dict(self) -> dict:
         def serialize(value) -> str:
             if value is None:
@@ -44,14 +52,14 @@ class CaixaDeAtendimentoModel(IModelWithId, BaseModel):
             'id': str(self.id),
             'descricao': self.descricao if self.descricao is not None else '',
             'id_projeto': str(self.id_projeto) if self.id_projeto is not None else '',
-            'tipo': self.tipo.value if self.tipo is not None else '',
+            'tipo': self._serialize_enum(self.tipo) if self.tipo is not None else '',
             'id_transmissor': str(self.id_transmissor) if self.id_transmissor is not None else '',
             'id_interface': str(self.id_interface) if self.id_interface is not None else '',
             'id_tecnologia': str(self.id_tecnologia) if self.id_tecnologia is not None else '',
             'capacidade': self.capacidade if self.capacidade is not None else '',
-            'codigo_estilo_caixa': self.codigo_estilo_caixa.value if self.codigo_estilo_caixa is not None else '',
+            'codigo_estilo_caixa': self._serialize_enum(self.codigo_estilo_caixa) if self.codigo_estilo_caixa is not None else '',
             'obs_caixa_ftth': self.obs_caixa_ftth if self.obs_caixa_ftth is not None else '',
-            'status': self.status.value if self.status is not None else '',
+            'status': self._serialize_enum(self.status) if self.status is not None else '',
             'idx': self.idx if self.idx is not None else '',
             'ultima_atualizacao': self.ultima_atualizacao if self.ultima_atualizacao is not None else '',
             'cep': self.cep if self.cep is not None else '',

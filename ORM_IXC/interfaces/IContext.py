@@ -1,8 +1,10 @@
-from typing import Any, TypeVar, Generic, Iterator
+from typing import Any, TypeVar, Generic, Iterator, List
 from abc import ABC, abstractmethod
 
 from ORM_IXC.interfaces.IModel import IModel
 from ORM_IXC.models.searchUtils.searchModel import SearchModule
+
+import requests
 
 TAddModel = TypeVar("TAddModel", bound=IModel, contravariant=True)
 TUpdateModel = TypeVar("TUpdateModel", bound=IModel, contravariant=True)
@@ -14,9 +16,13 @@ class IContext(ABC, Generic[TAddModel, TUpdateModel]):
         """add obj in ixc server"""
 
     @abstractmethod
-    def Update(self, obj: TUpdateModel) -> Any:
+    def Update(self, obj: TUpdateModel, search: SearchModule) -> Any:
         """Update obj in ixc server"""
-
+    
+    @abstractmethod
+    def Delete(self, search: SearchModule) -> List[requests.Response]:
+        """Delete obj in ixc server by filter"""
+    
     @abstractmethod
     def DeleteById(self, id: int) -> Any:
         """delete obj in ixc server by ID"""

@@ -73,13 +73,21 @@ class AtendimentoModel(IModelWithId, BaseModel):
     def table(self) -> str:
         return "su_ticket"
     
+    def _serialize_enum(self, value) -> str:
+        """Serializa um valor de enum ou retorna string vazia se None"""
+        if value is None:
+            return ''
+        if hasattr(value, 'value'):
+            return str(value.value)
+        return str(value)  
+    
     def to_dict(self) -> dict:
         return {
             'id': str(self.id),
             'titulo': self.titulo if self.titulo is not None else '',
             'id_ticket_setor': str(self.id_ticket_setor) if self.id_ticket_setor is not None else '',
             'menssagem': self.menssagem if self.menssagem is not None else '',
-            'tipo': self.tipo.value if self.tipo is not None else '',
+            'tipo': self._serialize_enum(self.tipo) if self.tipo is not None else '',
             'id_estrutura': str(self.id_estrutura) if self.id_estrutura is not None else '',
             'protocolo': self.protocolo if self.protocolo is not None else '',
             'id_circuito': str(self.id_circuito) if self.id_circuito is not None else '',
@@ -88,8 +96,8 @@ class AtendimentoModel(IModelWithId, BaseModel):
             'id_contrato': str(self.id_contrato) if self.id_contrato is not None else '',
             'id_filial': str(self.id_filial) if self.id_filial is not None else '',
             'id_assunto': str(self.id_assunto) if self.id_assunto is not None else '',
-            'origem_endereco': self.origem_endereco.value if self.origem_endereco is not None else '',
-            'origem_endereco_estrutura': self.origem_endereco_estrutura.value if self.origem_endereco_estrutura is not None else '',
+            'origem_endereco': self._serialize_enum(self.origem_endereco) if self.origem_endereco is not None else '',
+            'origem_endereco_estrutura': self._serialize_enum(self.origem_endereco_estrutura) if self.origem_endereco_estrutura is not None else '',
             'endereco': self.endereco if self.endereco is not None else '',
             'latitude': self.latitude if self.latitude is not None else '',
             'longitude': self.longitude if self.longitude is not None else '',
@@ -97,14 +105,14 @@ class AtendimentoModel(IModelWithId, BaseModel):
             'id_responsavel_tecnico': str(self.id_responsavel_tecnico) if self.id_responsavel_tecnico is not None else '',
             'data_criacao': self.data_criacao if self.data_criacao is not None else '',
             'data_ultima_alteracao': self.data_ultima_alteracao if self.data_ultima_alteracao is not None else '',
-            'prioridade': self.prioridade.value if self.prioridade is not None else '',
+            'prioridade': self._serialize_enum(self.prioridade) if self.prioridade is not None else '',
             'data_reservada': self.data_reservada if self.data_reservada is not None else '',
-            'melhor_horario_reserva': self.melhor_horario_reserva.value if self.melhor_horario_reserva is not None else '',
-            'id_ticket_origem': self.id_ticket_origem.value if self.id_ticket_origem is not None else '',
+            'melhor_horario_reserva': self._serialize_enum(self.melhor_horario_reserva) if self.melhor_horario_reserva is not None else '',
+            'id_ticket_origem': self._serialize_enum(self.id_ticket_origem) if self.id_ticket_origem is not None else '',
             'id_usuarios': str(self.id_usuarios) if self.id_usuarios is not None else '',
             'id_resposta': str(self.id_resposta) if self.id_resposta is not None else '',
-            'interacao_pendente': self.interacao_pendente.value if self.interacao_pendente is not None else '',
-            'su_status': self.su_status.value if self.su_status is not None else '',
+            'interacao_pendente': self._serialize_enum(self.interacao_pendente) if self.interacao_pendente is not None else '',
+            'su_status': self._serialize_enum(self.su_status) if self.su_status is not None else '',
             'id_evento_status_processo': str(self.id_evento_status_processo) if self.id_evento_status_processo is not None else '',
             'id_canal_atendimento': str(self.id_canal_atendimento) if self.id_canal_atendimento is not None else '',
             'status': self.status if self.status is not None else '',

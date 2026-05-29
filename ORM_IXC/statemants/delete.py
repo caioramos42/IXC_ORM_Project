@@ -1,9 +1,11 @@
-from typing import Any, TypeVar, Generic
+from typing import Any, List, TypeVar, Generic
 
 from ORM_IXC.enums.operators import Operators
 from ORM_IXC.interfaces import IContext, IModel
 from ORM_IXC.models.searchUtils.gridParamModel import GridParam
 from ORM_IXC.models.searchUtils.searchModel import SearchModule
+import requests
+
 
 T = TypeVar('T', bound=IModel)
 U = TypeVar('U', bound=IModel)
@@ -31,11 +33,11 @@ class Delete(Generic[T, U]):
                 )
         return self
 
-    def execute(self) -> list[Any]:
+    def execute(self) -> List[requests.Response]:
         if self.search is None:
             raise ValueError("Nenhuma condição definida para delete(). Use .where(...) antes de .execute().")
 
-        return self.context._MakeDelete(self.search)
+        return self.context.Delete(self.search)
 
 def delete(context: IContext[T, U]) -> Delete[T, U]:
     """Factory function para criar uma instância de Delete"""

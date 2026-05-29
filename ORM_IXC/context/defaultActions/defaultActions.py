@@ -22,7 +22,7 @@ class DefaultActions(ABC):
     def _get_table(self) -> str:
         return self._get_context_model().table
         
-    def SearchById(self, id: int) -> IModel | list[IModel]:
+    def SearchById(self, id: int) -> list[IModel]:
         search = SearchModule(
             searchField="id",
             query=str(id),
@@ -82,15 +82,8 @@ class DefaultActions(ABC):
         return self.manager.make_request(modelForSend, Actions.EDIT)
 
     def _MakeDelete(self, search: SearchModule) -> list[requests.Response]:
-        table = self._get_table()
-        search.set_context_model(self._get_context_model())
-        search.set_table(table)
-        if len(search.grid_param) != 0:
-            for param in search.grid_param:
-                if not param.searchField.startswith(f"{table}."):
-                    param.searchField = f"{table}.{param.searchField}"
-
-        found_records = self.manager.make_request(search, Actions.LIST)
+        found_records = self.getByFilter(search)
+        
         if not found_records:
             raise ValueError("Nenhum registro encontrado para os filtros especificados")
         print(len(found_records))
@@ -102,24 +95,7 @@ class DefaultActions(ABC):
         return responses
 
     def _MakeUpdate(self, modelForUpdate: IModel, search: SearchModule) -> list[requests.Response]:
-        """UPDATE com pesquisa: busca registros e aplica apenas campos diferentes do modelo padrão
-
-        Estratégia:
-        - Instanciar um modelo "vazio" da mesma classe de `modelForUpdate` sem parâmetros
-        - Comparar os `to_dict()` dos dois objetos
-        - Gerar `update_values` apenas com campos cujo valor difere do padrão (excluindo IDs)
-        - Aplicar esses valores apenas nos campos diferentes dos registros encontrados
-        """
-        table = self._get_table()
-        search.set_context_model(self._get_context_model())
-        search.set_table(table)
-        if len(search.grid_param) != 0:
-            for param in search.grid_param:
-                if not param.searchField.startswith(f"{table}."):
-                    param.searchField = f"{table}.{param.searchField}"
-        
-        # 1. Pesquisar registros que correspondem aos filtros
-        found_records = self.manager.make_request(search, Actions.LIST)
+        found_records = self.getByFilter(search)
         
         if not found_records:
             raise ValueError("Nenhum registro encontrado para os filtros especificados")
@@ -194,9 +170,9 @@ class DefaultActions(ABC):
         
         return responses
 
-    def update(self, model: IModel, search: SearchModule) -> list[requests.Response]:
-        """UPDATE com pesquisa - wrapper público para _MakeUpdate"""
-        return self._MakeUpdate(model, search)
+    # def update(self, model: IModel, search: SearchModule) -> list[requests.Response]:
+    #     """UPDATE com pesquisa - wrapper público para _MakeUpdate"""
+    #     return self._MakeUpdate(model, search)
 
     def _SelectAllAssync(self, page_size: int = 200):
             search = SearchModule(

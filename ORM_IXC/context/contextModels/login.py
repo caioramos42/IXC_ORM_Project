@@ -5,14 +5,17 @@ from ORM_IXC.context.defaultActions.defaultActions import DefaultActions
 from ORM_IXC.context.request.manager import Manager
 from ORM_IXC.models.tableModels.loginModel import LoginModel
 from ORM_IXC.models.searchUtils.searchModel import SearchModule
+import requests
 
 class Login(IContext[LoginModel, LoginModel], DefaultActions):
     def __init__(self, manager: Manager):
         DefaultActions.__init__(self, LoginModel, manager)
     def Add(self, obj: LoginModel) -> requests.Response:
         return self._MakePost(obj)
-    def Update(self, obj: LoginModel) -> Any:
-        return self._MakePut(obj)
+    def Update(self, obj: LoginModel, search: SearchModule) -> list[requests.Response]:
+        return self._MakeUpdate(obj, search)
+    def Delete(self, search: SearchModule) -> List[requests.Response]:
+        return super()._MakeDelete(search)
     def DeleteById(self, id: int) -> Any:
         raise NotImplementedError("DeleteById não implementado para ServiceOrder")
     def SelectAll(self) -> List[LoginModel]:

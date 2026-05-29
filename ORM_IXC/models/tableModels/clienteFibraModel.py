@@ -88,6 +88,14 @@ class ClienteFibraModel(IModelWithId, BaseModel):
     def table(self) -> str:
         return "radpop_radio_cliente_fibra"
 
+    def _serialize_enum(self, value) -> str:
+        """Serializa um valor de enum ou retorna string vazia se None"""
+        if value is None:
+            return ''
+        if hasattr(value, 'value'):
+            return str(value.value)
+        return str(value) 
+
     def to_dict(self) -> dict:
         def serialize(value) -> str:
             if value is None:
@@ -99,7 +107,7 @@ class ClienteFibraModel(IModelWithId, BaseModel):
             'id': str(self.id),
             'id_transmissor': str(self.id_transmissor) if self.id_transmissor is not None else '',
             'nome': self.nome if self.nome is not None else '',
-            'radpop_estrutura': self.radpop_estrutura.value if self.radpop_estrutura is not None else '',
+            'radpop_estrutura': self._serialize_enum(self.radpop_estrutura) if self.radpop_estrutura is not None else '',
             'id_projeto': str(self.id_projeto) if self.id_projeto is not None else '',
             'id_caixa_ftth': str(self.id_caixa_ftth) if self.id_caixa_ftth is not None else '',
             'porta_ftth': self.porta_ftth if self.porta_ftth is not None else '',
@@ -116,7 +124,7 @@ class ClienteFibraModel(IModelWithId, BaseModel):
             'service_port': self.service_port if self.service_port is not None else '',
             'comandos': self.comandos if self.comandos is not None else '',
             'id_chamado_radpop': self.id_chamado_radpop if self.id_chamado_radpop is not None else '',
-            'tipo_operacao': self.tipo_operacao.value if self.tipo_operacao is not None else '',
+            'tipo_operacao': self._serialize_enum(self.tipo_operacao) if self.tipo_operacao is not None else '',
             'vlan_pppoe': self.vlan_pppoe if self.vlan_pppoe is not None else '',
             'vlan_dhcp': self.vlan_dhcp if self.vlan_dhcp is not None else '',
             'vlan_tr69': self.vlan_tr69 if self.vlan_tr69 is not None else '',
@@ -133,7 +141,7 @@ class ClienteFibraModel(IModelWithId, BaseModel):
             'onu_tipo': self.onu_tipo if self.onu_tipo is not None else '',
             'slotno': self.slotno if self.slotno is not None else '',
             'ponno': self.ponno if self.ponno is not None else '',
-            'onu_rede_neutra': self.onu_rede_neutra.value if self.onu_rede_neutra is not None else '',
+            'onu_rede_neutra': self._serialize_enum(self.onu_rede_neutra) if self.onu_rede_neutra is not None else '',
             'id_radpop_radio_porta': str(self.id_radpop_radio_porta) if self.id_radpop_radio_porta is not None else '',
             'tipo_autenticacao': self.tipo_autenticacao if self.tipo_autenticacao is not None else '',
             'versao': self.versao if self.versao is not None else '',

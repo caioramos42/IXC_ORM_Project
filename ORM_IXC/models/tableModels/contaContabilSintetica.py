@@ -25,6 +25,14 @@ class ContaContabilSinteticaModel(IModelWithId, BaseModel):
     def table(self) -> str:
         return "planejamento_analitico"
     
+    def _serialize_enum(self, value) -> str:
+        """Serializa um valor de enum ou retorna string vazia se None"""
+        if value is None:
+            return ''
+        if hasattr(value, 'value'):
+            return str(value.value)
+        return str(value)
+    
     def to_dict(self) -> dict:
         def serialize(value) -> str:
             if value is None:
@@ -34,10 +42,10 @@ class ContaContabilSinteticaModel(IModelWithId, BaseModel):
 
         data = {
             'id': str(self.id),
-            'tipo': self.tipo.value if self.tipo is not None else '',
+            'tipo': self._serialize_enum(self.tipo) if self.tipo is not None else '',
             'planejamento': self.planejamento if self.planejamento is not None else '',
             'nivel_superior': str(self.nivel_superior) if self.nivel_superior is not None else '',
-            'subtipo': self.subtipo.value if self.subtipo is not None else '',
+            'subtipo': self._serialize_enum(self.subtipo) if self.subtipo is not None else '',
             'cod_planejamento': self.cod_planejamento if self.cod_planejamento is not None else '',
             'conta_dominio': self.conta_dominio if self.conta_dominio is not None else '',
             'contador': self.contador if self.contador is not None else '',
