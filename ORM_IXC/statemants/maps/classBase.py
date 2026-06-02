@@ -333,9 +333,11 @@ class Field(Generic[T]):
             return len(str(self._val.value))
         return len(str(self._val))
 
-    def like(self, value: TypeAlias) -> "SearchModule":
+    def like(self, value: AceptTypes) -> "SearchModule":
+        from ORM_IXC.models.searchUtils.searchModel import SearchModule
         if isinstance(self._val, MathTypes):
-            raise TypeError("Operação 'like' não suportada para tipos numéricos")    
+            raise TypeError("Operação 'like' não suportada para tipos numéricos")
+        print(SearchModule(self.name, str(value), Operators.LIKE).to_dict())
         return SearchModule(self.name, str(value), Operators.LIKE)
     
     def In(self, ids: list[int]) -> "SearchModule":

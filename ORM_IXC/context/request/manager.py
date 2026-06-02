@@ -208,6 +208,7 @@ class Manager:
     def make_request(self, request: IModel, method: Actions) -> requests.Response | list[IModel]:
         hostBefore = self.host
         self.insertTable(method, request.table)
+        print(request.to_dict())
         try:
             match method:
                 case Actions.DELETE:

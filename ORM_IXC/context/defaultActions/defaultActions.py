@@ -183,4 +183,3 @@ class DefaultActions(ABC):
             )
             return self.manager.iter_list_request(search, page_size)
 
-    def _Inner(self, search1, ):
