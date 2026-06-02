@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional, Protocol, runtime_checkable
 
-from ORM_IXC.statemants.mapper import Mapped
+from ORM_IXC.statemants.maps.mapper import Mapped
 
 
 @runtime_checkable

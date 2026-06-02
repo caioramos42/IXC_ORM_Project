@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, TypeAlias, TypeVar
 
-from ORM_IXC.statemants.classBase import Field
+from ORM_IXC.statemants.maps.classBase import Field
 
 AceptTypes: TypeAlias = int | float | bool | str | Enum | None
 

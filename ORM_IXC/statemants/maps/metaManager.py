@@ -3,8 +3,8 @@ from typing import Any, dataclass_transform, get_origin, get_args, get_type_hint
 from enum import Enum
 import types
 
-from ORM_IXC.statemants.classBase import Field
-from ORM_IXC.statemants.classBase import Field as FieldType
+from ORM_IXC.statemants.maps.classBase import Field
+from ORM_IXC.statemants.maps.classBase import Field as FieldType
 from ORM_IXC.models.tableModels.defaultModel import BaseModel
 
 def is_mapped(annotation) -> bool:
@@ -53,7 +53,7 @@ def convert_value(field_type, value):
 
 @dataclass_transform()
 def MetaModels(cls):
-    from ORM_IXC.statemants.classBase import Field
+    from ORM_IXC.statemants.maps.classBase import Field
 
     cls_annotations: dict[str, Any] = get_type_hints(cls)
 

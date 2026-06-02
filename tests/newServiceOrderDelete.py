@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from ORM_IXC.context.contextModels.serviceOrder import ServiceOrder
 from ORM_IXC.context.request import Manager
 from ORM_IXC.models.tableModels.serviceOrderModel import ServiceOrderModel
-from ORM_IXC.statemants.delete import delete
+from ORM_IXC.statemants.CRUD.delete import delete
 
 load_dotenv()
 

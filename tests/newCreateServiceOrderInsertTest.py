@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from ORM_IXC.context.request.manager import Manager
 from ORM_IXC.context.contextModels.serviceOrder import ServiceOrder
 from ORM_IXC.models.tableModels.serviceOrderModel import ServiceOrderModel
-from ORM_IXC.statemants.insert import insert
+from ORM_IXC.statemants.CRUD.insert import insert
 
 load_dotenv()
 

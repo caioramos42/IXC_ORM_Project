@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 from ORM_IXC.models.tableModels.clienteFibraModel import ClienteFibraModel
 from ORM_IXC.context.contextModels.fiberClient import ClienteFibra
-from ORM_IXC.statemants.select import select
+from ORM_IXC.statemants.CRUD.select import select
 from ORM_IXC.context.request import Manager
 import os
 

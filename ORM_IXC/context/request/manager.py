@@ -195,58 +195,6 @@ class Manager:
         cursor = QueryCursor(self._iter_internal(request, page_size))
 
         return cursor
-    # def iter_list_request(self, request: SearchModule, page_size: int = 200) -> Iterator[IModel]:
-    #     hostBefore = self.host
-    #     self.insertTable(Actions.LIST, request.table)
-    #     try:
-    #         page = int(getattr(request, "page", 1))
-    #         requested_amount = int(getattr(request, "amount", 9999))
-    #         limit_total = requested_amount if requested_amount != 9999 else None
-    #         effective_page_size = min(page_size, limit_total) if limit_total is not None else page_size
-
-    #         if hasattr(request, "setaAmount"):
-    #             request.setaAmount(effective_page_size)
-
-    #         yielded = 0
-
-    #         while True:
-    #             if hasattr(request, "setPage"):
-    #                 request.setPage(page)
-
-    #             response = requests.post(
-    #                 self.host,
-    #                 json=request.to_dict(),
-    #                 headers=self.header,
-    #                 verify=False
-    #             )
-
-    #             if "<div" in response.text:
-    #                 raise(ValueError(f"Erro ao processar request: {response.text.split(">")[1].replace("</div","")}"))
-
-    #             data: dict[str, Any] = response.json()
-    #             registros = data.get("registros", [])
-
-    #             if len(registros) == 0:
-    #                 break
-
-    #             for registro in registros:
-    #                 if "id" in registro and "id_autoincrement" not in registro:
-    #                     registro["id_autoincrement"] = registro["id"]
-    #                 if limit_total is not None and yielded >= limit_total:
-    #                     break
-    #                 yielded += 1
-    #                 yield request.dto_convert(registro)
-
-    #             if limit_total is not None and yielded >= limit_total:
-    #                 break
-
-    #             total = int(data.get("total", 0))
-    #             if page * effective_page_size >= total:
-    #                 break
-
-    #             page += 1
-    #     finally:
-    #         self.host = hostBefore
 
     @overload
     def make_request(self, request: IModel, method: Literal[Actions.DELETE, Actions.EDIT]) -> requests.Response: ...
@@ -256,14 +204,13 @@ class Manager:
 
     @overload
     def make_request(self, request: IModel, method: Literal[Actions.LIST]) -> list[IModel]: ...
-
+    
     def make_request(self, request: IModel, method: Actions) -> requests.Response | list[IModel]:
         hostBefore = self.host
         self.insertTable(method, request.table)
         try:
             match method:
                 case Actions.DELETE:
-                    print("passei aqui")
                     return requests.delete(
                         "{}/{}".format(self.host, self._get_request_id(request)),
                         headers=self.header,
@@ -271,7 +218,6 @@ class Manager:
                     )
                 case Actions.EDIT:
                     print("{}/{}".format(self.host, self._get_request_id(request)))
-                    #print(request.to_dict())
                     reqs = request.to_dict()
                     reqs.pop("id", None)
                     print(reqs)

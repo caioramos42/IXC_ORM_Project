@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from ORM_IXC.models.tableModels.contaContabilSintetica import ContaContabilSinteticaModel
 from ORM_IXC.models.searchUtils.searchModel import SearchModule
 from ORM_IXC.context.contextModels.contabil import ContaContabilSintetica
-from ORM_IXC.statemants.select import select
+from ORM_IXC.statemants.CRUD.select import select
 from ORM_IXC.context.request import Manager
 import os
 

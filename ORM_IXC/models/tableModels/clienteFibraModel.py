@@ -3,8 +3,8 @@ from typing import Optional
 from ORM_IXC.enums.clienteFibra import *
 
 from ORM_IXC.interfaces import IModelWithId
-from ORM_IXC.statemants.mapper import Mapped, field as mapped_field
-from ORM_IXC.statemants.metaManager import MetaModels
+from ORM_IXC.statemants.maps.mapper import Mapped, field as mapped_field
+from ORM_IXC.statemants.maps.metaManager import MetaModels
 from ORM_IXC.models.tableModels.defaultModel import BaseModel
 
 @MetaModels

@@ -8,7 +8,7 @@ from ORM_IXC.models.searchUtils.searchModel import SearchModule
 from ORM_IXC.enums.operators import Operators
 from ORM_IXC.enums.methods import Actions
 from ORM_IXC.interfaces.IModel import IModel
-from ORM_IXC.statemants.classBase import Field
+from ORM_IXC.statemants.maps.classBase import Field
 from abc import ABC
 
 class DefaultActions(ABC):
@@ -86,7 +86,6 @@ class DefaultActions(ABC):
         
         if not found_records:
             raise ValueError("Nenhum registro encontrado para os filtros especificados")
-        print(len(found_records))
         responses: list[requests.Response] = []
         for record in found_records:
             response = self.manager.make_request(record, Actions.DELETE)
@@ -183,3 +182,5 @@ class DefaultActions(ABC):
                 sortName="id",
             )
             return self.manager.iter_list_request(search, page_size)
+
+    def _Inner(self, search1, ):

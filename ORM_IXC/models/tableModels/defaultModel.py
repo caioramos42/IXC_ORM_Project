@@ -1,7 +1,7 @@
 import json
 from typing import Any
 from ORM_IXC.interfaces.IModel import IModel
-from ORM_IXC.statemants.classBase import Field
+from ORM_IXC.statemants.maps.classBase import Field
 
 
 class DefaultPayload:

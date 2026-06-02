@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 from ORM_IXC.models.tableModels.clienteModel import ClientModel
 from ORM_IXC.context.contextModels.cliente import Cliente
-from ORM_IXC.statemants.select import select
+from ORM_IXC.statemants.CRUD.select import select
 from ORM_IXC.context.request import Manager
 import os
 
