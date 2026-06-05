@@ -1,0 +1,29 @@
+
+from dotenv import load_dotenv
+from ORM_IXC.models.tableModels.clienteModel import ClientModel
+from ORM_IXC.context.contextModels.cliente import Cliente
+from ORM_IXC.statemants.CRUD.select import select
+from ORM_IXC.context.request import Manager
+import os
+
+from ORM_IXC.utils.makejson import makeJsonStream
+load_dotenv()
+
+host = str(os.getenv("IXC_HOST"))
+token = str(os.getenv("IXC_TOKEN"))
+
+manager = Manager(host, token)
+contabilSintetica = Cliente(manager)
+query = select(contabilSintetica)\
+                        .where(ClientModel.tipo_cliente_scm.In('01','02'))\
+                        .limit(300)\
+                        .order_by("tipo_cliente_scm",'desc')\
+                        .cursor()
+
+makeJsonStream("neymarJr", query)
+
+
+
+
+
+

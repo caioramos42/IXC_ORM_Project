@@ -9,4 +9,5 @@ class Operators(Enum):
     LIKE = 'L'
     IN = 'IN'
     DIFFERENT = '!='
+    NOTLIKE = 'NL'
     

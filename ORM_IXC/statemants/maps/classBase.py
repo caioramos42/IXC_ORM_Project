@@ -337,13 +337,17 @@ class Field(Generic[T]):
         from ORM_IXC.models.searchUtils.searchModel import SearchModule
         if isinstance(self._val, MathTypes):
             raise TypeError("Operação 'like' não suportada para tipos numéricos")
-        print(SearchModule(self.name, str(value), Operators.LIKE).to_dict())
         return SearchModule(self.name, str(value), Operators.LIKE)
     
-    def In(self, ids: list[int]) -> "SearchModule":
+    def In(self, *ids: AceptTypes) -> "SearchModule":
         from ORM_IXC.models.searchUtils.searchModel import SearchModule
         if not ids:
             raise ValueError("A lista para o operador IN não pode estar vazia")
         ids_str = ", ".join([str(id) for id in ids])
         return SearchModule(self.name, ids_str, Operators.IN)
     
+    def Notlike(self, value: AceptTypes) -> "SearchModule":
+        from ORM_IXC.models.searchUtils.searchModel import SearchModule
+        if isinstance(self._val, MathTypes):
+            raise TypeError("Operação 'like' não suportada para tipos numéricos")
+        return SearchModule(self.name, str(value), Operators.NOTLIKE)
