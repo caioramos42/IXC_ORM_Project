@@ -6,6 +6,11 @@ importações absolutas baseadas em `IXC_ORM_Project.*`.
 
 import sys
 
+# Compatibilidade com imports absolutos
+sys.modules.setdefault("IXC_ORM_Project", sys.modules[__name__])
+
+from dotenv import load_dotenv
+
 from .context.contextModels.areceber import AReceber
 from .context.contextModels.atendimento import Atendimento
 from .context.contextModels.caixaDeAtendimento import CaixaDeAtendimento
@@ -13,24 +18,41 @@ from .context.contextModels.cliente import Cliente
 from .context.contextModels.contratoDoCliente import ContratoDoCliente
 from .context.contextModels.fiberClient import ClienteFibra
 from .context.contextModels.login import Login
-from .context.request.manager import Manager
 from .context.contextModels.serviceOrder import ServiceOrder
+
+from .context.request import Manager
+from .context.request.manager import Manager as ManagerClass
 
 from .enums.methods import Actions
 from .enums.operators import Operators
 from .enums.sortOrder import SortOrder
 
 from .models.tableModels.defaultModel import DefaultPayload
+from .models.tableModels.contratoDoClienteModel import ContratoDoClienteModel
+from .models.tableModels.clienteModel import ClientModel
+from .models.tableModels.contasAReceber import ContasAReceberModel
+
 from .models.searchUtils.gridParamModel import GridParam
 from .models.searchUtils.searchModel import SearchModule
+
+from .statemants.CRUD.select import select
+from .utils.makejson import makeJson
+
+from datetime import datetime, timedelta
+import os
 
 Contrato = ContratoDoCliente
 
 __all__ = [
     "Manager",
+    "ManagerClass",
     "Cliente",
     "Login",
     "Contrato",
+    "ContratoDoCliente",
+    "ContratoDoClienteModel",
+    "ClientModel",
+    "ContasAReceberModel",
     "Atendimento",
     "CaixaDeAtendimento",
     "AReceber",
@@ -42,7 +64,10 @@ __all__ = [
     "Actions",
     "Operators",
     "SortOrder",
+    "select",
+    "makeJson",
+    "load_dotenv",
+    "datetime",
+    "timedelta",
+    "os",
 ]
-
-# Compatibilidade com os imports absolutos usados dentro do código do pacote.
-sys.modules.setdefault("IXC_ORM_Project", sys.modules[__name__])
