@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import Optional, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
 
-from ORM_IXC.statemants.maps.mapper import Mapped
+if TYPE_CHECKING:
+    from ORM_IXC.statemants.maps.mapper import Mapped
 
 
 @runtime_checkable
