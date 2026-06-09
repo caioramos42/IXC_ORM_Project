@@ -2,6 +2,7 @@ import annotationlib
 from typing import Any, dataclass_transform, get_origin, get_args, get_type_hints, Union
 from enum import Enum
 import types
+import sys
 
 from ORM_IXC.statemants.maps.classBase import Field
 from ORM_IXC.statemants.maps.classBase import Field as FieldType
@@ -54,8 +55,14 @@ def convert_value(field_type, value):
 @dataclass_transform()
 def MetaModels(cls):
     from ORM_IXC.statemants.maps.classBase import Field
+    module_globals = vars(sys.modules[cls.__module__])
 
-    cls_annotations: dict[str, Any] = get_type_hints(cls)
+    cls_annotations: dict[str, Any] = get_type_hints(
+        cls,
+        globalns=module_globals,
+        localns=module_globals,
+    )
+    #cls_annotations: dict[str, Any] = get_type_hints(cls)
 
     for k, v in cls_annotations.items():
 
