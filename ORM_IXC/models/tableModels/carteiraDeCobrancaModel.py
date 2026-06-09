@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Any, Optional
 from ORM_IXC.enums.carteiraDeCobranca import *
-from ORM_IXC.interfaces import IModel, IModelWithId
+from ORM_IXC.interfaces.IModel import IModelWithId
 from ORM_IXC.statemants.maps.classBase import Field
 from ORM_IXC.statemants.maps.mapper import Mapped, field as mapped_field
 from ORM_IXC.statemants.maps.metaManager import MetaModels

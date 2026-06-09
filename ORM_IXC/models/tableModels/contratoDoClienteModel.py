@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Optional
-from ORM_IXC.interfaces import IModelWithId
+from ORM_IXC.interfaces.IModel import IModelWithId
 from ORM_IXC.enums.contratoDoCliente import *
 from ORM_IXC.statemants.maps.metaManager import MetaModels
 from ORM_IXC.models.tableModels.defaultModel import BaseModel

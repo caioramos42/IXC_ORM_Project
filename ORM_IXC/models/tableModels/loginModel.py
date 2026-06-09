@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Optional
-from ORM_IXC.interfaces import IModelWithId
+from ORM_IXC.interfaces.IModel import IModelWithId
 from ORM_IXC.enums.login import *
 from ORM_IXC.statemants.maps.mapper import Mapped, field as mapped_field
 from ORM_IXC.statemants.maps.metaManager import MetaModels

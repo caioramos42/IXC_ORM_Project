@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
-from ORM_IXC.interfaces import IModelWithId
+from ORM_IXC.interfaces.IModel import IModelWithId
 from ORM_IXC.enums.contaContabilSintetica import *
 from ORM_IXC.statemants.maps.mapper import Mapped, field as mapped_field
 from ORM_IXC.statemants.maps.metaManager import MetaModels
