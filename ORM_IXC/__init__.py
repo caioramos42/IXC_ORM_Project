@@ -41,6 +41,8 @@ from .utils.makejson import makeJson
 from datetime import datetime, timedelta
 import os
 
+from .statemants.maps.mapper import Mapped
+
 from .statemants import *
 Contrato = ContratoDoCliente
 
@@ -74,5 +76,6 @@ __all__ = [
     "delete",
     "insert",
     "update",
-    "select"
+    "select",
+    "Mapped"
 ]
