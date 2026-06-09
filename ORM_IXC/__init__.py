@@ -41,6 +41,7 @@ from .utils.makejson import makeJson
 from datetime import datetime, timedelta
 import os
 
+from .statemants import *
 Contrato = ContratoDoCliente
 
 __all__ = [
