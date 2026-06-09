@@ -71,4 +71,8 @@ __all__ = [
     "datetime",
     "timedelta",
     "os",
+    "delete",
+    "insert",
+    "update",
+    "select"
 ]
