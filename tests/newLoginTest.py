@@ -16,8 +16,7 @@ token = str(os.getenv("IXC_TOKEN"))
 manager = Manager(host, token)
 login = Login(manager)
 query = select(login)\
-            .where(LoginModel.id > 0,
-                LoginModel.tipo_conexao_mapa == 'F')\
+            .where((LoginModel.id == 37) | (LoginModel.id == 36))\
             .limit(500)\
             .order_by("id")\
             .execute()

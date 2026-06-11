@@ -54,11 +54,11 @@ query = select(carteiraCobranca)\
             
 idsList = [i.id_cliente.value for i in query]
 
-# query = select(cliente)\
-#             .where(ClientModel.id.In(*idsList))\
-#             .limit(500)\
-#             .order_by("id")\
-#             .execute()
+query = select(cliente)\
+            .where(ClientModel.id.In(*idsList))\
+            .limit(500)\
+            .order_by("id")\
+            .execute()
 
 print([i.razao.value for i in query])
 
