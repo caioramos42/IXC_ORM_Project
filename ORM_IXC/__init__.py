@@ -31,6 +31,7 @@ from .models.tableModels.defaultModel import DefaultPayload
 from .models.tableModels.contratoDoClienteModel import ContratoDoClienteModel
 from .models.tableModels.clienteModel import ClientModel
 from .models.tableModels.contasAReceber import ContasAReceberModel
+from .models.tableModels.vendedorModel import VendedorModel
 
 from .models.searchUtils.gridParamModel import GridParam
 from .models.searchUtils.searchModel import SearchModule

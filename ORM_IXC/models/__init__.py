@@ -9,6 +9,7 @@ from .tableModels.loginModel import LoginModel
 from .tableModels.serviceOrderModel import ServiceOrderModel
 from .tableModels.contasAReceber import ContasAReceberModel
 from .tableModels.contratoDoClienteModel import ContratoDoClienteModel
+from .tableModels.vendedorModel import VendedorModel
 __all__ = [
     "ClientModel",
     "DefaultPayload",
@@ -18,5 +19,6 @@ __all__ = [
     "ServiceOrderModel",
     "AtendimentoModel",
     "ContasAReceberModel",
-    "ContratoDoClienteModel"
+    "ContratoDoClienteModel",
+    "VendedorModel"
 ]
