@@ -78,5 +78,6 @@ __all__ = [
     "insert",
     "update",
     "select",
-    "Mapped"
+    "Mapped",
+    "VendedorModel"
 ]
