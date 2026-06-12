@@ -28,7 +28,7 @@ python setup.py install
 ```
 ## Instalação
 ```bash
-pip install git+https://github.com/caioramos42/IXC_ORM_Project.git
+pip install git+https://github.com/caioramos42/IXC_ORM_Project.git@nova-versao
 ```
 ## Uso básico
 
