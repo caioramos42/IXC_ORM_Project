@@ -16,7 +16,8 @@ token = str(os.getenv("IXC_TOKEN"))
 manager = Manager(host, token)
 login = Login(manager)
 query = select(login)\
-            .where((LoginModel.id == 37) | (LoginModel.id == 36))\
+            .where(((LoginModel.id == 36) | (LoginModel.id == 37)) & \
+            (LoginModel.login == "julio.permuta.01@brasillike.com.br"))\
             .limit(500)\
             .order_by("id")\
             .execute()
