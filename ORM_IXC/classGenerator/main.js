@@ -1,15 +1,3 @@
-// ============================================================
-// GERADOR NOVO PADRÃO ORM_IXC
-// ✅ Mapped[T]
-// ✅ mapped_field(default)
-// ✅ BaseModel
-// ✅ IModelWithId
-// ✅ _serialize_enum
-// ✅ to_dict padronizado
-// ✅ is_valid
-// ✅ enums separados
-// ============================================================
-
 ;(function () {
 
 // ────────────────────────────────────────────────────────────
@@ -129,7 +117,7 @@ for (const [name, meta] of modelagem) {
   if (name === "id") {
 
     info.type = "int";
-    info.required = true;
+    info.required = false;
 
     fields.push({ name, info });
 
@@ -283,7 +271,30 @@ const sortedFields = [
 ];
 
 // ────────────────────────────────────────────────────────────
-// GERAÇÃO PYTHON
+// GERAÇÃO ARQUIVO ENUM SEPARADO
+// ────────────────────────────────────────────────────────────
+
+const enumModuleName =
+  classNameFinal.charAt(0).toLowerCase() +
+  classNameFinal.slice(1);
+
+const enumFileLines = [];
+
+enumFileLines.push("from enum import Enum");
+enumFileLines.push("");
+enumFileLines.push("");
+
+if (enumBlocks.length) {
+  for (const block of enumBlocks) {
+    enumFileLines.push(block);
+  }
+}
+
+const enumResult =
+  enumFileLines.join("\n") + "\n";
+
+// ────────────────────────────────────────────────────────────
+// GERAÇÃO PYTHON MODEL
 // ────────────────────────────────────────────────────────────
 
 const lines = [];
@@ -305,16 +316,16 @@ lines.push(
 if (enumBlocks.length) {
 
   lines.push(
-    `from ORM_IXC.enums.${classNameFinal.charAt(0).toLowerCase() + classNameFinal.slice(1)} import *`
+    `from ORM_IXC.enums.${enumModuleName} import *`
   );
 }
 
 lines.push(
-  "from ORM_IXC.statemants.mapper import Mapped, field as mapped_field"
+  "from ORM_IXC.statemants.maps.mapper import Mapped, field as mapped_field"
 );
 
 lines.push(
-  "from ORM_IXC.statemants.metaManager import MetaModels"
+  "from ORM_IXC.statemants.maps.metaManager import MetaModels"
 );
 
 lines.push(
@@ -323,22 +334,6 @@ lines.push(
 
 lines.push("");
 lines.push("");
-
-// enums
-
-if (enumBlocks.length) {
-
-  lines.push(
-    "# " +
-    "-".repeat(30) +
-    " ENUMS " +
-    "-".repeat(30)
-  );
-
-  for (const block of enumBlocks) {
-    lines.push(block);
-  }
-}
 
 // class
 
@@ -498,37 +493,197 @@ lines.push(
   `        return ${requiredChecks.join(" and ")}`
 );
 
-// final
+// ────────────────────────────────────────────────────────────
+// GERA CONTEXT
+// ────────────────────────────────────────────────────────────
+
+const contextLines = [];
+
+contextLines.push(
+  "from typing import Any, List, Iterator, cast"
+);
+
+contextLines.push(
+  "from ORM_IXC.interfaces.IContext import IContext"
+);
+
+contextLines.push(
+  "from ORM_IXC.context.defaultActions.defaultActions import DefaultActions"
+);
+
+contextLines.push(
+  "from ORM_IXC.context.request.manager import Manager"
+);
+
+contextLines.push(
+  `from ORM_IXC.models.tableModels.${enumModuleName}Model import ${modelName}`
+);
+
+contextLines.push(
+  "from ORM_IXC.models.searchUtils.searchModel import SearchModule"
+);
+
+contextLines.push(
+  "import requests"
+);
+
+contextLines.push("");
+contextLines.push("");
+
+contextLines.push(
+  `class ${classNameFinal}(IContext[${modelName}, ${modelName}], DefaultActions):`
+);
+
+contextLines.push(
+  "    def __init__(self, manager: Manager):"
+);
+
+contextLines.push(
+  `        DefaultActions.__init__(self, ${modelName}, manager)`
+);
+
+contextLines.push("");
+
+contextLines.push(
+  `    def Add(self, obj: ${modelName}) -> Any:`
+);
+
+contextLines.push(
+  "        return self._MakePost(obj)"
+);
+
+contextLines.push("");
+
+contextLines.push(
+  `    def Update(self, obj: ${modelName}, search: SearchModule) -> list[requests.Response]:`
+);
+
+contextLines.push(
+  "        return self._MakeUpdate(obj, search)"
+);
+
+contextLines.push("");
+
+contextLines.push(
+  "    def Delete(self, search: SearchModule) -> List[requests.Response]:"
+);
+
+contextLines.push(
+  "        return super()._MakeDelete(search)"
+);
+
+contextLines.push("");
+
+contextLines.push(
+  "    def DeleteById(self, id: int) -> Any:"
+);
+
+contextLines.push(
+  `        raise NotImplementedError("DeleteById não implementado para ${classNameFinal}")`
+);
+
+contextLines.push("");
+
+contextLines.push(
+  `    def SelectAll(self) -> List[${modelName}]:`
+);
+
+contextLines.push(
+  `        return cast(List[${modelName}], self._SearchAll())`
+);
+
+contextLines.push("");
+
+contextLines.push(
+  "    def SelectByFilter(self, search: Any) -> List[" +
+    modelName +
+    "]:"
+);
+
+contextLines.push(
+  `        return cast(List[${modelName}], self.getByFilter(search))`
+);
+
+contextLines.push("");
+
+contextLines.push(
+  "    def SelectByFilterAssync("
+);
+
+contextLines.push(
+  "        self,"
+);
+
+contextLines.push(
+  "        search: SearchModule,"
+);
+
+contextLines.push(
+  "        page_size: int = 172"
+);
+
+contextLines.push(
+  `    ) -> Iterator[${modelName}]:`
+);
+
+contextLines.push(
+  `        return cast(Iterator[${modelName}], super().cursorByFilter(search, page_size))`
+);
+
+contextLines.push("");
+
+contextLines.push(
+  `    def SelectAllAssync(self) -> Iterator[${modelName}]:`
+);
+
+contextLines.push(
+  `        return cast(Iterator[${modelName}], super()._SelectAllAssync())`
+);
+
+const contextResult =
+  contextLines.join("\n") + "\n";
 
 const resultado =
   lines.join("\n") + "\n";
 
+console.log("=== MODEL ===");
 console.log(resultado);
+console.log("=== ENUM ===");
+console.log(enumResult);
+console.log("=== CONTEXT ===");
+console.log(contextResult);
 
 // ────────────────────────────────────────────────────────────
-// DOWNLOAD
+// DOWNLOAD HELPER
 // ────────────────────────────────────────────────────────────
 
-const blob = new Blob(
-  [resultado],
-  { type: "text/plain" }
-);
+function download(content, filename) {
+  const blob = new Blob(
+    [content],
+    { type: "text/plain" }
+  );
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(link.href);
+}
 
-const link =
-  document.createElement("a");
+// ────────────────────────────────────────────────────────────
+// DOWNLOADS
+// ────────────────────────────────────────────────────────────
 
-link.href =
-  URL.createObjectURL(blob);
+// 1. Model
+download(resultado, `${modelName}.py`);
 
-link.download =
-  modelName + ".py";
+// 2. Enum (arquivo separado)
+if (enumBlocks.length) {
+  download(enumResult, `${enumModuleName}.py`);
+}
 
-document.body.appendChild(link);
-
-link.click();
-
-document.body.removeChild(link);
-
-URL.revokeObjectURL(link.href);
+// 3. Context
+download(contextResult, `${classNameFinal}.py`);
 
 })();
