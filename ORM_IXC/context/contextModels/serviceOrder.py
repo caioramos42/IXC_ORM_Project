@@ -20,7 +20,7 @@ class ServiceOrder(IContext[ServiceOrderModel, ServiceOrderModel], DefaultAction
             'data_inicio': data_inicio,
             'data_final': now,
             'mensagem': modelForSend.mensagem,
-            'gera_comissao': 'N',
+            'gera_comissao': modelForSend.gera_comissao,
             'finaliza_processo': 'S',
             'status': 'F',
             'id_tecnico': modelForSend.id_tecnico
