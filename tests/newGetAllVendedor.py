@@ -15,4 +15,7 @@ token = str(os.getenv("IXC_TOKEN"))
 manager = Manager(host, token)
 vendedor = Vendedor(manager)
 
-makeJsonStream("vendedorList", select(vendedor).where(VendedorModel.id > 0).cursor())
+makeJsonStream("vendedorList", 
+               select(vendedor)\
+                   .where(VendedorModel.id > 0).cursor()
+            )

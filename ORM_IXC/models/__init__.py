@@ -10,6 +10,7 @@ from .tableModels.serviceOrderModel import ServiceOrderModel
 from .tableModels.contasAReceber import ContasAReceberModel
 from .tableModels.contratoDoClienteModel import ContratoDoClienteModel
 from .tableModels.vendedorModel import VendedorModel
+from .tableModels.tipoDeCobrancaDoContratoModel import TipoDeCobrancaDoContratoModel
 __all__ = [
     "ClientModel",
     "DefaultPayload",
@@ -20,5 +21,6 @@ __all__ = [
     "AtendimentoModel",
     "ContasAReceberModel",
     "ContratoDoClienteModel",
-    "VendedorModel"
+    "VendedorModel",
+    "TipoDeCobrancaDoContratoModel"
 ]
