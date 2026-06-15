@@ -24,5 +24,3 @@ responses = update(context)\
         ))\
     .execute()
 print(responses[0].text)
-
-#308364

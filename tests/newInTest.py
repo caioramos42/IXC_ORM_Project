@@ -15,7 +15,7 @@ token = str(os.getenv("IXC_TOKEN"))
 manager = Manager(host, token)
 contabilSintetica = Cliente(manager)
 query = select(contabilSintetica)\
-                        .where(ClientModel.id.In([5466, 48549, 151, 795, 155]))\
+                        .where(ClientModel.id.In(5466, 48549, 151, 795, 155))\
                         .limit(300)\
                         .order_by("id")\
                         .cursor()

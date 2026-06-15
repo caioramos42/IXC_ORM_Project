@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Optional
-from ORM_IXC.interfaces import IModelWithId
+from ORM_IXC.interfaces.IModel import IModelWithId
 from ORM_IXC.enums.tipoDeCobrancaDoContrato import *
 from ORM_IXC.statemants.maps.mapper import Mapped, field as mapped_field
 from ORM_IXC.statemants.maps.metaManager import MetaModels
@@ -32,7 +32,7 @@ class TipoDeCobrancaDoContratoModel(IModelWithId, BaseModel):
 
     @property
     def table(self) -> str:
-        return "tipodecobrançadocontrato"
+        return "cliente_contrato_tipo"
 
     def _serialize_enum(self, value) -> str:
         """Serializa um valor de enum ou retorna string vazia se None"""
