@@ -454,12 +454,6 @@ query = select(contratoClient)\
 idsList = [i.id.value for i in query]
 
 query = select(carteiraCobranca)\
-            .where(ContasAReceberModel.id_contrato.In(*idsList))\
-            .limit(300)\
-            .order_by("id")\
-            .execute()
-
-query = select(carteiraCobranca)\
             .where(ContasAReceberModel.id_contrato.In(*idsList),
                    ContasAReceberModel.valor_recebido == '0.00',
                    ContasAReceberModel.data_vencimento >= maturity.strftime('%Y-%m-%d') + " 00:00:00",
