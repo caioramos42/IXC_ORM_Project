@@ -10,6 +10,7 @@ Os principais recursos incluem:
 - gerenciamento de requisições HTTP com autenticação básica
 - classes de contexto para entidades comuns (cliente, contrato, atendimento, etc.)
 - operações CRUD genéricas e buscas por filtro
+- abstracao de operadores como |(ou), &(e), like, in, notin, notlike
 - modelos de busca com parâmetros e ordenação
 
 ## Instalação
