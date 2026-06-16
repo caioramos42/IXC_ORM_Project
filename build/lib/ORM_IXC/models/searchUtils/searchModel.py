@@ -101,6 +101,7 @@ class SearchModule(IModel):
 
         if not self.sortName.startswith(f"{table}.") and self.sortName != "":
             self.sortName = f"{table}.{self.sortName}"
+            
     def __and__(self, other: SearchModule) -> SearchModule:
         if not isinstance(other, SearchModule):
             raise ValueError("O operador AND só pode ser usado entre instâncias de SearchModule.")
@@ -110,5 +111,18 @@ class SearchModule(IModel):
                     other.searchField,
                     operators.Operators(other.oper),
                     other.query
+                ))
+        return self
+    
+    def __or__(self, other: SearchModule) -> SearchModule:
+        if not isinstance(other, SearchModule):
+            raise ValueError("O operador AND só pode ser usado entre instâncias de SearchModule.")
+        if other is None:
+            raise ValueError("O operador AND Não aceita valores None.")
+        self.appendGridParams(GridParam(
+                    other.searchField,
+                    operators.Operators(other.oper),
+                    other.query,
+                    "OR"
                 ))
         return self

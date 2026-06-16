@@ -9,7 +9,7 @@ from .contextModels.contratoDoCliente import ContratoDoCliente
 from .contextModels.fiberClient import ClienteFibra
 from .contextModels.login import Login
 from .contextModels.serviceOrder import ServiceOrder
-
+from .contextModels.vendedor import Vendedor
 __all__ = [
     "AReceber",
     "Atendimento",
@@ -20,6 +20,7 @@ __all__ = [
     "ClienteFibra",
     "Login",
     "ServiceOrder",
+    "Vendedor",
 ]
 
 CarteiraCobranca = CarteiraDeConbranca
