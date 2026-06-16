@@ -43,6 +43,7 @@ from datetime import datetime, timedelta
 import os
 
 from .statemants.maps.mapper import Mapped
+from .interfaces.IModel import IModel
 
 from .statemants import *
 Contrato = ContratoDoCliente
@@ -79,5 +80,6 @@ __all__ = [
     "update",
     "select",
     "Mapped",
-    "VendedorModel"
+    "VendedorModel",
+    "IModel"
 ]
