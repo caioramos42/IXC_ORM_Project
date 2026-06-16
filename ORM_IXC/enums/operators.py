@@ -10,4 +10,6 @@ class Operators(Enum):
     IN = 'IN'
     DIFFERENT = '!='
     NOTLIKE = 'NL'
+    NOTIN = "NI"
+    BETWEEN = "BE"
     

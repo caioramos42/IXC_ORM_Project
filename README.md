@@ -335,7 +335,7 @@ token = str(os.getenv("IXC_TOKEN"))
 manager = Manager(host, token)
 contabilSintetica = Cliente(manager)
 query = select(contabilSintetica)\
-                        .where(ClientModel.id.In([5466, 48549, 151, 795, 155]))\
+                        .where(ClientModel.id.In(5466, 48549, 151, 795, 155))\
                         .limit(300)\
                         .order_by("id")\
                         .cursor()
@@ -343,6 +343,72 @@ query = select(contabilSintetica)\
 makeJsonStream("neymarJr", query)
 ```
 
+### Busca usando o operador Not In:
+
+```python
+import os
+
+from dotenv import load_dotenv
+
+from ORM_IXC.context.contextModels.login import Login
+from ORM_IXC.context.request import Manager
+from ORM_IXC.models.tableModels.loginModel import LoginModel
+from ORM_IXC.statemants.CRUD.select import select
+from ORM_IXC.utils.makejson import makeJson
+
+load_dotenv()
+
+host = str(os.getenv("IXC_HOST"))
+token = str(os.getenv("IXC_TOKEN"))
+
+print(host + " "  + token)
+manager = Manager(host, token)
+
+context = Login(manager)
+
+print(LoginModel.id.NotIn(36,37,40).to_dict())
+
+responses = select(context)\
+    .where(LoginModel.id.NotIn(36,37,40))\
+    .limit(500)\
+    .execute()
+    
+makeJson("testBetween",responses)
+```
+
+### Busca usando o operador And e Or:
+```python
+from dotenv import load_dotenv
+from ORM_IXC.context.contextModels.login import Login
+from ORM_IXC.models.tableModels.loginModel import LoginModel
+from ORM_IXC.statemants.CRUD.select import select
+from ORM_IXC.context.request import Manager
+import os
+
+from ORM_IXC.utils.makejson import makeJson
+
+load_dotenv()
+
+host = str(os.getenv("IXC_HOST"))
+token = str(os.getenv("IXC_TOKEN"))
+
+manager = Manager(host, token)
+login = Login(manager)
+query = select(login)\
+            .where(
+                   (LoginModel.id == 78) &
+                   (LoginModel.login == "login1@brasillike.com.br") |
+                   (LoginModel.id == 37569) &
+                   (LoginModel.login == "login2@brasillike.com.br") |
+                   (LoginModel.id == 4078) &
+                   (LoginModel.login == "login3@brasillike.com.br")
+            )\
+            .limit(500)\
+            .order_by("id", "desc")\
+            .execute()
+print([i.id for i in query])
+makeJson("neymarJr", query)
+```
 ## Estrutura principal
 
 - `ORM_IXC/context/request/manager.py`: gerencia chamadas HTTP, cabeçalhos e URL base

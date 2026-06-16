@@ -16,16 +16,9 @@ token = str(os.getenv("IXC_TOKEN"))
 manager = Manager(host, token)
 login = Login(manager)
 query = select(login)\
-            .where(
-                   (LoginModel.id == 36) &
-                   (LoginModel.login == "login1.01@brasillike.com.br") |
-                   (LoginModel.id == 37) &
-                   (LoginModel.login == "login2@brasillike.com.br") |
-                   (LoginModel.id == 40) &
-                   (LoginModel.login == "login3@brasillike.com.br")
-            )\
+            .where(LoginModel.id == 37)\
             .limit(500)\
-            .order_by("id", "desc")\
+            .order_by("id")\
             .execute()
 print([i.id for i in query])
 makeJson("neymarJr", query)

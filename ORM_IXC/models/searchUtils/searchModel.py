@@ -112,7 +112,6 @@ class SearchModule(IModel):
                     operators.Operators(other.oper),
                     other.query
                 ))
-        print(self.to_dict())
         return self
     
     def __or__(self, other: SearchModule) -> SearchModule:

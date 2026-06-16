@@ -351,3 +351,15 @@ class Field(Generic[T]):
         if isinstance(self._val, MathTypes):
             raise TypeError("Operação 'like' não suportada para tipos numéricos")
         return SearchModule(self.name, str(value), Operators.NOTLIKE)
+    
+    def NotIn(self, *ids: AceptTypes) -> "SearchModule":
+        from ORM_IXC.models.searchUtils.searchModel import SearchModule
+        if not ids:
+            raise ValueError("A lista para o operador IN não pode estar vazia")
+        ids_str = ", ".join([str(id) for id in ids])
+        return SearchModule(self.name, ids_str, Operators.NOTIN)
+
+    def Between(self, value1: AceptTypes, value2: AceptTypes) -> "SearchModule":
+        from ORM_IXC.models.searchUtils.searchModel import SearchModule
+        ids_str = f"{value1} AND {value2}"
+        return SearchModule(self.name, ids_str, Operators.BETWEEN)
