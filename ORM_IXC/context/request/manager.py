@@ -88,8 +88,12 @@ class Manager:
             for registro in registros:
                 if "id" in registro and "id_autoincrement" not in registro:
                     registro["id_autoincrement"] = registro["id"]
-                converted.append(request.dto_convert(registro))
-
+                if request.alias == "":
+                    converted.append(request.dto_convert(registro))
+                else:
+                    model = request.dto_convert(registro)
+                    model.set_alias(request.alias)
+                    converted.append(model)
             if len(converted) >= total or len(registros) == 0:
                 break
 

@@ -62,7 +62,6 @@ def MetaModels(cls):
         globalns=module_globals,
         localns=module_globals,
     )
-    #cls_annotations: dict[str, Any] = get_type_hints(cls)
 
     for k, v in cls_annotations.items():
 
@@ -92,11 +91,13 @@ def MetaModels(cls):
         + ", ".join([f"{k}=UNSET" for k in cls_annotations])
         + "):\n"
     )
+    
     init += "\tself.__dict__['_changed_fields'] = set()\n"
     for k in cls_annotations:
         init += f"\tif {k} is not UNSET:\n"
         init += f"\t\tself.{k} = {k}\n"
         init += f"\t\tself._changed_fields.add(\"{k}\")\n"
+    init += "\tself.alias = \"\"\n"
     namespace: dict = {}
     exec(init, exec_globals, namespace)
     cls.__init__ = namespace["__init__"]
@@ -112,9 +113,41 @@ def MetaModels(cls):
         for name, tp in annotations.items():
             raw = data.get(name)
             # Converte o valor cru para o tipo correto; __set__ do Field
-            # vai encapsulÃ¡-lo automaticamente em um Field
+            # vai encapsulá-lo automaticamente em um Field
             values[name] = convert_value(tp, raw) if raw is not None else None
         return cls_(**values)
+    
+    @classmethod
+    def output_dict(self) -> dict:
+        def serialize(value):
+            if value is None:
+                return ''
 
+            raw = getattr(value, 'value', value)
+
+            if raw is None:
+                return ''
+
+            if isinstance(raw, Enum):
+                return str(raw.value)
+
+            return str(raw)
+
+        prefix = ""
+
+        if getattr(self, "alias", ""):
+            prefix = f"{self.alias}."
+
+        return {
+            f"{prefix}{field_name}": serialize(getattr(self, field_name, None))
+            for field_name in self._field_names
+        }
+
+    def set_alias(self, alias: str):
+        self.alias = alias
+
+    
+    cls.set_alias = set_alias
     cls.dto_convert = dto_convert
+    cls.output_dict = output_dict
     return cls
