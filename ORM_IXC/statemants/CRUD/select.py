@@ -6,8 +6,6 @@ from ORM_IXC.models.searchUtils.searchModel import SearchFilter, SearchModule, S
 from ORM_IXC.enums.operators import Operators
 from typing import Iterator, TypeVar, Generic, Callable, Optional, List, Any
 
-from ORM_IXC.statemants.sqlOperations.inner import formatInner
-
 T = TypeVar('T', bound=IModel)
 U = TypeVar('U', bound=IModel)
 
@@ -21,12 +19,21 @@ class Select(Generic[T, U]):
         self._inner_results: List[list[Any]] = []
         self.inners: Optional[SearchModule] = None
 
-    def where(self, condition: SearchNode) -> "Select":
-        if isinstance(condition, SearchFilter):
-            self.search = SearchModule.from_tree(condition)
+    def where(self, *conditions: SearchNode) -> "Select":
+        if not conditions:
+            raise ValueError("É necessário informar ao menos uma condição.")
 
-        elif isinstance(condition, SearchModule):
-            self.search = condition
+        # junta tudo com AND
+        tree = conditions[0]
+
+        for cond in conditions[1:]:
+            tree = tree & cond
+
+        if isinstance(tree, SearchFilter):
+            self.search = SearchModule.from_tree(tree)
+
+        elif isinstance(tree, SearchModule):
+            self.search = tree
 
         return self
 

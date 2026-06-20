@@ -3,6 +3,10 @@ import types
 from typing import TYPE_CHECKING, Any, Generic, TypeAlias, TypeVar, get_args, overload, Union
 from typing_extensions import get_origin
 from ORM_IXC.enums.operators import Operators
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ORM_IXC.statemants.CRUD.select import Select
 
 AceptTypes: TypeAlias = int | str | Enum | None | float
 MathTypes: TypeAlias = int | float
@@ -339,11 +343,24 @@ class Field(Generic[T]):
             raise TypeError("Operação 'like' não suportada para tipos numéricos")
         return SearchModule(self.name, str(value), Operators.LIKE) 
         
-    def In(self, *ids: AceptTypes) -> "SearchModule":
+    def In(self, *ids: AceptTypes | Select, field: str | None = None) -> "SearchModule":
         from ORM_IXC.models.searchUtils.searchModel import SearchModule
+        from ORM_IXC.statemants.CRUD.select import Select
+        if len(ids) == 1 and isinstance(ids[0], Select) or len(ids) == 2 and isinstance(ids[0], Select) and isinstance(ids[1], str):
+            if len(ids) == 2:
+                field = ids[1] # type: ignore
+            result = ids[0].execute()
+            if field is None:
+                raise ValueError(
+                    "É necessário informar o campo que será utilizado no IN"
+                )
+            ids_str = ", ".join(str(getattr(row, field)) for row in result)
+            return SearchModule(self.name, ids_str, Operators.IN)
+
         if not ids:
             raise ValueError("A lista para o operador IN não pode estar vazia")
-        ids_str = ", ".join([str(id) for id in ids])
+        ids_str = ", ".join(str(id) for id in ids)
+
         return SearchModule(self.name, ids_str, Operators.IN)
     
     def Notlike(self, value: AceptTypes) -> "SearchModule":

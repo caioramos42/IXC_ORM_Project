@@ -10,9 +10,8 @@ class Insert:
 
     def values(self, *payloads: IModel) -> "Insert":
         for payload in payloads:
-            if not isinstance(payload, IModel):
-                raise TypeError(f"Expected an IModel instance, got {type(payload).__name__}")
             self.payloads.append(payload)
+            print(self.payloads)
         return self
 
     def to_dict(self) -> list[dict[str, Any]]:
