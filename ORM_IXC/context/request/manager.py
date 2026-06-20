@@ -237,6 +237,7 @@ class Manager:
                         if isinstance(request, SearchModule):
                             return self._make_list_request(request)
                         raise ValueError("Para listar, o request deve ser do tipo SearchModule")
+                    print(request.to_dict())
                     response = requests.post(
                         self.host,
                         json=request.to_dict(),
