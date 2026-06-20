@@ -54,5 +54,9 @@ class BaseModel(IModel):
     @classmethod
     def dto_convert(cls_, data: dict[str, str]) -> Any:  # pragma: no cover - stub for typing
         raise NotImplementedError()
+
+    @classmethod
+    def set_alias(cls_, alias: str) -> None:
+        raise NotImplementedError()
     # common auto-increment id placeholder used by IXC models
     id_autoincrement: int | None = None

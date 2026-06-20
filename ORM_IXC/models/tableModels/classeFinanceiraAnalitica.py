@@ -19,6 +19,14 @@ class ClasseFinanceiraAnaliticaModel(IModelWithId, BaseModel):
     tipo_aux: Mapped[Optional[str]] = mapped_field('')
     plan_aux: Mapped[Optional[str]] = mapped_field('')
 
+    def _serialize_enum_and_str(self, value) -> str:
+        """Serializa um valor de enum ou retorna string vazia se None"""
+        if value is None:
+            return ''
+        if hasattr(value, 'value'):
+            return str(value.value)
+        return str(value) 
+
     @property
     def table(self) -> str:
         return "planejamento_analitico_finan"
@@ -33,14 +41,14 @@ class ClasseFinanceiraAnaliticaModel(IModelWithId, BaseModel):
         data = {
             'id': str(self.id),
             'id_planejamento_finan': str(self.id_planejamento_finan) if self.id_planejamento_finan is not None else '',
-            'planejamento_analitico': self.planejamento_analitico if self.planejamento_analitico is not None else '',
-            'classificacao': self.classificacao if self.classificacao is not None else '',
-            'conta': self.conta if self.conta is not None else '',
-            'tipo': self.tipo if self.tipo is not None else '',
-            'auxiliar': self.auxiliar if self.auxiliar is not None else '',
-            'contador': self.contador if self.contador is not None else '',
-            'tipo_aux': self.tipo_aux if self.tipo_aux is not None else '',
-            'plan_aux': self.plan_aux if self.plan_aux is not None else '',
+            'planejamento_analitico': self._serialize_enum_and_str(self.planejamento_analitico) if self.planejamento_analitico is not None else '',
+            'classificacao': self._serialize_enum_and_str(self.classificacao) if self.classificacao is not None else '',
+            'conta': self._serialize_enum_and_str(self.conta) if self.conta is not None else '',
+            'tipo': self._serialize_enum_and_str(self.tipo) if self.tipo is not None else '',
+            'auxiliar': self._serialize_enum_and_str(self.auxiliar) if self.auxiliar is not None else '',
+            'contador': self._serialize_enum_and_str(self.contador) if self.contador is not None else '',
+            'tipo_aux': self._serialize_enum_and_str(self.tipo_aux) if self.tipo_aux is not None else '',
+            'plan_aux': self._serialize_enum_and_str(self.plan_aux) if self.plan_aux is not None else '',
         }
         return {key: serialize(value) for key, value in data.items()}
     
