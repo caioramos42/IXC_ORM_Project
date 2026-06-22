@@ -7,8 +7,8 @@ def makecsv(objetos, arquivo_saida="saida"):
     
     arquivo_saida = f"{arquivo_saida}.csv"
     
-    # Obtém headers do primeiro objeto usando to_dict()
-    primeiro_dict = objetos[0].to_dict()
+    # Obtém headers do primeiro objeto usando output_dict()
+    primeiro_dict = objetos[0].output_dict()
     headers = list(primeiro_dict.keys())
     
     # Escreve o arquivo CSV
@@ -20,7 +20,7 @@ def makecsv(objetos, arquivo_saida="saida"):
         
         # Escreve cada linha convertendo o objeto para dicionário
         for obj in objetos:
-            writer.writerow(obj.to_dict())
+            writer.writerow(obj.output_dict())
     
     print(f"Arquivo gerado: {arquivo_saida}")
 
@@ -33,8 +33,8 @@ def makeCSVStream(arquivo_saida, async_iterador):
         writer = None
         
         for item in async_iterador:
-            # Obtém os dados do objeto usando to_dict()
-            dados = item.to_dict()
+            # Obtém os dados do objeto usando output_dict()
+            dados = item.output_dict()
             
             # Inicializa o writer com os headers na primeira iteração
             if headers is None:

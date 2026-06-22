@@ -15,7 +15,7 @@ def to_pandas_dataframe(objetos):
     if not objetos:
         raise ValueError("Lista vazia")
     
-    dados = [obj.to_dict() for obj in objetos]
+    dados = [obj.output_dict() for obj in objetos]
     
     df = pd.DataFrame(dados)
     
@@ -32,7 +32,7 @@ def to_pandas_dataframe_stream(iterador, chunk_size: int = 1000):
     chunk = []
     
     for item in iterador:
-        chunk.append(item.to_dict())
+        chunk.append(item.output_dict())
         
         if len(chunk) >= chunk_size:
             dados.extend(chunk)
@@ -58,8 +58,8 @@ def to_numpy_array(objetos, dtype: Any = None):
     if not objetos:
         raise ValueError("Lista vazia")
     
-    # Converte cada objeto para dicionário usando to_dict()
-    dados = [obj.to_dict() for obj in objetos]
+    # Converte cada objeto para dicionário usando output_dict()
+    dados = [obj.output_dict() for obj in objetos]
     
     # Cria array a partir dos dados
     # Primeiro tenta criar um array estruturado com campos nomeados
@@ -84,8 +84,8 @@ def to_numpy_array_stream(iterador, chunk_size: int = 1000, dtype: Any = None):
     chunk = []
     
     for item in iterador:
-        # Converte item para dicionário usando to_dict()
-        chunk.append(item.to_dict())
+        # Converte item para dicionário usando output_dict()
+        chunk.append(item.output_dict())
         
         # Processa chunk quando atinge o tamanho limite
         if len(chunk) >= chunk_size:
