@@ -4,7 +4,6 @@ from enum import Enum
 import types
 import sys
 
-from ORM_IXC.statemants.maps.classBase import Field
 from ORM_IXC.statemants.maps.classBase import Field as FieldType
 from ORM_IXC.models.tableModels.defaultModel import BaseModel
 
@@ -13,7 +12,6 @@ def is_mapped(annotation) -> bool:
 
     # Field[T] (our Mapped alias) should be treated as mapped
     return origin is FieldType
-
 
 def unwrap_mapped(annotation):
     origin = get_origin(annotation)
@@ -57,47 +55,54 @@ def MetaModels(cls):
     from ORM_IXC.statemants.maps.classBase import Field
     module_globals = vars(sys.modules[cls.__module__])
 
-    cls_annotations: dict[str, Any] = get_type_hints(
+    # Pega TODAS as anotações resolvidas (incluindo herdadas)
+    all_hints = get_type_hints(
         cls,
         globalns=module_globals,
         localns=module_globals,
     )
 
+    # Filtra apenas as anotações definidas DIRETAMENTE na classe
+    own_annotations = cls.__dict__.get("__annotations__", {})
+
+    # Resolve os tipos das anotações próprias usando os hints já resolvidos
+    cls_annotations = {k: all_hints[k] for k in own_annotations if k in all_hints}
+
+    # Campos reservados que nunca devem virar Field
+    RESERVED = {"_field_names", "alias", "columns", "_changed_fields", "table"}
+
     for k, v in cls_annotations.items():
+        if k in RESERVED:
+            continue
 
         real_type = v
-
         if is_mapped(v):
             real_type = unwrap_mapped(v)
 
         default = getattr(cls, k, None)
+        setattr(cls, k, Field(k, real_type, default))
 
-        setattr(
-            cls,
-            k,
-            Field(
-                k,
-                real_type,
-                default
-            )
-        )
+    cls._field_names = set(k for k in cls_annotations if k not in RESERVED)
 
-    cls._field_names = set(cls_annotations)
+    # __init__ também filtra os reservados
+    fields_for_init = [k for k in cls_annotations if k not in RESERVED]
 
     exec_globals = {**globals(), "Field": Field, "UNSET": object()}
 
     init: str = (
         "def __init__(self, "
-        + ", ".join([f"{k}=UNSET" for k in cls_annotations])
+        + ", ".join([f"{k}=UNSET" for k in fields_for_init])
         + "):\n"
     )
-    
+
     init += "\tself.__dict__['_changed_fields'] = set()\n"
-    for k in cls_annotations:
+    for k in fields_for_init:
         init += f"\tif {k} is not UNSET:\n"
         init += f"\t\tself.{k} = {k}\n"
         init += f"\t\tself._changed_fields.add(\"{k}\")\n"
     init += "\tself.alias = \"\"\n"
+    init += "\tself.columns = []\n"
+
     namespace: dict = {}
     exec(init, exec_globals, namespace)
     cls.__init__ = namespace["__init__"]
@@ -108,46 +113,60 @@ def MetaModels(cls):
     annotations = cls_annotations
 
     @classmethod
-    def dto_convert(cls_, data: dict[str, str]):
+    def dto_convert(cls_, data: dict[str, str], columns=None):
         values = {}
+
         for name, tp in annotations.items():
             raw = data.get(name)
-            # Converte o valor cru para o tipo correto; __set__ do Field
-            # vai encapsulá-lo automaticamente em um Field
             values[name] = convert_value(tp, raw) if raw is not None else None
-        return cls_(**values)
+
+        obj = cls_(**values)
+
+        if columns:
+            obj.columns = columns
+
+        return obj
     
-    @classmethod
+    #@classmethod
     def output_dict(self) -> dict:
         def serialize(value):
             if value is None:
-                return ''
-
-            raw = getattr(value, 'value', value)
-
+                return ""
+            raw = getattr(value, "value", value)
             if raw is None:
-                return ''
-
+                return ""
             if isinstance(raw, Enum):
                 return str(raw.value)
-
             return str(raw)
 
-        prefix = ""
+        prefix = f"{self.alias}." if getattr(self, "alias", "") else ""
 
-        if getattr(self, "alias", ""):
-            prefix = f"{self.alias}."
+        field_names = self.__class__._field_names or set()
+
+        # Normaliza self.columns para nomes string
+        if self.columns:
+            allowed = set()
+            for col in self.columns:
+                # Se for um Field descriptor, pega o nome
+                name = getattr(col, "name", None) or getattr(col, "key", None) or str(col)
+                allowed.add(name)
+        else:
+            allowed = None
 
         return {
             f"{prefix}{field_name}": serialize(getattr(self, field_name, None))
-            for field_name in self._field_names
+            for field_name in field_names
+            if allowed is None or field_name in allowed
         }
 
     def set_alias(self, alias: str):
         self.alias = alias
 
+    def set_columns(self, columns):
+        self.columns = columns
     
     cls.set_alias = set_alias
     cls.dto_convert = dto_convert
     cls.output_dict = output_dict
+    cls.set_columns = set_columns
     return cls

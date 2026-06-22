@@ -9,6 +9,8 @@ from ORM_IXC.models.searchUtils.gridParamModel import GridParam
 import copy
 import json
 
+from ORM_IXC.statemants.maps.classBase import Field
+
 
 class SearchModule(IModel):
     def __init__(
@@ -39,8 +41,15 @@ class SearchModule(IModel):
         self.sortName = f"{table_prefix}{sortName}"
         self.sortOrder = sort_order.value
         self.grid_param: Optional[list[GridParam]] = None
-        self._filter_tree: Optional[SearchNode] = None
+        self._filter_tree: list[SearchNode] | None = None
         self.alias = ""
+        self.columns : list[str] = []
+        
+
+    def setColumns(self, *columns: Field):
+        if len(columns) > 0:
+            for column in columns:
+                self.columns.append(column.name)
 
     def setaAmount(self, amount: int) -> None:
         self.amount = str(amount)
@@ -55,14 +64,28 @@ class SearchModule(IModel):
             return self._context_model.table
         return self._table
 
+    @classmethod
+    def set_alias(cls_, alias: str):
+        """Placeholder classmethod to satisfy IModel protocol.
+
+        Actual per-instance behavior is provided by binding `self.dto_convert`
+        in `set_context_model` to delegate to the concrete context model.
+        """
+        raise NotImplementedError("SearchModule.dto_convert is a placeholder")
+
+
     def appendGridParams(self, gridParam: GridParam) -> None:
-        self.grid_param.append(gridParam)
+        if self.grid_param is not None:
+            self.grid_param.append(gridParam)
 
     def _setGridParams(self) -> str:
-        return json.dumps([x.to_dict() for x in self.grid_param])
+        if self.grid_param is not None:
+            return json.dumps([x.to_dict() for x in self.grid_param])
+        else:
+            return ""
 
     @classmethod
-    def dto_convert(cls_, data: dict[str, str]) -> IModel:
+    def dto_convert(cls_, data: dict[str, str], columns: list[str]) -> IModel:
         """Placeholder classmethod to satisfy IModel protocol.
 
         Actual per-instance behavior is provided by binding `self.dto_convert`
@@ -135,7 +158,6 @@ class SearchModule(IModel):
             query=envelope["P"],
             oper=operators.Operators(envelope["OP"])
         )
-
         novo._filter_tree = flat[1:]  # ← lista plana, não a árvore!
         return novo
        
@@ -156,7 +178,7 @@ class SearchFilter:
 
     def __init__(self, left: SearchNode, operator: str, right: SearchNode) -> None:
         self.left = left
-        self.operator = operator  # "AND" | "OR"
+        self.operator = operator
         self.right = right
 
     def __and__(self, other: SearchNode) -> SearchFilter:

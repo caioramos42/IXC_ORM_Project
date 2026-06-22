@@ -372,7 +372,7 @@ class Field(Generic[T]):
     def NotIn(self, *ids: AceptTypes) -> "SearchModule":
         from ORM_IXC.models.searchUtils.searchModel import SearchModule
         if not ids:
-            raise ValueError("A lista para o operador IN não pode estar vazia")
+            raise ValueError("A lista para o operador NOT IN não pode estar vazia")
         ids_str = ", ".join([str(id) for id in ids])
         return SearchModule(self.name, ids_str, Operators.NOTIN)
 
