@@ -132,13 +132,20 @@ def MetaModels(cls):
         def serialize(value):
             if value is None:
                 return ""
-            raw = getattr(value, "value", value)
+
+            # Caso seja um Field
+            if hasattr(value, "_val"):
+                raw = value._val
+            else:
+                raw = value
+
             if raw is None:
                 return ""
-            if isinstance(raw, Enum):
-                return str(raw.value)
-            return str(raw)
 
+            if isinstance(raw, Enum):
+                return raw.name
+
+            return str(raw)
         prefix = f"{self.alias}." if getattr(self, "alias", "") else ""
 
         field_names = self.__class__._field_names or set()
