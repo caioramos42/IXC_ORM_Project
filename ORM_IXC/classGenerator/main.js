@@ -1,5 +1,5 @@
 ;(function () {
-
+//https://wikiapiprovedor.ixcsoft.com.br/formulario.php?form=radusuarios
 // ────────────────────────────────────────────────────────────
 // LEITURA DOM
 // ────────────────────────────────────────────────────────────
@@ -35,6 +35,14 @@ const html = document.getElementById("c-python").innerHTML;
 const match = html.match(
   /payload\s*=\s*json\.dumps\(([\s\S]*?)\)/
 );
+
+const tableMatch = html.match(
+  /webservice\/v1\/([^"']+)/
+);
+
+const tableName = tableMatch
+  ? tableMatch[1]
+  : classNameFinal.toLowerCase();
 
 const payloadLines = match
   ? match[1]
@@ -381,14 +389,14 @@ lines.push("");
 lines.push("    @property");
 lines.push("    def table(self) -> str:");
 lines.push(
-  `        return "${classNameFinal.toLowerCase()}"`
+  `        return "${tableName}"`
 );
 
 // serialize enum
 
 lines.push("");
 lines.push(
-  "    def _serialize_enum(self, value) -> str:"
+  "    def _serialize_enum_and_str(self, value) -> str:"
 );
 
 lines.push(
@@ -449,12 +457,7 @@ for (const { name, info } of sortedFields) {
 
   let value;
 
-  if (info.enumLines !== null) {
-
-    value =
-      `self._serialize_enum(self.${name}) if self.${name} is not None else ''`;
-
-  } else if (info.type === "int") {
+  if (info.type === "int") {
 
     value =
       `str(self.${name}) if self.${name} is not None else ''`;
@@ -462,7 +465,7 @@ for (const { name, info } of sortedFields) {
   } else {
 
     value =
-      `self.${name} if self.${name} is not None else ''`;
+      `self._serialize_enum_and_str(self.${name}) if self.${name} is not None else ''`;
   }
 
   lines.push(
