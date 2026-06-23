@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from enum import Enum
 import types
 from typing import TYPE_CHECKING, Any, Generic, TypeAlias, TypeVar, get_args, overload, Union
@@ -13,6 +15,13 @@ MathTypes: TypeAlias = int | float
 if TYPE_CHECKING:
     from ORM_IXC.models.searchUtils.searchModel import SearchModule
 T = TypeVar("T", bound=AceptTypes)
+
+
+class JoinCondition:
+    def __init__(self, left: "Field", right: "Field") -> None:
+        self.left = left
+        self.right = right
+
 
 class Field(Generic[T]):
     def __init__(self, name: str = "", fieldType: Any = object, value: T | None = None) -> None:
@@ -292,7 +301,9 @@ class Field(Generic[T]):
     # =========================
     # Comparadores
     # =========================
-    def __eq__(self, value: AceptTypes) -> "SearchModule":  # type: ignore[misc]
+    def __eq__(self, value: AceptTypes | "Field") -> "SearchModule | JoinCondition":  # type: ignore[misc]
+        if isinstance(value, Field):
+            return JoinCondition(self, value)
         from ORM_IXC.models.searchUtils.searchModel import SearchModule
         return SearchModule(self.name, str(value), Operators.EQUALS)
 
@@ -323,6 +334,11 @@ class Field(Generic[T]):
         if isinstance(value, Field):
             return value._val
         return value
+
+    def _field_name(self, field: str | "Field") -> str:
+        if isinstance(field, Field):
+            return field.name
+        return field
 
     # =========================
     # Sequence obrigatório
@@ -362,6 +378,19 @@ class Field(Generic[T]):
         ids_str = ", ".join(str(id) for id in ids)
 
         return SearchModule(self.name, ids_str, Operators.IN)
+
+    def inner(self, select_query: "Select", field: str | "Field" | None = None) -> "SearchModule":
+        """
+        Usa o resultado de um select de outra tabela como filtro IN para este campo.
+
+        Exemplo:
+            Cliente.id.inner(
+                select(contratos).where(ContratoDoCliente.id_cliente > 0),
+                ContratoDoCliente.id_cliente
+            )
+        """
+        field_name = self._field_name(field) if field is not None else self.name
+        return self.In(select_query, field_name)
     
     def Notlike(self, value: AceptTypes) -> "SearchModule":
         from ORM_IXC.models.searchUtils.searchModel import SearchModule

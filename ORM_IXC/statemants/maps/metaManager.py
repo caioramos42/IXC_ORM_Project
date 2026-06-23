@@ -69,7 +69,7 @@ def MetaModels(cls):
     cls_annotations = {k: all_hints[k] for k in own_annotations if k in all_hints}
 
     # Campos reservados que nunca devem virar Field
-    RESERVED = {"_field_names", "alias", "columns", "_changed_fields", "table"}
+    RESERVED = {"_field_names", "alias", "columns", "_changed_fields", "_inners", "table"}
 
     for k, v in cls_annotations.items():
         if k in RESERVED:
@@ -80,7 +80,9 @@ def MetaModels(cls):
             real_type = unwrap_mapped(v)
 
         default = getattr(cls, k, None)
-        setattr(cls, k, Field(k, real_type, default))
+        field = Field(k, real_type, default)
+        field.model = cls
+        setattr(cls, k, field)
 
     cls._field_names = set(k for k in cls_annotations if k not in RESERVED)
 
@@ -96,6 +98,7 @@ def MetaModels(cls):
     )
 
     init += "\tself.__dict__['_changed_fields'] = set()\n"
+    init += "\tself.__dict__['_inners'] = []\n"
     for k in fields_for_init:
         init += f"\tif {k} is not UNSET:\n"
         init += f"\t\tself.{k} = {k}\n"
@@ -146,7 +149,10 @@ def MetaModels(cls):
                 return raw.name
 
             return str(raw)
-        prefix = f"{self.alias}." if getattr(self, "alias", "") else ""
+        alias = getattr(self, "alias", "")
+        table = getattr(self, "table", "")
+        prefix_name = alias or table
+        prefix = f"{prefix_name}." if prefix_name else ""
 
         field_names = self.__class__._field_names or set()
 
@@ -160,20 +166,35 @@ def MetaModels(cls):
         else:
             allowed = None
 
-        return {
+        data = {
             f"{prefix}{field_name}": serialize(getattr(self, field_name, None))
             for field_name in field_names
             if allowed is None or field_name in allowed
         }
+
+        for inner_model in getattr(self, "_inners", []):
+            if hasattr(inner_model, "output_dict"):
+                data.update(inner_model.output_dict())
+
+        return data
 
     def set_alias(self, alias: str):
         self.alias = alias
 
     def set_columns(self, columns):
         self.columns = columns
+
+    def inner(self, *models):
+        for model in models:
+            if isinstance(model, (list, tuple, set)):
+                self._inners.extend(model)
+            else:
+                self._inners.append(model)
+        return self
     
     cls.set_alias = set_alias
     cls.dto_convert = dto_convert
     cls.output_dict = output_dict
     cls.set_columns = set_columns
+    cls.inner = inner
     return cls
