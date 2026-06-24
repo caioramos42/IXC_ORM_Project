@@ -37,7 +37,6 @@ class Select(Generic[T, U]):
 
         elif isinstance(tree, SearchModule):
             self.search = tree
-
         return self
 
     def limit(self, value: int) -> "Select":

@@ -301,7 +301,13 @@ class Field(Generic[T]):
     # =========================
     # Comparadores
     # =========================
-    def __eq__(self, value: AceptTypes | "Field") -> "SearchModule | JoinCondition":  # type: ignore[misc]
+    @overload
+    def __eq__(self, value: "Field") -> JoinCondition: ...  # type: ignore[override]
+
+    @overload
+    def __eq__(self, value: AceptTypes) -> "SearchModule": ...  # type: ignore[override]
+
+    def __eq__(self, value: AceptTypes | "Field") -> "SearchModule | JoinCondition":  # type: ignore[misc, override]
         if isinstance(value, Field):
             return JoinCondition(self, value)
         from ORM_IXC.models.searchUtils.searchModel import SearchModule
