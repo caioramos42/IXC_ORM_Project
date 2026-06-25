@@ -476,6 +476,65 @@ print([i.razao.value for i in query])
 makeJson("file", query)
 
 ```
+
+### Pesquisas relacionadas com uma unica query:
+
+```python
+load_dotenv()
+host = str(os.getenv("IXC_HOST"))
+token = str(os.getenv("IXC_TOKEN"))
+
+quantityDays = 3
+
+maturity = datetime.today() - timedelta(days=quantityDays)
+
+manager = Manager(host, token)
+contratoClient = ContratoDoCliente(manager)
+carteiraCobranca = AReceber(manager)
+cliente = Cliente(manager)
+
+
+query = select(cliente)\
+            .where(ClientModel.id.In(
+                   select(carteiraCobranca)\
+                   .where(ContasAReceberModel.id_contrato.In(
+                            select(contratoClient)\
+                            .where(ContratoDoClienteModel.contrato == "LIKE SAT BASIC")\
+                            .limit(500), "id"))\
+                   .limit(300),"id_cliente"))\
+            .limit(500)\
+            .order_by("id")\
+            .execute()
+
+print([i.razao.value for i in query])
+
+makeJson("file", query)
+
+```
+
+### InnerJoin:
+
+```python
+manager = Manager(host, token)
+serviceOrder = ServiceOrder(manager)
+assunto = Assunto(manager)
+
+
+yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+yyesterday = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
+
+query = select(serviceOrder)\
+                        .columns(ServiceOrderModel.data_abertura,
+                                 AssuntoModel.assunto)\
+                        .where(
+                           (ServiceOrderModel.data_abertura >= yyesterday + ' 00:00:00') &
+                           (ServiceOrderModel.data_abertura <= yesterday + ' 23:59:59') &
+                           ServiceOrderModel.id_assunto.In(1,3,4,5)
+                           )\
+                            .join(assunto, ServiceOrderModel.id_assunto == AssuntoModel.id)\
+                        .limit(3000)\
+                        .execute()
+```
 ## Estrutura principal
 
 - `ORM_IXC/context/request/manager.py`: gerencia chamadas HTTP, cabeçalhos e URL base
