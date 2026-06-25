@@ -531,7 +531,7 @@ query = select(serviceOrder)\
                            (ServiceOrderModel.data_abertura <= yesterday + ' 23:59:59') &
                            ServiceOrderModel.id_assunto.In(1,3,4,5)
                            )\
-                            .join(assunto, ServiceOrderModel.id_assunto == AssuntoModel.id)\
+                        .join(assunto, ServiceOrderModel.id_assunto == AssuntoModel.id)\
                         .limit(3000)\
                         .execute()
 ```
