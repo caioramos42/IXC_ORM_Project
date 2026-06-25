@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Optional, Protocol, runtime_checkable
 if TYPE_CHECKING:
     from ORM_IXC.statemants.maps.mapper import Mapped
 
+
 @runtime_checkable
 class IModel(Protocol):
     @property
@@ -12,6 +13,8 @@ class IModel(Protocol):
     def to_dict(self) -> dict[str, str]: ...
     @classmethod
     def dto_convert(cls, data: dict[str, str]) -> "IModel": ...
+    @classmethod
+    def set_alias(cls_, alias: str):...
 
 
 @runtime_checkable

@@ -7,9 +7,9 @@ def makeJson(fileName: str, models: IModel | list[IModel]) -> None:
     if isinstance(models, list):
         modelsList = []
         for model in models:
-            modelsList.append(model.to_dict())
+            modelsList.append(model.output_dict()) # type: ignore
     else:
-        modelsList = [models.to_dict()]
+        modelsList = [models.output_dict()] # type: ignore
 
     with open(fileName + '.json', 'w') as file:
          file.write(json.dumps(modelsList, indent=4))
@@ -22,7 +22,7 @@ def makeJsonStream(fileName: str, models: Iterable[IModel]) -> None:
         for model in models:
             if not first:
                 file.write(',\n')
-            file.write(json.dumps(model.to_dict(), indent=4))
+            file.write(json.dumps(model.output_dict(), indent=4)) # type: ignore
             first = False
         file.write('\n]')
     print(f"arquivo {fileName}.json criado com sucesso")

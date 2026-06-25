@@ -1,14 +1,27 @@
+from __future__ import annotations
+
 from enum import Enum
 import types
 from typing import TYPE_CHECKING, Any, Generic, TypeAlias, TypeVar, get_args, overload, Union
 from typing_extensions import get_origin
 from ORM_IXC.enums.operators import Operators
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ORM_IXC.statemants.CRUD.select import Select
 
 AceptTypes: TypeAlias = int | str | Enum | None | float
 MathTypes: TypeAlias = int | float
 if TYPE_CHECKING:
     from ORM_IXC.models.searchUtils.searchModel import SearchModule
 T = TypeVar("T", bound=AceptTypes)
+
+
+class JoinCondition:
+    def __init__(self, left: "Field", right: "Field") -> None:
+        self.left = left
+        self.right = right
+
 
 class Field(Generic[T]):
     def __init__(self, name: str = "", fieldType: Any = object, value: T | None = None) -> None:
@@ -288,7 +301,15 @@ class Field(Generic[T]):
     # =========================
     # Comparadores
     # =========================
-    def __eq__(self, value: AceptTypes) -> "SearchModule":  # type: ignore[misc]
+    @overload
+    def __eq__(self, value: "Field") -> JoinCondition: ...  # type: ignore[override]
+
+    @overload
+    def __eq__(self, value: AceptTypes) -> "SearchModule": ...  # type: ignore[override]
+
+    def __eq__(self, value: AceptTypes | "Field") -> "SearchModule | JoinCondition":  # type: ignore[misc, override]
+        if isinstance(value, Field):
+            return JoinCondition(self, value)
         from ORM_IXC.models.searchUtils.searchModel import SearchModule
         return SearchModule(self.name, str(value), Operators.EQUALS)
 
@@ -320,6 +341,11 @@ class Field(Generic[T]):
             return value._val
         return value
 
+    def _field_name(self, field: str | "Field") -> str:
+        if isinstance(field, Field):
+            return field.name
+        return field
+
     # =========================
     # Sequence obrigatório
     # =========================
@@ -339,12 +365,38 @@ class Field(Generic[T]):
             raise TypeError("Operação 'like' não suportada para tipos numéricos")
         return SearchModule(self.name, str(value), Operators.LIKE) 
         
-    def In(self, *ids: AceptTypes) -> "SearchModule":
+    def In(self, *ids: AceptTypes | Select, field: str | None = None) -> "SearchModule":
         from ORM_IXC.models.searchUtils.searchModel import SearchModule
+        from ORM_IXC.statemants.CRUD.select import Select
+        if len(ids) == 1 and isinstance(ids[0], Select) or len(ids) == 2 and isinstance(ids[0], Select) and isinstance(ids[1], str):
+            if len(ids) == 2:
+                field = ids[1] # type: ignore
+            result = ids[0].execute()
+            if field is None:
+                raise ValueError(
+                    "É necessário informar o campo que será utilizado no IN"
+                )
+            ids_str = ", ".join(str(getattr(row, field)) for row in result)
+            return SearchModule(self.name, ids_str, Operators.IN)
+
         if not ids:
             raise ValueError("A lista para o operador IN não pode estar vazia")
-        ids_str = ", ".join([str(id) for id in ids])
+        ids_str = ", ".join(str(id) for id in ids)
+
         return SearchModule(self.name, ids_str, Operators.IN)
+
+    def inner(self, select_query: "Select", field: str | "Field" | None = None) -> "SearchModule":
+        """
+        Usa o resultado de um select de outra tabela como filtro IN para este campo.
+
+        Exemplo:
+            Cliente.id.inner(
+                select(contratos).where(ContratoDoCliente.id_cliente > 0),
+                ContratoDoCliente.id_cliente
+            )
+        """
+        field_name = self._field_name(field) if field is not None else self.name
+        return self.In(select_query, field_name)
     
     def Notlike(self, value: AceptTypes) -> "SearchModule":
         from ORM_IXC.models.searchUtils.searchModel import SearchModule
@@ -355,7 +407,7 @@ class Field(Generic[T]):
     def NotIn(self, *ids: AceptTypes) -> "SearchModule":
         from ORM_IXC.models.searchUtils.searchModel import SearchModule
         if not ids:
-            raise ValueError("A lista para o operador IN não pode estar vazia")
+            raise ValueError("A lista para o operador NOT IN não pode estar vazia")
         ids_str = ", ".join([str(id) for id in ids])
         return SearchModule(self.name, ids_str, Operators.NOTIN)
 

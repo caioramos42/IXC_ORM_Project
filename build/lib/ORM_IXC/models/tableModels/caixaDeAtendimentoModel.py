@@ -33,7 +33,7 @@ class CaixaDeAtendimentoModel(IModelWithId, BaseModel):
     def table(self) -> str:
         return "rad_caixa_ftth"
     
-    def _serialize_enum(self, value) -> str:
+    def _serialize_enum_and_str(self, value) -> str:
         """Serializa um valor de enum ou retorna string vazia se None"""
         if value is None:
             return ''
@@ -50,25 +50,25 @@ class CaixaDeAtendimentoModel(IModelWithId, BaseModel):
 
         data = {
             'id': str(self.id),
-            'descricao': self.descricao if self.descricao is not None else '',
+            'descricao': self._serialize_enum_and_str(self.descricao) if self.descricao is not None else '',
             'id_projeto': str(self.id_projeto) if self.id_projeto is not None else '',
-            'tipo': self._serialize_enum(self.tipo) if self.tipo is not None else '',
+            'tipo': self._serialize_enum_and_str(self.tipo) if self.tipo is not None else '',
             'id_transmissor': str(self.id_transmissor) if self.id_transmissor is not None else '',
             'id_interface': str(self.id_interface) if self.id_interface is not None else '',
             'id_tecnologia': str(self.id_tecnologia) if self.id_tecnologia is not None else '',
-            'capacidade': self.capacidade if self.capacidade is not None else '',
-            'codigo_estilo_caixa': self._serialize_enum(self.codigo_estilo_caixa) if self.codigo_estilo_caixa is not None else '',
-            'obs_caixa_ftth': self.obs_caixa_ftth if self.obs_caixa_ftth is not None else '',
-            'status': self._serialize_enum(self.status) if self.status is not None else '',
-            'idx': self.idx if self.idx is not None else '',
-            'ultima_atualizacao': self.ultima_atualizacao if self.ultima_atualizacao is not None else '',
-            'cep': self.cep if self.cep is not None else '',
-            'endereco': self.endereco if self.endereco is not None else '',
-            'numero': self.numero if self.numero is not None else '',
-            'bairro': self.bairro if self.bairro is not None else '',
+            'capacidade': self._serialize_enum_and_str(self.capacidade) if self.capacidade is not None else '',
+            'codigo_estilo_caixa': self._serialize_enum_and_str(self.codigo_estilo_caixa) if self.codigo_estilo_caixa is not None else '',
+            'obs_caixa_ftth': self._serialize_enum_and_str(self.obs_caixa_ftth) if self.obs_caixa_ftth is not None else '',
+            'status': self._serialize_enum_and_str(self.status) if self.status is not None else '',
+            'idx': self._serialize_enum_and_str(self.idx) if self.idx is not None else '',
+            'ultima_atualizacao': self._serialize_enum_and_str(self.ultima_atualizacao) if self.ultima_atualizacao is not None else '',
+            'cep': self._serialize_enum_and_str(self.cep) if self.cep is not None else '',
+            'endereco': self._serialize_enum_and_str(self.endereco) if self.endereco is not None else '',
+            'numero': self._serialize_enum_and_str(self.numero) if self.numero is not None else '',
+            'bairro': self._serialize_enum_and_str(self.bairro) if self.bairro is not None else '',
             'id_cidade': str(self.id_cidade) if self.id_cidade is not None else '',
-            'latitude': self.latitude if self.latitude is not None else '',
-            'longitude': self.longitude if self.longitude is not None else '',
+            'latitude': self._serialize_enum_and_str(self.latitude) if self.latitude is not None else '',
+            'longitude': self._serialize_enum_and_str(self.longitude) if self.longitude is not None else '',
         }
         return {key: serialize(value) for key, value in data.items()}
 

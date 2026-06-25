@@ -1,7 +1,7 @@
 import requests
 from typing import Iterator, Any, cast
 from dataclasses import fields as get_dataclass_fields, MISSING
-
+from ORM_IXC.models.searchUtils.searchModel import _flatten_tree
 from ORM_IXC.context.request.manager import Manager
 
 from ORM_IXC.models.searchUtils.searchModel import SearchModule
@@ -49,20 +49,37 @@ class DefaultActions(ABC):
         table = self._get_table()
         search.set_context_model(self._get_context_model())
         search.set_table(table)
-        if len(search.grid_param) != 0:
+
+        if search.grid_param is not None:
             for param in search.grid_param:
                 if not param.searchField.startswith(f"{table}."):
                     param.searchField = f"{table}.{param.searchField}"
+
+        if search._filter_tree:
+            # _filter_tree já é lista plana — não chama _flatten_tree de novo!
+            for item in search._filter_tree:
+                if not item["TB"].startswith(f"{table}."):
+                    item["TB"] = f"{table}.{item['TB']}"
+
         return self.manager.make_request(search, Actions.LIST)
+
 
     def cursorByFilter(self, search: SearchModule, page_size: int = 200) -> Iterator[IModel]:
         table = self._get_table()
         search.set_context_model(self._get_context_model())
         search.set_table(table)
-        if len(search.grid_param) != 0:
+
+        if search.grid_param is not None:
             for param in search.grid_param:
                 if not param.searchField.startswith(f"{table}."):
                     param.searchField = f"{table}.{param.searchField}"
+
+        if search._filter_tree:
+            # _filter_tree já é lista plana — não chama _flatten_tree de novo!
+            for item in search._filter_tree:
+                if not item["TB"].startswith(f"{table}."):
+                    item["TB"] = f"{table}.{item['TB']}"
+
         return self.manager.iter_list_request(search, page_size)
     
     def _MakePost(self, modelForSend: IModel) -> requests.Response:

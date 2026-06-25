@@ -15,13 +15,13 @@ def makeXlsx(objetos, arquivo_saida="saida"):
         raise ValueError("Lista vazia")
     arquivo_saida = f"{arquivo_saida}.xlsx"
     
-    # Obtém headers do primeiro objeto usando to_dict()
-    headers = list(objetos[0].to_dict().keys())
+    # Obtém headers do primeiro objeto usando output_dict()
+    headers = list(objetos[0].output_dict().keys())
     linhas = [headers]
     
-    # Processa cada objeto usando to_dict()
+    # Processa cada objeto usando output_dict()
     for obj in objetos:
-        linhas.append(list(obj.to_dict().values()))
+        linhas.append(list(obj.output_dict().values()))
 
     sheet_data = ""
 
@@ -120,8 +120,8 @@ def makeXLSXStream(
     row_idx = 1
 
     for item in async_iterador:
-        # Chama to_dict() para obter os dados
-        dados = item.to_dict()
+        # Chama output_dict() para obter os dados
+        dados = item.output_dict()
 
         # Cria cabeçalho na primeira iteração
         if headers is None:
