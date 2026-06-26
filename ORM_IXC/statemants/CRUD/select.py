@@ -2,7 +2,7 @@ from ORM_IXC.enums.sortOrder import SortOrder
 from ORM_IXC.interfaces import IContext, IModel
 from ORM_IXC.models.searchUtils.searchModel import SearchFilter, SearchModule, SearchNode
 from ORM_IXC.enums.operators import Operators
-from typing import Iterator, TypeVar, Generic, Callable, Optional, List, Any
+from typing import Iterator, TypeVar, Generic, Callable, Optional, List, Any, cast
 import copy
 
 from ORM_IXC.statemants.maps.classBase import Field, JoinCondition
@@ -113,13 +113,13 @@ class Select(Generic[T, U]):
             self.search.alias = alias
         return self
     
-    def columns(self, *fields: Field) -> "Select":
+    def columns(self, *fields: Any) -> "Select":
         if len(fields) > 0:
             for field in fields:
-                self.selected_fields.append(field)
+                self.selected_fields.append(cast(Field, field))
         return self
 
-    def join(self, context: IContext[Any, Any], on: JoinCondition) -> "Select":
+    def join(self, context: IContext[Any, Any], on: object) -> "Select":
         if not isinstance(on, JoinCondition):
             raise TypeError("join() espera uma condição no formato Modelo.campo == OutroModelo.campo")
         self._joins.append((context, on))

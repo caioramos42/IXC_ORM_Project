@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Union
+from typing import Optional, Union, Any
 
 
 from ORM_IXC.enums import operators, sortOrder as sortOrder_module
@@ -43,7 +43,7 @@ class SearchModule(IModel):
         self.sortName = f"{table_prefix}{sortName}"
         self.sortOrder = sort_order.value
         self.grid_param: Optional[list[GridParam]] = None
-        self._filter_tree: list[SearchNode] | None = None
+        self._filter_tree: list[dict[str, Any]] | None = None
         self.alias = ""
         self.columns : list[str] = []
         
@@ -209,7 +209,7 @@ class SearchFilter:
 SearchNode = Union["SearchModule", SearchFilter]
 
 
-def _flatten_tree(node: SearchNode, logic_op: str = "") -> list[dict]:
+def _flatten_tree(node: SearchNode, logic_op: str = "") -> list[dict[str, Any]]:
     """
     Traversal in-order da árvore → lista plana de GridParams.
 
