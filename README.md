@@ -535,6 +535,28 @@ query = select(serviceOrder)\
                         .limit(3000)\
                         .execute()
 ```
+
+
+### Operador Between:
+
+```python
+host = str(os.getenv("IXC_HOST"))
+token = str(os.getenv("IXC_TOKEN"))
+
+manager = Manager(host, token)
+context = Login(manager)
+
+query = (
+    select(context)
+    .where(LoginModel.id.Between(36, 40))
+    .limit(500)
+)
+
+print(query.to_dict())
+
+responses = query.execute()
+```
+
 ## Estrutura principal
 
 - `ORM_IXC/context/request/manager.py`: gerencia chamadas HTTP, cabeçalhos e URL base
