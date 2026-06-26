@@ -36,7 +36,10 @@ class Select(Generic[T, U]):
             self.search = SearchModule.from_tree(tree)
 
         elif isinstance(tree, SearchModule):
-            self.search = tree
+            if tree.oper == Operators.BETWEEN.value:
+                self.search = SearchModule.from_tree(tree)
+            else:
+                self.search = tree
         return self
 
     def limit(self, value: int) -> "Select":

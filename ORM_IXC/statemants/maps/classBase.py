@@ -413,5 +413,4 @@ class Field(Generic[T]):
 
     def Between(self, value1: AceptTypes, value2: AceptTypes) -> "SearchModule":
         from ORM_IXC.models.searchUtils.searchModel import SearchModule
-        ids_str = f"{value1} AND {value2}"
-        return SearchModule(self.name, ids_str, Operators.BETWEEN)
+        return SearchModule(self.name, str(value1), Operators.BETWEEN, secondParameter=str(value2))

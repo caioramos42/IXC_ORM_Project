@@ -22,7 +22,8 @@ class SearchModule(IModel):
         sortName: str = "id",
         amount: int = 9999,
         page: int = 1,
-        sort_order: sortOrder_module.SortOrder = sortOrder_module.SortOrder.ASC
+        sort_order: sortOrder_module.SortOrder = sortOrder_module.SortOrder.ASC,
+        secondParameter: str | None = None
         ):
 
         self._context_model: Optional[IModel] = context_model
@@ -36,6 +37,7 @@ class SearchModule(IModel):
         else:
             self.query = query
         self.oper = oper.value
+        self.secondParameter = str(secondParameter) if secondParameter is not None else None
         self.page = str(page)
         self.amount = str(amount)
         self.sortName = f"{table_prefix}{sortName}"
@@ -143,6 +145,7 @@ class SearchModule(IModel):
         novo.searchField = envelope["TB"]
         novo.oper        = envelope["OP"]
         novo.query       = envelope["P"]
+        novo.secondParameter = envelope.get("P2")
 
         # O restante vira grid_param
         novo._filter_tree = flat[1:] if len(flat) > 1 else []
@@ -151,12 +154,27 @@ class SearchModule(IModel):
     @staticmethod
     def from_tree(tree: SearchNode) -> "SearchModule":
         flat = _flatten_tree(tree)
+        between_count = sum(1 for item in flat if item["OP"] == operators.Operators.BETWEEN.value)
+
+        if between_count > 1:
+            raise ValueError("Apenas uma pesquisa BETWEEN pode ser usada em grid_param.")
+
+        if flat[0]["OP"] == operators.Operators.BETWEEN.value:
+            envelope = {
+                "TB": "id",
+                "OP": operators.Operators.MORETHAN.value,
+                "P": "0",
+            }
+            flat[0]["C"] = flat[0].get("C") or "AND"
+            flat.insert(0, envelope)
+
         envelope = flat[0]
 
         novo = SearchModule(
             searchField=envelope["TB"],
             query=envelope["P"],
-            oper=operators.Operators(envelope["OP"])
+            oper=operators.Operators(envelope["OP"]),
+            secondParameter=envelope.get("P2")
         )
         novo._filter_tree = flat[1:]  # ← lista plana, não a árvore!
         return novo
@@ -205,7 +223,10 @@ def _flatten_tree(node: SearchNode, logic_op: str = "") -> list[dict]:
         D → C = "AND"
     """
     if isinstance(node, SearchModule):
-        return [{"TB": node.searchField, "OP": node.oper, "C": logic_op, "P": node.query}]
+        search = {"TB": node.searchField, "OP": node.oper, "C": logic_op, "P": node.query}
+        if node.secondParameter is not None:
+            search["P2"] = node.secondParameter
+        return [search]
 
     # Nó interno: desce left com o operador herdado do pai,
     # desce right com o operador deste nó.
