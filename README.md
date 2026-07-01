@@ -557,6 +557,25 @@ print(query.to_dict())
 responses = query.execute()
 ```
 
+### Operador Not Between:
+
+```python
+host = str(os.getenv("IXC_HOST"))
+token = str(os.getenv("IXC_TOKEN"))
+
+manager = Manager(host, token)
+context = Login(manager)
+
+query = (
+    select(context)
+    .where(LoginModel.id.NotBetween(37, 40))
+    .limit(500)
+)
+
+responses = query.execute()
+
+print(responses)
+```
 ## Estrutura principal
 
 - `ORM_IXC/context/request/manager.py`: gerencia chamadas HTTP, cabeçalhos e URL base
