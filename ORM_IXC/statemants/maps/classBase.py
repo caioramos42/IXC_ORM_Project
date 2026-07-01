@@ -365,10 +365,10 @@ class Field(Generic[T]):
             raise TypeError("Operação 'like' não suportada para tipos numéricos")
         return SearchModule(self.name, str(value), Operators.LIKE) 
         
-    def In(self, *ids: AceptTypes | Select, field: str | None = None) -> "SearchModule":
+    def In(self, *ids: AceptTypes | Select | Field, field: str | Field | None = None) -> "SearchModule":
         from ORM_IXC.models.searchUtils.searchModel import SearchModule
         from ORM_IXC.statemants.CRUD.select import Select
-        if len(ids) == 1 and isinstance(ids[0], Select) or len(ids) == 2 and isinstance(ids[0], Select) and isinstance(ids[1], str):
+        if len(ids) == 1 and isinstance(ids[0], Select) or len(ids) == 2 and isinstance(ids[0], Select) and (isinstance(ids[1], str) or isinstance(ids[1], Field)):
             if len(ids) == 2:
                 field = ids[1] # type: ignore
             result = ids[0].execute()
@@ -376,6 +376,8 @@ class Field(Generic[T]):
                 raise ValueError(
                     "É necessário informar o campo que será utilizado no IN"
                 )
+            if isinstance(field, Field):
+                field = field.name
             ids_str = ", ".join(str(getattr(row, field)) for row in result)
             return SearchModule(self.name, ids_str, Operators.IN)
 
@@ -404,13 +406,27 @@ class Field(Generic[T]):
             raise TypeError("Operação 'like' não suportada para tipos numéricos")
         return SearchModule(self.name, str(value), Operators.NOTLIKE)
     
-    def NotIn(self, *ids: AceptTypes) -> "SearchModule":
+    def NotIn(self, *ids: AceptTypes | Select | Field, field: str | Field | None = None) -> "SearchModule":
         from ORM_IXC.models.searchUtils.searchModel import SearchModule
-        if not ids:
-            raise ValueError("A lista para o operador NOT IN não pode estar vazia")
-        ids_str = ", ".join([str(id) for id in ids])
-        return SearchModule(self.name, ids_str, Operators.NOTIN)
+        from ORM_IXC.statemants.CRUD.select import Select
+        if len(ids) == 1 and isinstance(ids[0], Select) or len(ids) == 2 and isinstance(ids[0], Select) and (isinstance(ids[1], str) or isinstance(ids[1], Field)):
+            if len(ids) == 2:
+                field = ids[1] # type: ignore
+            result = ids[0].execute()
+            if field is None:
+                raise ValueError(
+                    "É necessário informar o campo que será utilizado no IN"
+                )
+            if isinstance(field, Field):
+                field = field.name
+            ids_str = ", ".join(str(getattr(row, field)) for row in result)
+            return SearchModule(self.name, ids_str, Operators.IN)
+
 
     def Between(self, value1: AceptTypes, value2: AceptTypes) -> "SearchModule":
         from ORM_IXC.models.searchUtils.searchModel import SearchModule
         return SearchModule(self.name, str(value1), Operators.BETWEEN, secondParameter=str(value2))
+    
+    def NotBetween(self, value1: AceptTypes, value2: AceptTypes) -> "SearchModule":
+        from ORM_IXC.models.searchUtils.searchModel import SearchModule
+        return SearchModule(self.name, str(value1), Operators.NOTBETWEEN, secondParameter=str(value2))
