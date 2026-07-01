@@ -151,7 +151,7 @@ def MetaModels(cls):
             return str(raw)
         alias = getattr(self, "alias", "")
         table = getattr(self, "table", "")
-        prefix_name = alias or table
+        prefix_name = alias if alias is not None else table
         prefix = f"{prefix_name}." if prefix_name else ""
 
         field_names = self.__class__._field_names or set()
