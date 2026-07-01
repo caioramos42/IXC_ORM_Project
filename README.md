@@ -500,8 +500,8 @@ query = select(cliente)\
                    .where(ContasAReceberModel.id_contrato.In(
                             select(contratoClient)\
                             .where(ContratoDoClienteModel.contrato == "LIKE SAT BASIC")\
-                            .limit(500), "id"))\
-                   .limit(300),"id_cliente"))\
+                            .limit(500), ContratoDoClienteModel.id))\
+                   .limit(300), ContasAReceberModel.id_cliente))\
             .limit(500)\
             .order_by("id")\
             .execute()
