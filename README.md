@@ -576,6 +576,72 @@ responses = query.execute()
 
 print(responses)
 ```
+
+### Junção de diferentes operadores para pesquisas em diferentes tabelas:
+```python
+host = str(os.getenv("IXC_HOST"))
+token = str(os.getenv("IXC_TOKEN"))   
+
+manager = Manager(host, token)
+radacct = Radacct(manager)
+contrato = ContratoDoCliente(manager)
+login = Login(manager)
+atendimento = Atendimento(manager)
+cliente = Cliente(manager)
+
+yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y/%m/%d')
+
+query = select(radacct)\
+    .columns(RadacctModel.username)\
+    .where((RadacctModel.acctstoptime >= yesterday + ' 00:00:00') &
+           (RadacctModel.acctstoptime <= yesterday + ' 23:59:59'))\
+    .limit(3000)\
+    .order_by("username")\
+    .execute()
+
+counts = Counter(q.username.value for q in query)
+
+valid_users = [user for user, total in counts.items() if total >= 4]
+
+if valid_users:
+    search = (LoginModel.login == valid_users[0])
+    for user in valid_users[1:]:
+        search |= (LoginModel.login == user)
+        
+    query2 = select(login)\
+                .columns(LoginModel.id, ContratoDoClienteModel.id, ClientModel.id, AtendimentoModel.titulo)\
+                .where(search)\
+                .join(
+                    contrato,
+                    LoginModel.id_contrato == ContratoDoClienteModel.id,
+                    (ContratoDoClienteModel.status == 'A') & 
+                    (ContratoDoClienteModel.contrato.like('%WIRELESS')),
+                )\
+                .join(
+                    atendimento,
+                    LoginModel.id == AtendimentoModel.id_login,
+                    (AtendimentoModel.titulo == 'DESCONEXÕES RECENTES - VERIFICAR COM O CLIENTE') &
+                    (AtendimentoModel.su_status == 'S') |
+                    (AtendimentoModel.su_status == 'C')
+                )\
+                .join(
+                    cliente,
+                    LoginModel.id_cliente == ClientModel.id
+                )\
+                .limit(3000)\
+                .execute()
+    seen = set()
+
+    query2 = [
+                row 
+                for row in query2 
+                if not (row.login.value in seen or seen.add(row.login.value))
+            ]
+    
+    print(len(query2))
+    makeJson("logins", query2)
+```
+
 ## Estrutura principal
 
 - `ORM_IXC/context/request/manager.py`: gerencia chamadas HTTP, cabeçalhos e URL base
