@@ -44,7 +44,7 @@ class SearchModule(IModel):
         self.sortOrder = sort_order.value
         self.grid_param: Optional[list[GridParam]] = None
         self._filter_tree: list[dict[str, Any]] | None = None
-        self.alias = ""
+        self.alias = None
         self.columns : list[str] = []
         
 
@@ -159,7 +159,7 @@ class SearchModule(IModel):
         if between_count > 1:
             raise ValueError("Apenas uma pesquisa BETWEEN pode ser usada em grid_param.")
 
-        if flat[0]["OP"] == operators.Operators.BETWEEN.value:
+        if flat[0]["OP"] == operators.Operators.BETWEEN.value or flat[0]["OP"] == operators.Operators.NOTBETWEEN.value:
             envelope = {
                 "TB": "id",
                 "OP": operators.Operators.MORETHAN.value,

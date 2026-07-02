@@ -34,8 +34,8 @@ class Update(Generic[T, U]):
 
     def values(self, payload: U) -> "Update":
         """Define o objeto com os valores a serem atualizados"""
-        if not isinstance(payload, IModel):
-            raise TypeError(f"Expected an IModel instance, got {type(payload).__name__}")
+        #if not isinstance(payload, IModel):
+            #raise TypeError(f"Expected an IModel instance, got {type(payload).__name__}")
         self.payload = payload
         return self
 

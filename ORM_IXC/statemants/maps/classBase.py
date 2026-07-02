@@ -159,9 +159,9 @@ class Field(Generic[T]):
             return int(self._val)
         if self.python_type == str:
             if not str(self._val).lstrip('-').isdigit():
-                raise ValueError("Este valor nÃ£o pode ser convertido em int")
+                raise ValueError("Este valor não pode ser convertido em int")
             return int(self._val)
-        raise ValueError("Esse valor nÃ£o pode ser convertido em int")
+        raise ValueError("Esse valor não pode ser convertido em int")
 
     def __float__(self) -> float:
         if self._val is None:

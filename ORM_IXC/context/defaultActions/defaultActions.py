@@ -120,7 +120,7 @@ class DefaultActions(ABC):
         update_values: dict[str, Any] = {}
         if hasattr(modelForUpdate, 'changed_fields'):
             changed_fields = modelForUpdate.changed_fields()
-            print(changed_fields)
+            #print(changed_fields)
             if changed_fields:
                 if hasattr(modelForUpdate, 'changed_values'):
                     update_values = modelForUpdate.changed_values()
@@ -177,9 +177,10 @@ class DefaultActions(ABC):
                 if key in ("id", "id_autoincrement"):
                     continue
                 if hasattr(record, key):
-                    print(key + " " +str(raw_value))
+                    #print(key + " " +str(raw_value))
                     setattr(record, key, raw_value)
-            print(record.to_dict())
+            #
+            # print(record.to_dict())
             # Enviar o próprio registro atualizado (o manager usa record.to_dict())
             response = self.manager.make_request(record, Actions.EDIT)
             responses.append(response)

@@ -68,7 +68,6 @@ class Manager:
         page = int(getattr(request, "page", 1))
         amount = int(getattr(request, "amount", 9999))
         paginate_all = amount == 9999
-
         while True:
             if hasattr(request, "setPage"):
                 request.setPage(page)
@@ -222,10 +221,10 @@ class Manager:
                         verify=False
                     )
                 case Actions.EDIT:
-                    print("{}/{}".format(self.host, self._get_request_id(request)))
+                    #print("{}/{}".format(self.host, self._get_request_id(request)))
                     reqs = request.to_dict()
                     reqs.pop("id", None)
-                    print(reqs)
+                    #print(reqs)
                     return requests.put(
                         "{}/{}".format(self.host, self._get_request_id(request)),
                         json=reqs,
@@ -237,7 +236,7 @@ class Manager:
                         if isinstance(request, SearchModule):
                             return self._make_list_request(request)
                         raise ValueError("Para listar, o request deve ser do tipo SearchModule")
-                    print(request.to_dict())
+                    #print(request.to_dict())
                     response = requests.post(
                         self.host,
                         json=request.to_dict(),

@@ -20,7 +20,7 @@ class Select(Generic[T, U]):
         self._inner_results: List[list[Any]] = []
         self.inners: Optional[SearchModule] = None
         self.selected_fields: list[Field] = []
-        self._joins: list[tuple[IContext[Any, Any], JoinCondition]] = []
+        self._joins: list[tuple[IContext[Any, Any], JoinCondition, list[SearchNode], str]] = []
 
     def where(self, *conditions: SearchNode) -> "Select":
         if not conditions:
@@ -36,7 +36,7 @@ class Select(Generic[T, U]):
             self.search = SearchModule.from_tree(tree)
 
         elif isinstance(tree, SearchModule):
-            if tree.oper == Operators.BETWEEN.value:
+            if tree.oper == Operators.BETWEEN.value or tree.oper == Operators.NOTBETWEEN.value:
                 self.search = SearchModule.from_tree(tree)
             else:
                 self.search = tree
@@ -119,10 +119,25 @@ class Select(Generic[T, U]):
                 self.selected_fields.append(cast(Field, field))
         return self
 
-    def join(self, context: IContext[Any, Any], on: object) -> "Select":
+    def join(self, context: IContext[Any, Any], on: object, *filters: Any, join_type: str | None = None) -> "Select":
         if not isinstance(on, JoinCondition):
             raise TypeError("join() espera uma condição no formato Modelo.campo == OutroModelo.campo")
-        self._joins.append((context, on))
+
+        normalized_filters: list[SearchNode] = []
+        resolved_join_type = "inner"
+
+        for item in filters:
+            if isinstance(item, str) and item.lower() in {"left", "inner"}:
+                resolved_join_type = item.lower()
+                continue
+            if not isinstance(item, (SearchModule, SearchFilter)):
+                raise TypeError("join() aceita apenas filtros do tipo SearchModule ou SearchFilter")
+            normalized_filters.append(item)
+
+        if join_type is not None:
+            resolved_join_type = join_type.lower()
+
+        self._joins.append((context, on, normalized_filters, resolved_join_type))
         return self
     
     def _setField(self):
@@ -135,7 +150,7 @@ class Select(Generic[T, U]):
     def _apply_joins(self, results: list[T]) -> list[T]:
         joined_results: list[Any] = results
 
-        for join_context, condition in self._joins:
+        for join_context, condition, join_filters, join_type in self._joins:
             if not joined_results:
                 return []
 
@@ -149,12 +164,21 @@ class Select(Generic[T, U]):
             if not main_values:
                 return []
 
-            join_search = SearchModule(
+            base_join_filter = SearchModule(
                 searchField=join_field.name,
                 query=", ".join(str(value) for value in main_values),
                 oper=Operators.IN,
                 sortName=join_field.name,
             )
+
+            if join_filters:
+                tree = base_join_filter
+                for filter_node in join_filters:
+                    tree = tree & filter_node
+                join_search = SearchModule.from_tree(tree)
+            else:
+                join_search = base_join_filter
+
             join_fields = self._selected_fields_for_context(join_context)
             if join_fields:
                 join_search.setColumns(*join_fields)
@@ -170,9 +194,13 @@ class Select(Generic[T, U]):
                 key = str(self._raw_value(row, main_field.name))
                 matches = index.get(key, [])
 
-                for match in matches:
+                if matches:
+                    for match in matches:
+                        row_copy = self._clone_with_inners(row)
+                        row_copy.inner(match)
+                        next_results.append(row_copy)
+                elif join_type == "left":
                     row_copy = self._clone_with_inners(row)
-                    row_copy.inner(match)
                     next_results.append(row_copy)
 
             joined_results = next_results
