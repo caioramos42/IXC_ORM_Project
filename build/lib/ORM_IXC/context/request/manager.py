@@ -77,6 +77,7 @@ class Manager:
                 headers=self.header,
                 verify=False
             )
+
             if "<div" in response.text:
                 raise(ValueError(f"Erro ao processar request: {response.text.split(">")[1].replace("</div","")}"))
 
@@ -100,7 +101,6 @@ class Manager:
                 break
 
             page += 1
-
         return converted
     def _iter_internal(self, request: SearchModule, page_size: int):
         hostBefore = self.host
@@ -221,10 +221,10 @@ class Manager:
                         verify=False
                     )
                 case Actions.EDIT:
-                    print("{}/{}".format(self.host, self._get_request_id(request)))
+                    #print("{}/{}".format(self.host, self._get_request_id(request)))
                     reqs = request.to_dict()
                     reqs.pop("id", None)
-                    print(reqs)
+                    #print(reqs)
                     return requests.put(
                         "{}/{}".format(self.host, self._get_request_id(request)),
                         json=reqs,
@@ -236,7 +236,7 @@ class Manager:
                         if isinstance(request, SearchModule):
                             return self._make_list_request(request)
                         raise ValueError("Para listar, o request deve ser do tipo SearchModule")
-                    print(request.to_dict())
+                    #print(request.to_dict())
                     response = requests.post(
                         self.host,
                         json=request.to_dict(),

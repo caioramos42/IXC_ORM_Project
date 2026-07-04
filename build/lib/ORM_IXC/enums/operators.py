@@ -12,4 +12,5 @@ class Operators(Enum):
     NOTLIKE = 'NL'
     NOTIN = "NI"
     BETWEEN = "BE"
+    NOTBETWEEN = "NBE"
     

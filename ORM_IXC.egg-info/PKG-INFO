@@ -25,7 +25,7 @@ Os principais recursos incluem:
 - gerenciamento de requisiÃ§Ãµes HTTP com autenticaÃ§Ã£o bÃ¡sica
 - classes de contexto para entidades comuns (cliente, contrato, atendimento, etc.)
 - operaÃ§Ãµes CRUD genÃ©ricas e buscas por filtro
-- abstracao de operadores como |(ou), &(e), like, in, notin, notlike
+- abstracao de operadores como |(ou), &(e), like, in, notin, notlike, between, notBetween
 - modelos de busca com parÃ¢metros e ordenaÃ§Ã£o
 
 ## InstalaÃ§Ã£o
@@ -491,6 +491,259 @@ print([i.razao.value for i in query])
 makeJson("file", query)
 
 ```
+
+### Pesquisas relacionadas com uma unica query:
+
+```python
+load_dotenv()
+host = str(os.getenv("IXC_HOST"))
+token = str(os.getenv("IXC_TOKEN"))
+
+quantityDays = 3
+
+maturity = datetime.today() - timedelta(days=quantityDays)
+
+manager = Manager(host, token)
+contratoClient = ContratoDoCliente(manager)
+carteiraCobranca = AReceber(manager)
+cliente = Cliente(manager)
+
+
+query = select(cliente)\
+            .where(ClientModel.id.In(
+                   select(carteiraCobranca)\
+                   .where(ContasAReceberModel.id_contrato.In(
+                            select(contratoClient)\
+                            .where(ContratoDoClienteModel.contrato == "LIKE SAT BASIC")\
+                            .limit(500), ContratoDoClienteModel.id))\
+                   .limit(300), ContasAReceberModel.id_cliente))\
+            .limit(500)\
+            .order_by("id")\
+            .execute()
+
+print([i.razao.value for i in query])
+
+makeJson("file", query)
+
+```
+
+### InnerJoin:
+
+```python
+manager = Manager(host, token)
+serviceOrder = ServiceOrder(manager)
+assunto = Assunto(manager)
+
+
+yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+yyesterday = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
+
+query = select(serviceOrder)\
+                        .columns(ServiceOrderModel.data_abertura,
+                                 AssuntoModel.assunto)\
+                        .where(
+                           (ServiceOrderModel.data_abertura >= yyesterday + ' 00:00:00') &
+                           (ServiceOrderModel.data_abertura <= yesterday + ' 23:59:59') &
+                           ServiceOrderModel.id_assunto.In(1,3,4,5)
+                           )\
+                        .join(assunto, ServiceOrderModel.id_assunto == AssuntoModel.id)\
+                        .limit(3000)\
+                        .execute()
+```
+
+
+### Operador Between:
+
+```python
+host = str(os.getenv("IXC_HOST"))
+token = str(os.getenv("IXC_TOKEN"))
+
+manager = Manager(host, token)
+context = Login(manager)
+
+query = (
+    select(context)
+    .where(LoginModel.id.Between(36, 40))
+    .limit(500)
+)
+
+print(query.to_dict())
+
+responses = query.execute()
+```
+
+### Operador Not Between:
+
+```python
+host = str(os.getenv("IXC_HOST"))
+token = str(os.getenv("IXC_TOKEN"))
+
+manager = Manager(host, token)
+context = Login(manager)
+
+query = (
+    select(context)
+    .where(LoginModel.id.NotBetween(37, 40))
+    .limit(500)
+)
+
+responses = query.execute()
+
+print(responses)
+```
+
+### JunÃ§Ã£o de diferentes operadores para pesquisas em diferentes tabelas:
+```python
+host = str(os.getenv("IXC_HOST"))
+token = str(os.getenv("IXC_TOKEN"))   
+
+manager = Manager(host, token)
+radacct = Radacct(manager)
+contrato = ContratoDoCliente(manager)
+login = Login(manager)
+atendimento = Atendimento(manager)
+cliente = Cliente(manager)
+
+yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y/%m/%d')
+
+query = select(radacct)\
+    .columns(RadacctModel.username)\
+    .where((RadacctModel.acctstoptime >= yesterday + ' 00:00:00') &
+           (RadacctModel.acctstoptime <= yesterday + ' 23:59:59'))\
+    .limit(3000)\
+    .order_by("username")\
+    .execute()
+
+counts = Counter(q.username.value for q in query)
+
+valid_users = [user for user, total in counts.items() if total >= 4]
+
+if valid_users:
+    search = (LoginModel.login == valid_users[0])
+    for user in valid_users[1:]:
+        search |= (LoginModel.login == user)
+        
+    query2 = select(login)\
+                .columns(LoginModel.id, ContratoDoClienteModel.id, ClientModel.id, AtendimentoModel.titulo)\
+                .where(search)\
+                .join(
+                    contrato,
+                    LoginModel.id_contrato == ContratoDoClienteModel.id,
+                    (ContratoDoClienteModel.status == 'A') & 
+                    (ContratoDoClienteModel.contrato.like('%WIRELESS')),
+                )\
+                .join(
+                    atendimento,
+                    LoginModel.id == AtendimentoModel.id_login,
+                    (AtendimentoModel.titulo == 'DESCONEXÃ•ES RECENTES - VERIFICAR COM O CLIENTE') &
+                    (AtendimentoModel.su_status == 'S') |
+                    (AtendimentoModel.su_status == 'C')
+                )\
+                .join(
+                    cliente,
+                    LoginModel.id_cliente == ClientModel.id
+                )\
+                .limit(3000)\
+                .execute()
+    seen = set()
+
+    query2 = [
+                row 
+                for row in query2 
+                if not (row.login.value in seen or seen.add(row.login.value))
+            ]
+    
+    print(len(query2))
+    makeJson("logins", query2)
+```
+
+### Exemplo de criacao de ordem de serviÃ§o para logins com desconexÃµes acima de 4
+
+```python
+
+host = str(os.getenv("IXC_HOST"))
+token = str(os.getenv("IXC_TOKEN"))   
+
+manager = Manager(host, token)
+radacct = Radacct(manager)
+contrato = ContratoDoCliente(manager)
+login = Login(manager)
+atendimento = Atendimento(manager)
+cliente = Cliente(manager)
+service_order = ServiceOrder(manager)
+
+yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+
+query = (
+    select(count(radacct, RadacctModel.username, "contador"))
+    .where(
+        (RadacctModel.acctstoptime >= yesterday + " 00:00:00") &
+        (RadacctModel.acctstoptime <= yesterday + " 23:59:59")
+    )
+    .groupby(RadacctModel.username)
+    .having(radacct.contador >= 4)
+    .order_by("acctsessionid")\
+    .limit(3000)
+    .execute()
+)
+
+if query:
+    search = (LoginModel.login == query[0].username)
+    for user in query[1:]:
+        search |= (LoginModel.login == user.username)
+        
+    query2 = select(distinct(login, LoginModel.login))\
+                .columns(LoginModel.id, LoginModel.login, ContratoDoClienteModel.id, ClientModel.id)\
+                .where(search)\
+                .join(
+                    contrato,
+                    LoginModel.id_contrato == ContratoDoClienteModel.id,
+                    (ContratoDoClienteModel.status == 'A') & 
+                    (ContratoDoClienteModel.contrato.like('%WIRELESS')),
+                )\
+                .join(
+                    atendimento,
+                    LoginModel.id == AtendimentoModel.id_login,
+                    (AtendimentoModel.titulo == 'DESCONEXÃ•ES RECENTES - VERIFICAR COM O CLIENTE') &
+                    ((AtendimentoModel.su_status == 'P') |
+                    (AtendimentoModel.su_status == 'EP') |
+                    (AtendimentoModel.su_status == 'N')),
+                    join_type='left'
+                )\
+                .join(
+                    cliente,
+                    LoginModel.id_cliente == ClientModel.id
+                )\
+                .limit(3000)\
+                .execute()
+
+    query2 = [q for q in query2 if len(q._inners) <= 2]
+    print(query2[0].output_dict()['cliente_contrato.id'])
+    makeJson("logins", query2)
+
+    response = insert(atendimento).values(*[AtendimentoModel(
+        id = 0,
+        tipo="C",
+        titulo="DESCONEXÃ•ES RECENTES - VERIFICAR COM O CLIENTE",
+        origem_endereco='L',
+        origem_endereco_estrutura = 'L',
+        atualizar_cliente = 'N',
+        finalizar_atendimento = 'N',
+        status = 'T',
+        su_status = 'N',
+        interacao_pendente = 'N',
+        melhor_horario_reserva = 'Q',
+        prioridade = 'M',
+        id_ticket_setor = 7,
+        menssagem = 'Cliente com desconexÃ£o com nÃºmero acima de 4. Favor entrar em contato com o cliente para verificar o ocorrido.',
+        id_login = q.output_dict()['login.id'],
+        id_cliente = q.output_dict()['cliente.id'],
+        id_contrato = q.output_dict()['cliente_contrato.id']
+    ) for q in query2]).execute()
+    print(r for r in response)
+```
+
+
 ## Estrutura principal
 
 - `ORM_IXC/context/request/manager.py`: gerencia chamadas HTTP, cabeÃ§alhos e URL base
