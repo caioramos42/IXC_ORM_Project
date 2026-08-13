@@ -1,36 +1,6 @@
 """Contextos da ORM IXC."""
 
-from .areceber import AReceber
-from .assunto import Assunto
-from .atendimento import Atendimento
-from .caixaDeAtendimento import CaixaDeAtendimento
-from .carteiraCobranca import CarteiraDeConbranca
-from .cidade import Cidade
-from .classeFinanceiraAnalitica import ClasseFinanceiraAnalitica
-from .cliente import Cliente
-from .colaboradores import Colaboradores
-from .contabil import ContaContabilSintetica
-from .contratoDoCliente import ContratoDoCliente
-from .fiberClient import ClienteFibra
-from .grupoDeUsuarios import GrupoDeUsuarios
-from .login import Login
-from .movimentoDeProdutos import MovimentoDeProdutos
-from .patrimonio import Patrimonio
-from .planoDeVenda import PlanoDeVenda
-from .planosPorContrato import PlanosPorContrato
-from .produtos import Produtos
-from .radacct import Radacct
-from .rastreadoresDeVeiculos import RastreadoresDeVeIculos
-from .serviceOrder import ServiceOrder
-from .tipoDeCobrancaDoContrato import TipoDeCobrancaDoContrato
-from .tipoDocumento import TipoDocumento
-from .transmissor import Transmissor
-from .usuarios import Usuarios
-from .veiculos import Veiculos
-from .vendedor import Vendedor
-
-CarteiraCobranca = CarteiraDeConbranca
-Contrato = ContratoDoCliente
+from importlib import import_module
 
 __all__ = [
     "AReceber",
@@ -64,3 +34,43 @@ __all__ = [
     "Veiculos",
     "Vendedor",
 ]
+
+
+def __getattr__(name):
+    module_name = {
+        "AReceber": ".areceber",
+        "Assunto": ".assunto",
+        "Atendimento": ".atendimento",
+        "CaixaDeAtendimento": ".caixaDeAtendimento",
+        "CarteiraDeConbranca": ".carteiraCobranca",
+        "Cidade": ".cidade",
+        "ClasseFinanceiraAnalitica": ".classeFinanceiraAnalitica",
+        "Cliente": ".cliente",
+        "Colaboradores": ".colaboradores",
+        "ContaContabilSintetica": ".contabil",
+        "ContratoDoCliente": ".contratoDoCliente",
+        "ClienteFibra": ".fiberClient",
+        "GrupoDeUsuarios": ".grupoDeUsuarios",
+        "Login": ".login",
+        "MovimentoDeProdutos": ".movimentoDeProdutos",
+        "Patrimonio": ".patrimonio",
+        "PlanoDeVenda": ".planoDeVenda",
+        "PlanosPorContrato": ".planosPorContrato",
+        "Produtos": ".produtos",
+        "Radacct": ".radacct",
+        "RastreadoresDeVeIculos": ".rastreadoresDeVeiculos",
+        "ServiceOrder": ".serviceOrder",
+        "TipoDeCobrancaDoContrato": ".tipoDeCobrancaDoContrato",
+        "TipoDocumento": ".tipoDocumento",
+        "Transmissor": ".transmissor",
+        "Usuarios": ".usuarios",
+        "Veiculos": ".veiculos",
+        "Vendedor": ".vendedor",
+    }.get(name)
+    if module_name is not None:
+        return getattr(import_module(module_name, __name__), name)
+    if name == "CarteiraCobranca":
+        return __getattr__("CarteiraDeConbranca")
+    if name == "Contrato":
+        return __getattr__("ContratoDoCliente")
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

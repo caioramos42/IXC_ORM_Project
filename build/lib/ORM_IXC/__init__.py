@@ -5,48 +5,10 @@ importações absolutas baseadas em `IXC_ORM_Project.*`.
 """
 
 import sys
+from importlib import import_module
 
 # Compatibilidade com imports absolutos
 sys.modules.setdefault("IXC_ORM_Project", sys.modules[__name__])
-
-from dotenv import load_dotenv
-
-from .context.contextModels.areceber import AReceber
-from .context.contextModels.atendimento import Atendimento
-from .context.contextModels.caixaDeAtendimento import CaixaDeAtendimento
-from .context.contextModels.cliente import Cliente
-from .context.contextModels.contratoDoCliente import ContratoDoCliente
-from .context.contextModels.fiberClient import ClienteFibra
-from .context.contextModels.login import Login
-from .context.contextModels.serviceOrder import ServiceOrder
-
-from .context.request import Manager
-from .context.request.manager import Manager as ManagerClass
-
-from .enums.methods import Actions
-from .enums.operators import Operators
-from .enums.sortOrder import SortOrder
-
-from .models.tableModels.defaultModel import DefaultPayload
-from .models.tableModels.contratoDoClienteModel import ContratoDoClienteModel
-from .models.tableModels.clienteModel import ClientModel
-from .models.tableModels.contasAReceber import ContasAReceberModel
-from .models.tableModels.vendedorModel import VendedorModel
-
-from .models.searchUtils.gridParamModel import GridParam
-from .models.searchUtils.searchModel import SearchModule
-
-from .statemants.CRUD.select import select
-from .utils.makejson import makeJson
-
-from datetime import datetime, timedelta
-import os
-
-from .statemants.maps.mapper import Mapped
-from .interfaces.IModel import IModel
-
-from .statemants import *
-Contrato = ContratoDoCliente
 
 __all__ = [
     "Manager",
@@ -78,8 +40,55 @@ __all__ = [
     "delete",
     "insert",
     "update",
-    "select",
     "Mapped",
     "VendedorModel",
-    "IModel"
+    "IModel",
 ]
+
+
+def __getattr__(name):
+    if name == "load_dotenv":
+        from dotenv import load_dotenv
+        return load_dotenv
+    if name in {"Manager", "ManagerClass"}:
+        module = import_module(".context.request", __name__)
+        return getattr(module, name)
+    if name in {"AReceber", "Atendimento", "CaixaDeAtendimento", "Cliente", "ContratoDoCliente", "ClienteFibra", "Login", "ServiceOrder"}:
+        module = import_module(".context.contextModels", __name__)
+        return getattr(module, name)
+    if name == "Actions":
+        return getattr(import_module(".enums.methods", __name__), name)
+    if name == "Operators":
+        return getattr(import_module(".enums.operators", __name__), name)
+    if name == "SortOrder":
+        return getattr(import_module(".enums.sortOrder", __name__), name)
+    if name in {"DefaultPayload", "ContratoDoClienteModel", "ClientModel", "ContasAReceberModel", "VendedorModel"}:
+        module = import_module(".models", __name__)
+        return getattr(module, name)
+    if name in {"GridParam", "SearchModule"}:
+        module = import_module(".models.searchUtils", __name__)
+        return getattr(module, name)
+    if name in {"select", "delete", "insert", "update"}:
+        module = import_module(".statemants", __name__)
+        return getattr(module, name)
+    if name == "makeJson":
+        from .utils.makejson import makeJson
+        return makeJson
+    if name == "datetime":
+        import datetime as _dt
+        return _dt.datetime
+    if name == "timedelta":
+        import datetime as _dt
+        return _dt.timedelta
+    if name == "os":
+        import os as _os
+        return _os
+    if name == "Mapped":
+        from .statemants.maps.mapper import Mapped
+        return Mapped
+    if name == "IModel":
+        from .interfaces.IModel import IModel
+        return IModel
+    if name == "Contrato":
+        return __getattr__("ContratoDoCliente")
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

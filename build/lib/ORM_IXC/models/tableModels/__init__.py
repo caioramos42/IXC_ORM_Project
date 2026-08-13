@@ -1,31 +1,6 @@
 """Modelos de tabela da ORM IXC."""
 
-from .assuntoModel import AssuntoModel
-from .atendimentoModel import AtendimentoModel
-from .caixaDeAtendimentoModel import CaixaDeAtendimentoModel
-from .carteiraDeCobrancaModel import CarteiraDeCobrancaModel
-from .cidadeModel import CidadeModel
-from .clienteFibraModel import ClienteFibraModel
-from .clienteModel import ClientModel
-from .colaboradoresModel import ColaboradoresModel
-from .contasAReceber import ContasAReceberModel
-from .contratoDoClienteModel import ContratoDoClienteModel
-from .defaultModel import DefaultPayload, BaseModel
-from .grupoDeUsuariosModel import GrupoDeUsuariosModel
-from .loginModel import LoginModel
-from .movimentoDeProdutosModel import MovimentoDeProdutosModel
-from .patrimonioModel import PatrimonioModel
-from .planoDeVendaModel import PlanoDeVendaModel
-from .planosPorContratoModel import PlanosPorContratoModel
-from .produtosModel import ProdutosModel
-from .rastreadoresDeVeiculosModel import RastreadoresDeVeIculosModel
-from .serviceOrderModel import ServiceOrderModel
-from .tipoDeCobrancaDoContratoModel import TipoDeCobrancaDoContratoModel
-from .tipoDocumentoModel import TipoDocumentoModel
-from .transmissorModel import TransmissorModel
-from .usuariosModel import UsuariosModel
-from .veiculosModel import VeiculosModel
-from .vendedorModel import VendedorModel
+from importlib import import_module
 
 __all__ = [
     "AssuntoModel",
@@ -56,3 +31,39 @@ __all__ = [
     "VeiculosModel",
     "VendedorModel",
 ]
+
+
+def __getattr__(name):
+    module_name = {
+        "AssuntoModel": ".assuntoModel",
+        "AtendimentoModel": ".atendimentoModel",
+        "CaixaDeAtendimentoModel": ".caixaDeAtendimentoModel",
+        "CarteiraDeCobrancaModel": ".carteiraDeCobrancaModel",
+        "CidadeModel": ".cidadeModel",
+        "ClienteFibraModel": ".clienteFibraModel",
+        "ClientModel": ".clienteModel",
+        "ColaboradoresModel": ".colaboradoresModel",
+        "ContasAReceberModel": ".contasAReceber",
+        "ContratoDoClienteModel": ".contratoDoClienteModel",
+        "DefaultPayload": ".defaultModel",
+        "BaseModel": ".defaultModel",
+        "GrupoDeUsuariosModel": ".grupoDeUsuariosModel",
+        "LoginModel": ".loginModel",
+        "MovimentoDeProdutosModel": ".movimentoDeProdutosModel",
+        "PatrimonioModel": ".patrimonioModel",
+        "PlanoDeVendaModel": ".planoDeVendaModel",
+        "PlanosPorContratoModel": ".planosPorContratoModel",
+        "ProdutosModel": ".produtosModel",
+        "RastreadoresDeVeIculosModel": ".rastreadoresDeVeiculosModel",
+        "ServiceOrderModel": ".serviceOrderModel",
+        "TipoDeCobrancaDoContratoModel": ".tipoDeCobrancaDoContratoModel",
+        "TipoDocumentoModel": ".tipoDocumentoModel",
+        "TransmissorModel": ".transmissorModel",
+        "UsuariosModel": ".usuariosModel",
+        "VeiculosModel": ".veiculosModel",
+        "VendedorModel": ".vendedorModel",
+    }.get(name)
+    if module_name is not None:
+        module = import_module(module_name, __name__)
+        return getattr(module, name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

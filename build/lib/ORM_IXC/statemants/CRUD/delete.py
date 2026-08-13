@@ -1,7 +1,8 @@
 from typing import Any, List, TypeVar, Generic
 
 from ORM_IXC.enums.operators import Operators
-from ORM_IXC.interfaces import IContext, IModel
+from ORM_IXC.interfaces.IContext import IContext
+from ORM_IXC.interfaces.IModel import IModel
 from ORM_IXC.models.searchUtils.gridParamModel import GridParam
 from ORM_IXC.models.searchUtils.searchModel import SearchModule
 import requests

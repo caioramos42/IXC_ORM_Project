@@ -1,6 +1,6 @@
 from typing import Any
 
-from ORM_IXC.interfaces import IModel
+from ORM_IXC.interfaces.IModel import IModel
 
 
 class Insert:

@@ -1,5 +1,6 @@
 from ORM_IXC.enums.sortOrder import SortOrder
-from ORM_IXC.interfaces import IContext, IModel
+from ORM_IXC.interfaces.IContext import IContext
+from ORM_IXC.interfaces.IModel import IModel
 from ORM_IXC.models.searchUtils.searchModel import SearchFilter, SearchModule, SearchNode
 from ORM_IXC.enums.operators import Operators
 from typing import Iterator, TypeVar, Generic, Callable, Optional, List, Any, cast

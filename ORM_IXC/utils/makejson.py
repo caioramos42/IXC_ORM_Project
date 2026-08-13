@@ -1,7 +1,7 @@
 import json
 from collections.abc import Iterable
 
-from ORM_IXC.interfaces import IModel
+from ORM_IXC.interfaces.IModel import IModel
 
 def makeJson(fileName: str, models: IModel | list[IModel]) -> None:
     if isinstance(models, list):
