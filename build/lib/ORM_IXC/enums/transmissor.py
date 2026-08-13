@@ -1,0 +1,52 @@
+from enum import Enum
+
+
+class Fabricante_modeloEnum(Enum):
+    RADIO_UBIQUITI = 'U'
+    RADIO_MIKROTIK = 'M'
+    RADIO_INTELBRAS_ = 'I'
+    OLT_OVERTEK_EPON = 'O'
+    OLT_FIBERHOME_ = 'FH'
+    OLT_DATACOM = 'DC'
+    OLT_HUAWEI = 'HW'
+    OLT_ZTE = 'ZTE'
+    OLT_NOKIA = 'NK'
+    OLT_PARKS = 'PK'
+    OLT_FURUKAWA_ = 'FK'
+    OLT_FURUKAWA_GPON_ = 'FKG'
+    OLT_INTELBRAS_GPON = 'INB'
+    OLT_DIGISTAR = 'DIG'
+    OLT_FIBERHOME = 'FBT'
+    OLT_FURUKAWA_GPON_LIGHTDRIVE = 'FKWGL'
+    OLT_V_SOLUTION = 'VSOL'
+    OLT_RAISECOM = 'RAISE'
+    OLT_CIANET_EPON = 'CIAEPON'
+    OLT_ZYXEL_GPON = 'ZYXEL'
+    OLT_UBIQUITI_UFIBER = 'UFIBER'
+    OLT_FIBERHOME_AN6001 = 'FB6001'
+    OLT_FURUKAWA = 'FKC'
+    OLT_CIANET_GPON = 'CIAGPON'
+    OLT_ZTE_C610 = 'ZTEC610'
+    OLT_V_SOLUTION_GPON = 'VSOLGPON'
+    OLT_PHYHOME = 'PHYHOME'
+    OLT_INTELBRAS_G16 = 'INTELBRASG16'
+    OLT_2FLEX_GPON = '2FLEX'
+    OLT_INTELBRAS_EPON = 'INTELBRASEPON'
+    OLT_TP_LINK = 'TPLINK'
+    OLT_SMARTOLT = 'SMARTOLT'
+    OLT_REDE_NEUTRA = 'OLTNEUTRA'
+    OLT_THINK = 'TH'
+    OLT_TP_LINK_ = 'TPLINKP700X'
+
+class AtivoEnum(Enum):
+    SIM = 'S'
+    NAO = 'N'
+
+class Usa_vpnEnum(Enum):
+    SIM = '1'
+    NAO = '0'
+
+class Busca_potenciaEnum(Enum):
+    SIM = 'S'
+    NAO = 'N'
+
