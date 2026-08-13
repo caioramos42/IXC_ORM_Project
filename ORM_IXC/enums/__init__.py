@@ -5,6 +5,7 @@ from . import client
 from . import login
 from .methods import Actions
 from .operators import Operators
+from .setor import AtivoEnum
 from .sortOrder import SortOrder
 from . import utils
 
@@ -13,6 +14,7 @@ __all__ = [
     "login",
     "Actions",
     "Operators",
+    "AtivoEnum",
     "SortOrder",
     "utils",
 ]

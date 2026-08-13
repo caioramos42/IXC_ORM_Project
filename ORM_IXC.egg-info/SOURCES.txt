@@ -33,6 +33,7 @@ ORM_IXC/context/contextModels/produtos.py
 ORM_IXC/context/contextModels/radacct.py
 ORM_IXC/context/contextModels/rastreadoresDeVeiculos.py
 ORM_IXC/context/contextModels/serviceOrder.py
+ORM_IXC/context/contextModels/setor.py
 ORM_IXC/context/contextModels/tipoDeCobrancaDoContrato.py
 ORM_IXC/context/contextModels/tipoDocumento.py
 ORM_IXC/context/contextModels/transmissor.py
@@ -65,6 +66,7 @@ ORM_IXC/enums/planoDeVenda.py
 ORM_IXC/enums/planosPorContrato.py
 ORM_IXC/enums/produtos.py
 ORM_IXC/enums/serviceOrder.py
+ORM_IXC/enums/setor.py
 ORM_IXC/enums/sortOrder.py
 ORM_IXC/enums/tipoDeCobrancaDoContrato.py
 ORM_IXC/enums/tipoDocumento.py
@@ -104,6 +106,7 @@ ORM_IXC/models/tableModels/produtosModel.py
 ORM_IXC/models/tableModels/radacctModel.py
 ORM_IXC/models/tableModels/rastreadoresDeVeiculosModel.py
 ORM_IXC/models/tableModels/serviceOrderModel.py
+ORM_IXC/models/tableModels/setorModel.py
 ORM_IXC/models/tableModels/tipoDeCobrancaDoContratoModel.py
 ORM_IXC/models/tableModels/tipoDocumentoModel.py
 ORM_IXC/models/tableModels/transmissorModel.py

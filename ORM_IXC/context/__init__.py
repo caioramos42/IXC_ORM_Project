@@ -27,6 +27,7 @@ __all__ = [
     "Radacct",
     "RastreadoresDeVeIculos",
     "ServiceOrder",
+    "Setor",
     "TipoDeCobrancaDoContrato",
     "TipoDocumento",
     "Transmissor",
@@ -37,7 +38,7 @@ __all__ = [
 
 
 def __getattr__(name):
-    if name in {"AReceber", "Assunto", "Atendimento", "CaixaDeAtendimento", "CarteiraDeConbranca", "Cidade", "ClasseFinanceiraAnalitica", "Cliente", "Colaboradores", "ContaContabilSintetica", "ContratoDoCliente", "ClienteFibra", "GrupoDeUsuarios", "Login", "MovimentoDeProdutos", "Patrimonio", "PlanoDeVenda", "PlanosPorContrato", "Produtos", "Radacct", "RastreadoresDeVeIculos", "ServiceOrder", "TipoDeCobrancaDoContrato", "TipoDocumento", "Transmissor", "Usuarios", "Veiculos", "Vendedor"}:
+    if name in {"AReceber", "Assunto", "Atendimento", "CaixaDeAtendimento", "CarteiraDeConbranca", "Cidade", "ClasseFinanceiraAnalitica", "Cliente", "Colaboradores", "ContaContabilSintetica", "ContratoDoCliente", "ClienteFibra", "GrupoDeUsuarios", "Login", "MovimentoDeProdutos", "Patrimonio", "PlanoDeVenda", "PlanosPorContrato", "Produtos", "Radacct", "RastreadoresDeVeIculos", "ServiceOrder", "Setor", "TipoDeCobrancaDoContrato", "TipoDocumento", "Transmissor", "Usuarios", "Veiculos", "Vendedor"}:
         module = import_module(".contextModels", __name__)
         return getattr(module, name)
     if name == "CarteiraCobranca":
