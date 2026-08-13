@@ -12,19 +12,60 @@ class ServiceOrder(IContext[ServiceOrderModel, ServiceOrderModel], DefaultAction
     def __init__(self, manager: Manager):
         DefaultActions.__init__(self, ServiceOrderModel, manager)
     def closeServiceOrder(self, modelForSend: ServiceOrderModel) -> list[requests.Response]:
+        
+        class CloseServiceOrder():
+            def __init__(self,
+                            id_chamado: int,
+                            data_inicio: str,
+                            data_final: str,
+                            mensagem: str,
+                            gera_comissao: str,
+                            finaliza_processo: str,
+                            status: str,
+                            id_tecnico: str
+                            ):
+                self.id_chamado: int = id_chamado
+                self.data_inicio: str = data_inicio
+                self.data_final: str = data_final
+                self.mensagem: str = mensagem
+                self.gera_comissao: str = gera_comissao
+                self.finaliza_processo: str = finaliza_processo
+                self.status: str = status
+                self.id_tecnico: str = id_tecnico
+                
+            def to_dict(self) -> dict:
+                def serialize(value) -> str:
+                    if value is None:
+                        return ''
+                    raw = getattr(value, 'value', value)
+                    return '' if raw is None else str(raw)
+
+                data = {
+                    'id_chamado': str(self.id_chamado),
+                    'data_inicio': self.data_inicio,
+                    'data_final': self.data_final,
+                    'mensagem': self.mensagem,
+                    'gera_comissao': self.gera_comissao,
+                    'finaliza_processo': self.finaliza_processo,
+                    'status': self.status,
+                    'id_tecnico': self.id_tecnico
+                }
+                return {key: serialize(value) for key, value in data.items()}
+            
+        
         data_inicio = self.SearchById(modelForSend.id.value)[0].data_inicio # type: ignore
         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
-        redefinedModel = {
-            'id_chamado': modelForSend.id,
-            'data_inicio': data_inicio,
-            'data_final': now,
-            'mensagem': modelForSend.mensagem,
-            'gera_comissao': modelForSend.gera_comissao,
-            'finaliza_processo': 'S',
-            'status': 'F',
-            'id_tecnico': modelForSend.id_tecnico
-        }
+        redefinedModel = CloseServiceOrder(
+            modelForSend.id,
+            data_inicio,
+            now,
+            str(modelForSend.mensagem),
+            modelForSend.gera_comissao,
+            'S',
+            'F',
+            modelForSend.id_tecnico
+        )
         return super()._MakePost(redefinedModel) # type: ignore
     
     def Add(self, obj: ServiceOrderModel) -> Any:

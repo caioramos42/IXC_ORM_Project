@@ -8,10 +8,10 @@ from ORM_IXC.models.tableModels.defaultModel import BaseModel
 
 @MetaModels
 class VendedorModel(IModelWithId, BaseModel):
-    id: Mapped[Optional[int]]
-    nome :Mapped[str]
-    comissao :Mapped[str]
-    id_cidade :Mapped[int]
+    id: Mapped[Optional[int]] = mapped_field('')
+    nome :Mapped[str] = mapped_field('')
+    comissao :Mapped[str] = mapped_field('')
+    id_cidade :Mapped[int] = mapped_field('')
     comissao_perc_recebimento :Mapped[Optional[str]] = mapped_field('')
     comissao_v :Mapped[Optional[str]] = mapped_field('')
     endereco :Mapped[Optional[str]] = mapped_field('')

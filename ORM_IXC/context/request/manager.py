@@ -77,6 +77,7 @@ class Manager:
                 headers=self.header,
                 verify=False
             )
+
             if "<div" in response.text:
                 raise(ValueError(f"Erro ao processar request: {response.text.split(">")[1].replace("</div","")}"))
 
@@ -100,7 +101,6 @@ class Manager:
                 break
 
             page += 1
-
         return converted
     def _iter_internal(self, request: SearchModule, page_size: int):
         hostBefore = self.host

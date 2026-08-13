@@ -376,11 +376,12 @@ class Field(Generic[T]):
                 raise ValueError(
                     "É necessário informar o campo que será utilizado no IN"
                 )
+            if len(result) == 0:
+                return SearchModule(self.name, "-1", Operators.IN)
             if isinstance(field, Field):
                 field = field.name
             ids_str = ", ".join(str(getattr(row, field)) for row in result)
             return SearchModule(self.name, ids_str, Operators.IN)
-
         if not ids:
             raise ValueError("A lista para o operador IN não pode estar vazia")
         ids_str = ", ".join(str(id) for id in ids)

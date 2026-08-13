@@ -9,10 +9,29 @@ import requests
 
 class Login(IContext[LoginModel, LoginModel], DefaultActions):
     def __init__(self, manager: Manager):
-        DefaultActions.__init__(self, LoginModel, manager)
+        DefaultActions.__init__(self, LoginModel, manager)         
     def Add(self, obj: LoginModel) -> requests.Response:
         return self._MakePost(obj)
+    def _desactivateLogin(self):
+        class Desactivation():
+            def __init__(self, id):
+                self.id = id
+            def to_dict(self) -> dict:
+                def serialize(value) -> str:
+                    if value is None:
+                        return ''
+                    raw = getattr(value, 'value', value)
+                    return '' if raw is None else str(raw)
+
+                data = {
+                    'id': str(self.id),
+                }
+                return {key: serialize(value) for key, value in data.items()}
+                
     def Update(self, obj: LoginModel, search: SearchModule) -> list[requests.Response]:
+        if obj.ativo == "N":
+            return self._desactivateLogin(obj.id.value)
+                
         return self._MakeUpdate(obj, search)
     def Delete(self, search: SearchModule) -> List[requests.Response]:
         return super()._MakeDelete(search)
